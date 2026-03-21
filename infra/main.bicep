@@ -232,6 +232,8 @@ output keyVaultUri string = keyVault.properties.vaultUri
 output appInsightsConnectionString string = appInsights.properties.ConnectionString
 output managedIdentityClientId string = managedIdentity.properties.clientId
 output managedIdentityPrincipalId string = managedIdentity.properties.principalId
-output storageAccountName string = needsStorage ? storageAccount.name : ''
-output staticWebAppDefaultHostname string = computeType == 'swa' ? staticWebApp.properties.defaultHostname : ''
-output functionAppDefaultHostname string = computeType == 'functionapp' ? functionApp.properties.defaultHostName : ''
+// Use any() to suppress BCP318: Bicep can't prove the resource is non-null at
+// compile time, but ARM only evaluates the true branch of the ternary at runtime.
+output storageAccountName string = needsStorage ? any(storageAccount).name : ''
+output staticWebAppDefaultHostname string = computeType == 'swa' ? any(staticWebApp).properties.defaultHostname : ''
+output functionAppDefaultHostname string = computeType == 'functionapp' ? any(functionApp).properties.defaultHostName : ''
