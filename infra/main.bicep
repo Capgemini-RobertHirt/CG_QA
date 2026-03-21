@@ -4,8 +4,15 @@
 @description('Application name — used as prefix for all resources.')
 param appName string
 
-@description('Azure region for all resources.')
+@description('Azure region for non-SWA resources (Key Vault, App Insights, Storage, Managed Identity).')
 param location string = resourceGroup().location
+
+@description('''
+Azure region for the Static Web App control plane.
+SWA is only available in: westus2, centralus, eastus2, westeurope, eastasia.
+All other resources still deploy to `location`. SWA content is served globally via CDN.
+''')
+param swaLocation string = 'westeurope'
 
 @description('Compute type: swa = Static Web App + integrated Functions; functionapp = standalone Consumption-plan Function App.')
 @allowed(['swa', 'functionapp'])
@@ -134,9 +141,12 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 }
 
 // ── Static Web App (swa mode) ─────────────────────────────────────────────────
+// Note: SWA control plane deploys to swaLocation (default: westeurope) regardless
+// of the primary region, because SWA is not available in switzerlandnorth.
+// Content is distributed globally via Azure CDN.
 resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = if (computeType == 'swa') {
   name: 'swa-${prefix}'
-  location: location
+  location: swaLocation
   tags: tags
   sku: {
     name: 'Free'
