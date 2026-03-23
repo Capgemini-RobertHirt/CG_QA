@@ -26,7 +26,8 @@ param environment string = 'production'
 
 // ── Derived names ─────────────────────────────────────────────────────────────
 var prefix = 'fh-${appName}'
-var keyVaultName = 'kv-${prefix}'
+// Key Vault names: 3-24 chars, alphanumeric + hyphens, no consecutive hyphens
+var keyVaultName = take('kv-${prefix}', 24)
 var logAnalyticsName = 'log-${prefix}'
 var appInsightsName = 'appi-${prefix}'
 var identityName = 'id-${prefix}'
@@ -141,10 +142,12 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 }
 
 // ── Static Web App (swa mode) ─────────────────────────────────────────────────
-// Note: SWA control plane deploys to swaLocation (default: westeurope) regardless
-// of the primary region, because SWA is not available in switzerlandnorth.
-// Content is distributed globally via Azure CDN.
-resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = if (computeType == 'swa') {
+// Note: SWA control plane deploys to swaLocation (default: westeurope) because
+// Microsoft.Web/staticSites is not available in switzerlandnorth.
+// Supported regions: westus2, centralus, eastus2, westeurope, eastasia.
+// Content is distributed globally via Azure CDN regardless of swaLocation.
+// API version 2022-03-01 used — 2023-12-01 incorrectly rejects the 'Free' SKU.
+resource staticWebApp 'Microsoft.Web/staticSites@2022-03-01' = if (computeType == 'swa') {
   name: 'swa-${prefix}'
   location: swaLocation
   tags: tags
