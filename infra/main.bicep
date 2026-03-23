@@ -142,11 +142,15 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 }
 
 // ── Static Web App (swa mode) ─────────────────────────────────────────────────
-// Note: SWA control plane deploys to swaLocation (default: westeurope) because
-// Microsoft.Web/staticSites is not available in switzerlandnorth.
-// Supported regions: westus2, centralus, eastus2, westeurope, eastasia.
-// Content is distributed globally via Azure CDN regardless of swaLocation.
-// API version 2022-03-01 used — 2023-12-01 incorrectly rejects the 'Free' SKU.
+// Notes:
+//   - SWA control plane deploys to swaLocation (default: westeurope).
+//     Microsoft.Web/staticSites is NOT available in switzerlandnorth.
+//   - Managed Identity is NOT attached here: SWA Free tier does not support it.
+//     The identity is still provisioned; after deployment inject AZURE_CLIENT_ID
+//     via: az staticwebapp appsettings set --name swa-fh-<appName> \
+//             --resource-group <rg> --setting-names AZURE_CLIENT_ID=<clientId>
+//     To attach the identity directly, upgrade the SWA SKU to Standard.
+//   - API version 2022-03-01 used: 2023-12-01 incorrectly rejects the Free SKU.
 resource staticWebApp 'Microsoft.Web/staticSites@2022-03-01' = if (computeType == 'swa') {
   name: 'swa-${prefix}'
   location: swaLocation
@@ -154,12 +158,6 @@ resource staticWebApp 'Microsoft.Web/staticSites@2022-03-01' = if (computeType =
   sku: {
     name: 'Free'
     tier: 'Free'
-  }
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
   }
   properties: {
     stagingEnvironmentPolicy: 'Enabled'
