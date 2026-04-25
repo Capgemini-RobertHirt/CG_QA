@@ -24,6 +24,9 @@ param includeIdeasBoard bool = true
 @description('Environment tag applied to all resources.')
 param environment string = 'production'
 
+@description('Configure RBAC role assignments (requires Owner or User Access Administrator permissions).')
+param configureRbac bool = false
+
 // ── Derived names ─────────────────────────────────────────────────────────────
 var prefix = 'fh-${appName}'
 // Key Vault names: 3-24 chars, alphanumeric + hyphens, no consecutive hyphens
@@ -93,7 +96,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 
 // Key Vault Secrets User role — lets the Managed Identity read secrets
 var kvSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
-resource kvRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource kvRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (configureRbac) {
   name: guid(keyVault.id, managedIdentity.id, kvSecretsUserRoleId)
   scope: keyVault
   properties: {
@@ -131,7 +134,7 @@ resource ideasTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023
 
 // Storage Table Data Contributor — lets the Managed Identity read/write table rows
 var storageTableContributorRoleId = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
-resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (needsStorage) {
+resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (needsStorage && configureRbac) {
   name: guid(storageAccount.id, managedIdentity.id, storageTableContributorRoleId)
   scope: storageAccount
   properties: {
@@ -299,7 +302,7 @@ resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
 
 // Cosmos DB Data Contributor role — let Managed Identity access Cosmos DB
 var cosmosDbDataContributorRoleId = '00000000-0000-0000-0000-000000000002'
-resource cosmosDbRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource cosmosDbRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (configureRbac) {
   name: guid(cosmosDbAccount.id, managedIdentity.id, cosmosDbDataContributorRoleId)
   scope: cosmosDbAccount
   properties: {
