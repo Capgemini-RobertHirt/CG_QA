@@ -236,7 +236,78 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = if (computeType == 'func
     }
   }
 }
+// ── Cosmos DB (for quality templates and analysis results) ────────────────────
+var cosmosDbName = 'cosmosdb-${prefix}'
+var cosmosDatabaseName = 'cg-qa'
+var cosmosContainerName = 'quality-templates'
 
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-11-15' = {
+  name: cosmosDbName
+  location: location
+  tags: tags
+  kind: 'GlobalDocumentDB'
+  properties: {
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+    }
+    locations: [
+      {
+        locationName: location
+        failoverPriority: 0
+        isZoneRedundant: false
+      }
+    ]
+    capabilities: [
+      {
+        name: 'EnableServerless'
+      }
+    ]
+  }
+}
+
+resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-11-15' = {
+  parent: cosmosDbAccount
+  name: cosmosDatabaseName
+  properties: {
+    resource: {
+      id: cosmosDatabaseName
+    }
+  }
+}
+
+resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-11-15' = {
+  parent: cosmosDb
+  name: cosmosContainerName
+  properties: {
+    resource: {
+      id: cosmosContainerName
+      partitionKey: {
+        paths: ['/entityType']
+      }
+      indexingPolicy: {
+        indexingMode: 'consistent'
+        includedPaths: [
+          {
+            path: '/*'
+          }
+        ]
+      }
+    }
+  }
+}
+
+// Cosmos DB Data Contributor role — let Managed Identity access Cosmos DB
+var cosmosDbDataContributorRoleId = '00000000-0000-0000-0000-000000000002'
+resource cosmosDbRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(cosmosDbAccount.id, managedIdentity.id, cosmosDbDataContributorRoleId)
+  scope: cosmosDbAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cosmosDbDataContributorRoleId)
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
 // ── Outputs ───────────────────────────────────────────────────────────────────
 output keyVaultName string = keyVault.name
 output keyVaultUri string = keyVault.properties.vaultUri
@@ -248,3 +319,6 @@ output managedIdentityPrincipalId string = managedIdentity.properties.principalI
 output storageAccountName string = needsStorage ? any(storageAccount).name : ''
 output staticWebAppDefaultHostname string = computeType == 'swa' ? any(staticWebApp).properties.defaultHostname : ''
 output functionAppDefaultHostname string = computeType == 'functionapp' ? any(functionApp).properties.defaultHostName : ''
+output cosmosDbEndpoint string = cosmosDbAccount.properties.documentEndpoint
+output cosmosDatabaseName string = cosmosDatabaseName
+output cosmosContainerName string = cosmosContainerName

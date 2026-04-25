@@ -5,7 +5,12 @@
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "KEY_VAULT_URI": "https://kv-fh-{{APP_NAME}}.vault.azure.net/",
     "AZURE_CLIENT_ID": "<managed-identity-client-id-from-bicep-output>",
-    "APPLICATIONINSIGHTS_CONNECTION_STRING": "<from-bicep-output-or-azure-portal>"
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "<from-bicep-output-or-azure-portal>",
+    "COSMOS_DB_ENDPOINT": "https://cosmosdb-fh-{{APP_NAME}}.documents.azure.com:443/",
+    "COSMOS_DB_KEY": "<primary-key-from-azure-portal-for-local-dev>",
+    "COSMOS_DB_NAME": "cg-qa",
+    "COSMOS_CONTAINER_ID": "quality-templates",
+    "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<storage-account>;AccountKey=<storage-key>;EndpointSuffix=core.windows.net"
   },
   "Host": {
     "CORS": "http://localhost:5173",

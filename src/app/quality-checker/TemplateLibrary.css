@@ -1,0 +1,61 @@
+/* Template Library Styles */
+.template-library {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.template-card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.template-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #0066cc;
+}
+
+.template-card.selected {
+  background-color: #f0f0f0;
+  border-color: #0066cc;
+}
+
+.template-detail {
+  margin-top: 2rem;
+  border: 1px solid #0066cc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.template-detail h2 {
+  margin-top: 0;
+  color: #0066cc;
+}
+
+.template-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.template-sections h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.template-sections ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+}

@@ -1,0 +1,226 @@
+{
+  "entity_type": "whitepaper",
+  "document_types": {
+    "whitepaper": {},
+    "point_of_view": {},
+    "research_brief": {},
+    "industry_analysis": {},
+    "trend_report": {}
+  },
+
+  "global_rules": {
+    "severity_levels": ["blocker", "critical", "major", "minor", "advisory"],
+    "scoring": {
+      "weights": {
+        "structure": 0.25,
+        "design": 0.35,
+        "compliance": 0.20,
+        "business_context": 0.20
+      }
+    }
+  },
+
+  "structure": {
+    "sections": {
+      "required": [
+        "title_page",
+        "executive_summary",
+        "introduction",
+        "background_context",
+        "problem_statement",
+        "research_methodology",
+        "findings_analysis",
+        "recommendations",
+        "conclusion",
+        "references"
+      ],
+      "optional": [
+        "appendix",
+        "case_studies",
+        "glossary",
+        "acknowledgments"
+      ],
+      "ordering_enforced": true,
+      "page_break_after": [
+        "executive_summary",
+        "findings_analysis"
+      ]
+    },
+    "toc": {
+      "required": true,
+      "max_depth": 3
+    },
+    "cross_references": {
+      "figures_numbered": true,
+      "tables_numbered": true
+    }
+  },
+
+  "design": {
+    "fonts": {
+      "title": {
+        "allowed": ["Calibri", "Segoe UI"],
+        "size": { "min": 20, "max": 28 },
+        "weight": "bold"
+      },
+      "heading": {
+        "allowed": ["Calibri", "Segoe UI"],
+        "size": { "min": 14, "max": 18 },
+        "weight": ["bold", "semibold"]
+      },
+      "body": {
+        "allowed": ["Calibri", "Segoe UI"],
+        "size": { "min": 10, "max": 12 },
+        "weight": "regular"
+      }
+    },
+
+    "colors": {
+      "palette_required": true,
+      "primary": ["#003366", "#0066CC"],
+      "secondary": ["#FFFFFF", "#F5F5F5"],
+      "text": ["#000000", "#1F1F1F"],
+      "accent": ["#FF6B35"],
+      "max_colors_per_page": 5
+    },
+
+    "grid": {
+      "type": "column_grid",
+      "columns": 12,
+      "gutter": 0.25,
+      "baseline_grid": true,
+      "snap_tolerance_px": 4
+    },
+
+    "alignment": {
+      "enforce_horizontal": true,
+      "enforce_vertical": true,
+      "justification_allowed": ["left"],
+      "nearly_aligned_threshold_px": 6
+    },
+
+    "spacing": {
+      "line_spacing": { "min": 1.1, "max": 1.2 },
+      "paragraph_spacing_px": { "before": 6, "after": 6 },
+      "consistent_spacing_required": true
+    },
+
+    "master_usage": {
+      "required": true,
+      "allow_local_overrides": false
+    }
+  },
+
+  "components": {
+    "repeated_components": {
+      "resource_card": {
+        "required_alignment": {
+          "image_anchor": "top_left",
+          "text_anchor": "left",
+          "consistent_across_document": true
+        },
+        "image": {
+          "same_size_required": true,
+          "same_position_required": true,
+          "allowed_aspect_ratio": "square"
+        },
+        "icons_flags": {
+          "position": "top_right",
+          "consistent_position": true
+        }
+      },
+      "timeline_block": {
+        "node_alignment": "horizontal",
+        "equal_spacing_required": true
+      }
+    }
+  },
+
+  "images": {
+    "min_resolution_dpi": 150,
+    "max_width_percent": 90,
+    "captions": {
+      "required": true,
+      "position": "below"
+    },
+    "alignment_to_grid_required": true
+  },
+
+  "tables": {
+    "header_required": true,
+    "header_style": "bold",
+    "border_style": "light_grid",
+    "row_alignment_consistent": true
+  },
+
+  "header_footer": {
+    "required": true,
+    "locked": true,
+    "footer_contains": [
+      "page_number",
+      "company_name",
+      "confidentiality_level",
+      "document_type"
+    ],
+    "date_required": true
+  },
+
+  "compliance": {
+    "legal_disclaimer": {
+      "required": true,
+      "position": "front",
+      "non_editable_text": true
+    },
+    "ip_usage": {
+      "logo_sources_whitelisted": true,
+      "third_party_logos_disallowed": true
+    },
+    "confidentiality_level": {
+      "allowed": ["company_confidential", "client_confidential"],
+      "must_match_document_type": true
+    }
+  },
+
+  "business_context": {
+    "client_specificity": {
+      "client_name_required": false,
+      "industry_context_required": true,
+      "generic_phrases_penalized": true
+    },
+    "governance_clarity": {
+      "roles_named": true,
+      "decision_authority_explicit": true
+    },
+    "value_logic": {
+      "objectives_linked_to_outcomes": true,
+      "metrics_defined": true
+    },
+    "consistency_checks": {
+      "terminology_consistent": true,
+      "numbers_consistent_across_sections": true
+    }
+  },
+
+  "anti_patterns": {
+    "design": [
+      "almost_aligned_elements",
+      "inconsistent_component_variants",
+      "drifting_margins",
+      "manual_font_overrides"
+    ],
+    "content": [
+      "unsupported_claims",
+      "missing_citations",
+      "editorial_bias",
+      "marketing_fluff",
+      "unsubstantiated_research"
+    ]
+  },
+
+  "output": {
+    "per_dimension_scores": true,
+    "annotated_findings": true,
+    "heatmap_support": true,
+    "explainability_required": true
+  }
+}

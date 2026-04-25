@@ -1,5 +1,5 @@
 {
-  "name": "{{APP_NAME}}",
+  "name": "cg-qa",
   "version": "0.0.1",
   "private": true,
   "scripts": {

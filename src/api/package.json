@@ -1,5 +1,5 @@
 {
-  "name": "{{APP_NAME}}-api",
+  "name": "cg-qa-api",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,6 +9,9 @@
   "dependencies": {
     "@azure/identity": "^4.4.1",
     "@azure/keyvault-secrets": "^4.8.0",
-    "@azure/data-tables": "^13.2.2"
+    "@azure/data-tables": "^13.2.2",
+    "@azure/cosmos": "^4.0.0",
+    "@azure/storage-blob": "^12.17.0",
+    "uuid": "^9.0.0"
   }
 }
