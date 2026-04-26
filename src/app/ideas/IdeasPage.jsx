@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 const STATUS_COLORS = {
   Submitted: '#6366f1',
@@ -39,6 +40,21 @@ function IdeaCard({ idea }) {
       </div>
     </div>
   )
+}
+
+IdeaCard.propTypes = {
+  idea: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    category: PropTypes.string,
+    submittedAt: PropTypes.string.isRequired,
+  }).isRequired,
+}
+
+IdeaCard.defaultProps = {
+  description: null,
+  category: null,
 }
 
 function SubmitForm({ onSubmitted }) {
@@ -120,6 +136,10 @@ function SubmitForm({ onSubmitted }) {
       </button>
     </form>
   )
+}
+
+SubmitForm.propTypes = {
+  onSubmitted: PropTypes.func.isRequired,
 }
 
 export default function IdeasPage() {

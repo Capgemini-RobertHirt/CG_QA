@@ -100,13 +100,13 @@ export default function TemplateLibrary() {
           <div style={{ marginTop: '1rem' }}>
             <h4>Design Standards</h4>
             <p>
-              <strong>Fonts:</strong> {template.design?.fonts?.body?.allowed?.join(', ') || 'N/A'}
+              <strong>Fonts:</strong> {selectedTemplate.design?.fonts?.body?.allowed?.join(', ') || 'N/A'}
             </p>
             <p>
-              <strong>Color Palette:</strong> {template.design?.colors?.primary?.join(', ') || 'N/A'}
+              <strong>Color Palette:</strong> {selectedTemplate.design?.colors?.primary?.join(', ') || 'N/A'}
             </p>
             <p>
-              <strong>Grid System:</strong> {template.design?.grid?.columns || 'N/A'} columns
+              <strong>Grid System:</strong> {selectedTemplate.design?.grid?.columns || 'N/A'} columns
             </p>
           </div>
         </div>
