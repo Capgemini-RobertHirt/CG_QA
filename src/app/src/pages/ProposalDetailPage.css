@@ -1,0 +1,21 @@
+.proposal-detail-page {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.proposal-detail-page button {
+  margin-bottom: 20px;
+}
+
+.proposal-details {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .proposal-details {
+    padding: 15px;
+  }
+}

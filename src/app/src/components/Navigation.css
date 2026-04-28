@@ -1,0 +1,132 @@
+.navigation {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left {
+  flex: 1;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0;
+}
+
+.nav-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.nav-center button {
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.nav-center button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 15px;
+}
+
+.language-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.language-buttons button {
+  padding: 6px 10px;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid white;
+  font-size: 12px;
+}
+
+.language-buttons button.active {
+  background-color: white;
+  color: #667eea;
+}
+
+.user-info {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.logout-button {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 1px solid white;
+  padding: 8px 12px;
+}
+
+.logout-button:hover {
+  background-color: white;
+  color: #667eea;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navigation {
+    flex-wrap: wrap;
+  }
+
+  .nav-center {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-center.open {
+    display: flex;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+  }
+
+  .user-info {
+    width: 100%;
+  }
+}

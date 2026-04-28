@@ -1,0 +1,50 @@
+{
+  "common": {
+    "appName": "CG Qualitätsprüfer",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "rememberMe": "Passwort speichern",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Haben Sie kein Konto?",
+    "signUp": "Anmelden",
+    "loginFailed": "Anmeldung fehlgeschlagen",
+    "invalidCredentials": "Ungültiger Benutzername oder Passwort",
+    "demo": "Demo"
+  },
+  "pages": {
+    "home": "Startseite",
+    "admin": "Admin",
+    "history": "Verlauf",
+    "logout": "Abmelden"
+  },
+  "proposals": {
+    "myProposals": "Meine Vorschläge",
+    "uploadDocument": "Dokument Hochladen",
+    "proposalTitle": "Vorschlag",
+    "status": "Status",
+    "quality": "Qualität",
+    "issues": "Probleme",
+    "noProposals": "Keine Vorschläge gefunden",
+    "delete": "Vorschlag Löschen",
+    "view": "Details Anzeigen"
+  },
+  "templates": {
+    "templates": "Vorlagen",
+    "createTemplate": "Vorlage Erstellen",
+    "editTemplate": "Vorlage Bearbeiten",
+    "deleteTemplate": "Vorlage Löschen",
+    "templateName": "Vorlagenname",
+    "templateType": "Vorlagentyp",
+    "configuration": "Konfiguration"
+  }
+}

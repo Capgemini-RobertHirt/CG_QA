@@ -1,0 +1,103 @@
+.document-upload {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.drag-area {
+  border: 2px dashed #3498db;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+}
+
+.drag-area:hover {
+  background-color: #f0f8ff;
+}
+
+.drag-area.dragging {
+  border-color: #27ae60;
+  background-color: #e8f5e9;
+}
+
+.drag-area p {
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.file-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.file-button:hover {
+  background-color: #2980b9;
+}
+
+.selected-file {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+}
+
+.selected-file p {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.selected-file select {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.selected-file button {
+  width: 100%;
+  padding: 12px;
+  background-color: #27ae60;
+}
+
+.selected-file button:hover {
+  background-color: #229954;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .document-upload {
+    padding: 15px;
+  }
+
+  .drag-area {
+    padding: 30px;
+  }
+}

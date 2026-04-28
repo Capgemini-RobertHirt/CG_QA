@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     // Proxy /api/* to local Functions runtime in dev
     proxy: {
-      '/api': 'http://localhost:7071',
+      '/api': 'http://localhost:7072',
     },
   },
 })

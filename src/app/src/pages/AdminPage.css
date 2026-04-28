@@ -1,0 +1,15 @@
+.admin-page {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.admin-page h1 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .admin-page h1 {
+    font-size: 22px;
+  }
+}

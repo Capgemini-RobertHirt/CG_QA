@@ -1,0 +1,88 @@
+.proposals-list {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #ecf0f1;
+}
+
+th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #bdc3c7;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.badge.pending {
+  background-color: #f39c12;
+}
+
+.badge.analyzing {
+  background-color: #3498db;
+}
+
+.badge.completed {
+  background-color: #27ae60;
+}
+
+.badge.error {
+  background-color: #e74c3c;
+}
+
+button {
+  padding: 8px 12px;
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+button.delete {
+  background-color: #e74c3c;
+}
+
+button.delete:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .proposals-list {
+    padding: 15px;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  button {
+    padding: 6px 8px;
+  }
+}

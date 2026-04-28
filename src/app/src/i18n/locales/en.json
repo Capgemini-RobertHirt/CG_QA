@@ -1,0 +1,50 @@
+{
+  "common": {
+    "appName": "CG Quality Checker",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "loginFailed": "Login failed",
+    "invalidCredentials": "Invalid username or password",
+    "demo": "Demo"
+  },
+  "pages": {
+    "home": "Home",
+    "admin": "Admin",
+    "history": "History",
+    "logout": "Logout"
+  },
+  "proposals": {
+    "myProposals": "My Proposals",
+    "uploadDocument": "Upload Document",
+    "proposalTitle": "Proposal",
+    "status": "Status",
+    "quality": "Quality",
+    "issues": "Issues",
+    "noProposals": "No proposals found",
+    "delete": "Delete Proposal",
+    "view": "View Details"
+  },
+  "templates": {
+    "templates": "Templates",
+    "createTemplate": "Create Template",
+    "editTemplate": "Edit Template",
+    "deleteTemplate": "Delete Template",
+    "templateName": "Template Name",
+    "templateType": "Template Type",
+    "configuration": "Configuration"
+  }
+}

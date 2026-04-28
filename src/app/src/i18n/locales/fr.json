@@ -1,0 +1,50 @@
+{
+  "common": {
+    "appName": "Vérificateur de Qualité CG",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "login": "Connexion",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié?",
+    "noAccount": "Vous n'avez pas de compte?",
+    "signUp": "S'inscrire",
+    "loginFailed": "Connexion échouée",
+    "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
+    "demo": "Démo"
+  },
+  "pages": {
+    "home": "Accueil",
+    "admin": "Admin",
+    "history": "Historique",
+    "logout": "Déconnexion"
+  },
+  "proposals": {
+    "myProposals": "Mes Propositions",
+    "uploadDocument": "Télécharger un Document",
+    "proposalTitle": "Proposition",
+    "status": "Statut",
+    "quality": "Qualité",
+    "issues": "Problèmes",
+    "noProposals": "Aucune proposition trouvée",
+    "delete": "Supprimer la Proposition",
+    "view": "Voir les Détails"
+  },
+  "templates": {
+    "templates": "Modèles",
+    "createTemplate": "Créer un Modèle",
+    "editTemplate": "Modifier le Modèle",
+    "deleteTemplate": "Supprimer le Modèle",
+    "templateName": "Nom du Modèle",
+    "templateType": "Type de Modèle",
+    "configuration": "Configuration"
+  }
+}
