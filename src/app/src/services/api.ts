@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import axios from 'axios';
 
 const apiClient = axios.create({
@@ -51,12 +50,6 @@ export const api = {
 };
 
 export default apiClient;
-=======
-/**
- * API client for frontend communication with Azure Function backend.
- */
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:7071/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('access_token');

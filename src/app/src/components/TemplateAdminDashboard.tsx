@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import TemplateConfigurationEditor from './TemplateConfigurationEditor';
 import { useTranslation } from 'react-i18next';
