@@ -38,4 +38,5 @@ function ProposalDetailPage() {
   );
 }
 
-export default ProposalDetailPage;
+export default ProposalDetailPage;
+
