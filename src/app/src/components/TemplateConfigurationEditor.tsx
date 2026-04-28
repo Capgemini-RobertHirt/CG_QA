@@ -110,12 +110,7 @@ function TemplateConfigurationEditor({ template, onClose }: TemplateConfiguratio
 }
 
 export default TemplateConfigurationEditor;
-=======
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import './TemplateConfigurationEditor.css';
 
-interface Template {
   id?: string;
   name: string;
   type: string;
@@ -277,4 +272,3 @@ export default function TemplateConfigurationEditor({
     </div>
   );
 }
->>>>>>> de4b7e3382df4cc4391d09aa4f1bc027144811a3

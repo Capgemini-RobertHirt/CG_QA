@@ -20,4 +20,3 @@ i18n
   });
 
 export default i18n;
->>>>>>> de4b7e3382df4cc4391d09aa4f1bc027144811a3

@@ -51,53 +51,6 @@ export const api = {
 
 export default apiClient;
 
-function getAuthHeaders() {
-  const token = localStorage.getItem('access_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
-  };
-}
-
-// Auth endpoints
-export const authAPI = {
-  login: async (username: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    if (!response.ok) throw new Error('Login failed');
-    return response.json();
-  },
-
-  logout: async () => {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error('Logout failed');
-    return response.json();
-  },
-
-  getCurrentUser: async () => {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error('Failed to fetch user');
-    return response.json();
-  }
-};
-
-// Proposals endpoints
-export const proposalsAPI = {
-  list: async () => {
-    const response = await fetch(`${API_BASE_URL}/proposals`, {
-      headers: getAuthHeaders()
-    });
-    if (!response.ok) throw new Error('Failed to fetch proposals');
-    return response.json();
-  },
 
   get: async (id: string) => {
     const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
@@ -211,4 +164,3 @@ export const ideasAPI = {
     return response.json();
   }
 };
->>>>>>> de4b7e3382df4cc4391d09aa4f1bc027144811a3

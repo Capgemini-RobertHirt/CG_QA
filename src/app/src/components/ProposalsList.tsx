@@ -71,13 +71,7 @@ function ProposalsList() {
 }
 
 export default ProposalsList;
-=======
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { proposalsAPI } from '../services/api';
-import './ProposalsList.css';
 
-interface Proposal {
   id: string;
   filename: string;
   status: 'pending' | 'analyzing' | 'completed' | 'error';
@@ -224,4 +218,3 @@ export default function ProposalsList({ refreshTrigger = 0 }: ProposalsListProps
     </div>
   );
 }
->>>>>>> de4b7e3382df4cc4391d09aa4f1bc027144811a3

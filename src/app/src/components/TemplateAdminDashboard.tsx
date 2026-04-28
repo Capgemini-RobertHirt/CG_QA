@@ -85,23 +85,6 @@ function TemplateAdminDashboard() {
 }
 
 export default TemplateAdminDashboard;
-=======
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { templatesAPI } from '../services/api';
-import TemplateConfigurationEditor from './TemplateConfigurationEditor';
-import './TemplateAdminDashboard.css';
-
-interface Template {
-  id: string;
-  name: string;
-  type: string;
-  config: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export default function TemplateAdminDashboard() {
   const { t } = useTranslation();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(false);
@@ -218,4 +201,3 @@ export default function TemplateAdminDashboard() {
     </div>
   );
 }
->>>>>>> de4b7e3382df4cc4391d09aa4f1bc027144811a3
