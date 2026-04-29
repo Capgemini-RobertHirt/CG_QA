@@ -6,11 +6,19 @@ import './TemplateAdminDashboard.css';
 
 interface Template {
   id?: string;
-  name: string;
-  type: string;
+  name?: string;
+  type?: string;
+  entity_type?: string;
   config?: Record<string, any>;
+  global_rules?: Record<string, any>;
+  structure?: Record<string, any>;
+  design?: Record<string, any>;
+  document_types?: Record<string, any>;
   createdAt?: string;
   updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
 }
 
 function TemplateAdminDashboard() {
@@ -44,34 +52,59 @@ function TemplateAdminDashboard() {
   const loadTemplates = async () => {
     try {
       setLoading(true);
-      const response = await api.getTemplateTypes();
+      // Try to get full template objects first (which includes structure/config)
+      let response;
+      try {
+        response = await api.getTemplates();
+      } catch (error) {
+        // Fallback to getTemplateTypes if getTemplates fails
+        response = await api.getTemplateTypes();
+      }
       
       // Handle both mock API (returns available_types as strings) and real API (returns template objects)
       let loadedTemplates: Template[] = [];
       
       if (Array.isArray(response.data.available_types)) {
-        // Mock API or real API returning entity types
+        // API returning entity types
         loadedTemplates = response.data.available_types.map((type: any) => {
           // If it's a string, convert to template object
           if (typeof type === 'string') {
             return {
-              id: `template-${type}`,
+              id: `template-baseline-${type}`,
               name: type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1),
               type: type,
+              entity_type: type,
               config: {},
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
           }
-          return type;
+          return {
+            id: type.id || `template-${type.entity_type}`,
+            name: type.name || type.entity_type?.replace(/_/g, ' '),
+            type: type.entity_type || type.type,
+            entity_type: type.entity_type || type.type,
+            config: type.config || type.global_rules?.custom_config || {},
+            structure: type.structure,
+            document_types: type.document_types,
+            global_rules: type.global_rules,
+            design: type.design,
+            createdAt: type.created_at || type.createdAt,
+            updatedAt: type.updated_at || type.updatedAt,
+          };
         });
       } else if (Array.isArray(response.data)) {
-        // Real API returning template objects
+        // Real API or mock API returning template objects
         loadedTemplates = response.data.map((template: any) => ({
           id: template.id || `template-${template.entity_type}`,
           name: template.name || template.global_rules?.template_name || template.entity_type,
           type: template.entity_type || template.type,
+          entity_type: template.entity_type || template.type,
           config: template.global_rules?.custom_config || template.config || {},
+          structure: template.structure,
+          document_types: template.document_types,
+          global_rules: template.global_rules,
+          design: template.design,
           createdAt: template.created_at || template.createdAt,
           updatedAt: template.updated_at || template.updatedAt,
         }));
@@ -175,49 +208,62 @@ function TemplateAdminDashboard() {
         </div>
       ) : (
         <div className="templates-grid">
-          {templates.map((template) => (
-            <div key={template.id} className="template-card">
-              <div className="card-header">
-                <h3>{template.name}</h3>
-              </div>
-              <div className="card-content">
-                <p className="template-type">
-                  <strong>{t('templates.type') || 'Type'}:</strong> {template.type}
-                </p>
-                <p className="template-items">
-                  <strong>{t('templates.items') || 'Items'}:</strong> {Object.keys(template.config || {}).length}
-                </p>
-                {template.updatedAt && (
-                  <p className="template-date">
-                    <strong>{t('templates.updated') || 'Updated'}:</strong> {new Date(template.updatedAt).toLocaleDateString()}
+          {templates.map((template) => {
+            // Count configuration items from structure
+            const requiredSections = template.structure?.sections?.required?.length || 0;
+            const optionalSections = template.structure?.sections?.optional?.length || 0;
+            const documentTypes = Object.keys(template.document_types || {}).length;
+            const totalItems = requiredSections + optionalSections + documentTypes;
+            
+            return (
+              <div key={template.id} className="template-card">
+                <div className="card-header">
+                  <h3>{template.name}</h3>
+                </div>
+                <div className="card-content">
+                  <p className="template-type">
+                    <strong>{t('templates.type') || 'Type'}:</strong> {template.type || template.entity_type}
                   </p>
-                )}
+                  <p className="template-items">
+                    <strong>{t('templates.items') || 'Items'}:</strong> {totalItems > 0 ? totalItems : Object.keys(template.config || {}).length}
+                  </p>
+                  {template.structure?.sections && (
+                    <p className="template-sections">
+                      <strong>Sections:</strong> {requiredSections} required, {optionalSections} optional
+                    </p>
+                  )}
+                  {(template.updatedAt || template.updated_at) && (
+                    <p className="template-date">
+                      <strong>{t('templates.updated') || 'Updated'}:</strong> {new Date(template.updatedAt || template.updated_at || '').toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+                <div className="card-actions">
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => handleEditTemplate(template)}
+                    title={t('templates.editTooltip') || 'Edit this template'}
+                  >
+                    ✎ {t('common.edit') || 'Edit'}
+                  </button>
+                  <button 
+                    className="btn btn-secondary" 
+                    onClick={() => handleCloneTemplate(template)}
+                    title={t('templates.cloneTooltip') || 'Create a copy of this template'}
+                  >
+                    ⊕ {t('templates.clone') || 'Clone'}
+                  </button>
+                  <button 
+                    className="btn btn-danger" 
+                    onClick={() => handleDeleteTemplate(template.id)}
+                    title={t('templates.deleteTooltip') || 'Delete this template'}
+                  >
+                    🗑️ {t('common.delete')}
+                  </button>
+                </div>
               </div>
-              <div className="card-actions">
-                <button 
-                  className="btn btn-primary" 
-                  onClick={() => handleEditTemplate(template)}
-                  title={t('templates.editTooltip') || 'Edit this template'}
-                >
-                  ✎ {t('common.edit') || 'Edit'}
-                </button>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => handleCloneTemplate(template)}
-                  title={t('templates.cloneTooltip') || 'Create a copy of this template'}
-                >
-                  ⊕ {t('templates.clone') || 'Clone'}
-                </button>
-                <button 
-                  className="btn btn-danger" 
-                  onClick={() => handleDeleteTemplate(template.id)}
-                  title={t('templates.deleteTooltip') || 'Delete this template'}
-                >
-                  🗑️ {t('common.delete')}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -151,13 +151,13 @@ export const api = {
   // Templates - with fallback to mock API
   getTemplates: async () => {
     try {
-      return await apiClient.get('/api/templates/available-types');
+      return await apiClient.get('/api/templates');
     } catch (error) {
       console.info('Backend unavailable, using mock API for getTemplates');
-      return { data: await mockApi.getTemplateTypes() };
+      return { data: await mockApi.getTemplates() };
     }
   },
-  
+
   getTemplateTypes: async () => {
     try {
       return await apiClient.get('/api/templates/available-types');
