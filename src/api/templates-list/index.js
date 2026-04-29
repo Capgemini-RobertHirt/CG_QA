@@ -9,13 +9,17 @@ const { getAllTemplates } = require('../lib/cosmosClient')
 module.exports = async function templatesList(context, req) {
   try {
     const templates = await getAllTemplates()
+    
+    if (!templates || templates.length === 0) {
+      context.log('Warning: No templates found')
+    }
 
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        templates,
-        count: templates.length,
+        templates: templates || [],
+        count: (templates || []).length,
       }),
     }
   } catch (error) {
