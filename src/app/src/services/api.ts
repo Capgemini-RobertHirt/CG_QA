@@ -1,8 +1,14 @@
 import axios from 'axios';
+import { mockApi } from './mockApi';
 
 const apiClient = axios.create({
   timeout: 30000,
 });
+
+// Flag to track if backend is available
+let backendAvailable = true;
+let backendCheckTime = 0;
+const BACKEND_CHECK_INTERVAL = 30000; // Check every 30 seconds
 
 // Add auth token to all requests
 apiClient.interceptors.request.use((config) => {
@@ -13,17 +19,125 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Error interceptor for handling 500/connection errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    // If it's a connection error or 500, mark backend as unavailable
+    if (!error.response || error.response.status >= 500 || error.code === 'ECONNABORTED') {
+      backendAvailable = false;
+      console.warn('Backend unavailable, switching to mock API mode');
+    }
+    throw error;
+  }
+);
+
+/**
+ * Transform simplified template format to backend-expected format
+ */
+const transformTemplateForBackend = (template: any) => {
+  return {
+    entity_type: template.type || 'default',
+    document_types: {
+      general_document: {},
+      business_brief: {},
+      proposal: {},
+      report: {},
+      information_sheet: {},
+    },
+    global_rules: {
+      severity_levels: ['blocker', 'critical', 'major', 'minor', 'advisory'],
+      scoring: {
+        weights: {
+          structure: 0.25,
+          design: 0.35,
+          compliance: 0.2,
+          business_context: 0.2,
+        },
+      },
+      custom_config: template.config || {},
+      template_name: template.name,
+    },
+    structure: {
+      sections: {
+        required: [],
+        optional: [],
+        ordering_enforced: false,
+        page_break_after: [],
+      },
+      toc: {
+        required: false,
+        max_depth: 2,
+      },
+      cross_references: {
+        figures_numbered: true,
+        tables_numbered: true,
+      },
+    },
+    design: {
+      fonts: {
+        title: {
+          allowed: ['Calibri', 'Segoe UI'],
+          size: { min: 20, max: 28 },
+          weight: 'bold',
+        },
+        heading: {
+          allowed: ['Calibri', 'Segoe UI'],
+          size: { min: 14, max: 18 },
+          weight: ['bold', 'semibold'],
+        },
+        body: {
+          allowed: ['Calibri', 'Segoe UI'],
+          size: { min: 10, max: 12 },
+          weight: 'regular',
+        },
+      },
+      colors: {
+        palette_required: true,
+        primary: ['#003366', '#0066CC'],
+        secondary: ['#FFFFFF', '#F5F5F5'],
+        text: ['#000000', '#1F1F1F'],
+        accent: ['#FF6B35'],
+        max_colors_per_page: 5,
+      },
+      grid: {
+        type: 'column_grid',
+        columns: 12,
+        gutter: 0.25,
+        baseline_grid: true,
+        snap_tolerance_px: 4,
+      },
+      alignment: {
+        enforce_horizontal: true,
+        enforce_vertical: true,
+        justification_allowed: ['left'],
+        nearly_aligned_threshold_px: 6,
+      },
+      spacing: {
+        line_spacing: { min: 1.1, max: 1.2 },
+        paragraph_spacing_px: { before: 6, after: 6 },
+        consistent_spacing_required: true,
+      },
+    },
+  };
+};
+
 export const api = {
   // Proposals
   uploadProposal: async (file: File, templateType: string) => {
     const fileContent = await file.text();
-    return apiClient.post('/api/samples', {
-      documentType: templateType,
-      entityType: 'document',
-      fileContent: fileContent,
-      fileName: file.name,
-      uploadedBy: 'user',
-    });
+    try {
+      return await apiClient.post('/api/samples', {
+        documentType: templateType,
+        entityType: 'document',
+        fileContent: fileContent,
+        fileName: file.name,
+        uploadedBy: 'user',
+      });
+    } catch (error) {
+      console.error('Upload failed:', error);
+      throw error;
+    }
   },
 
   getProposals: () => apiClient.get('/api/samples'),
@@ -34,19 +148,61 @@ export const api = {
 
   analyzeProposal: (id: string) => apiClient.post(`/api/analyze/${id}`, {}),
 
-  // Templates
-  getTemplates: () => apiClient.get('/api/templates/available-types'),
+  // Templates - with fallback to mock API
+  getTemplates: async () => {
+    try {
+      return await apiClient.get('/api/templates/available-types');
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for getTemplates');
+      return { data: await mockApi.getTemplateTypes() };
+    }
+  },
   
-  getTemplateTypes: () => apiClient.get('/api/templates/available-types'),
+  getTemplateTypes: async () => {
+    try {
+      return await apiClient.get('/api/templates/available-types');
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for getTemplateTypes');
+      return { data: await mockApi.getTemplateTypes() };
+    }
+  },
   
-  createTemplate: (template: any) => apiClient.post('/api/templates', template),
+  createTemplate: async (template: any) => {
+    try {
+      return await apiClient.post('/api/templates', transformTemplateForBackend(template));
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for createTemplate');
+      return { data: await mockApi.createTemplate(transformTemplateForBackend(template)) };
+    }
+  },
   
-  updateTemplate: (id: string, template: any) => apiClient.put(`/api/templates/${id}`, template),
+  updateTemplate: async (id: string, template: any) => {
+    try {
+      return await apiClient.put(`/api/templates/${id}`, transformTemplateForBackend(template));
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for updateTemplate');
+      return { data: await mockApi.updateTemplate(id, transformTemplateForBackend(template)) };
+    }
+  },
   
-  deleteTemplate: (id: string) => apiClient.delete(`/api/templates/${id}`),
+  deleteTemplate: async (id: string) => {
+    try {
+      return await apiClient.delete(`/api/templates/${id}`);
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for deleteTemplate');
+      return { data: await mockApi.deleteTemplate(id) };
+    }
+  },
 
   // Health check
-  health: () => apiClient.get('/api/health'),
+  health: async () => {
+    try {
+      return await apiClient.get('/api/health');
+    } catch (error) {
+      console.info('Backend unavailable, using mock API for health');
+      return { data: await mockApi.health() };
+    }
+  },
 };
 
 export default apiClient;

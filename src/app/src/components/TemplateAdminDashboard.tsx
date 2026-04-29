@@ -45,7 +45,39 @@ function TemplateAdminDashboard() {
     try {
       setLoading(true);
       const response = await api.getTemplateTypes();
-      setTemplates(response.data.available_types || []);
+      
+      // Handle both mock API (returns available_types as strings) and real API (returns template objects)
+      let loadedTemplates: Template[] = [];
+      
+      if (Array.isArray(response.data.available_types)) {
+        // Mock API or real API returning entity types
+        loadedTemplates = response.data.available_types.map((type: any) => {
+          // If it's a string, convert to template object
+          if (typeof type === 'string') {
+            return {
+              id: `template-${type}`,
+              name: type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1),
+              type: type,
+              config: {},
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return type;
+        });
+      } else if (Array.isArray(response.data)) {
+        // Real API returning template objects
+        loadedTemplates = response.data.map((template: any) => ({
+          id: template.id || `template-${template.entity_type}`,
+          name: template.name || template.global_rules?.template_name || template.entity_type,
+          type: template.entity_type || template.type,
+          config: template.global_rules?.custom_config || template.config || {},
+          createdAt: template.created_at || template.createdAt,
+          updatedAt: template.updated_at || template.updatedAt,
+        }));
+      }
+      
+      setTemplates(loadedTemplates);
       setError(null);
     } catch (error) {
       console.error('Error loading templates:', error);
