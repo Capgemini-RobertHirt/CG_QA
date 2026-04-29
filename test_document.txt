@@ -1,0 +1,29 @@
+# Technical Proposal
+
+## Introduction
+This is a technical proposal document for testing the document parser.
+
+## Architecture
+The system uses a microservices architecture with the following components:
+- API Gateway
+- Authentication Service
+- Document Processing Service
+
+## Technical Specifications
+- Programming Language: Node.js
+- Database: Cosmos DB
+- Framework: Express.js
+
+## Timeline
+Q2 2026: Initial development
+Q3 2026: Testing and refinement
+Q4 2026: Production deployment
+
+## Requirements
+- Must support large files
+- Must have fast processing
+- Shall extract text accurately
+- Mandatory security features
+
+## Conclusion
+This proposal outlines the technical approach for our solution.

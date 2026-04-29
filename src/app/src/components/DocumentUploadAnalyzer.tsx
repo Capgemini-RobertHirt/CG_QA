@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { parseDocument, detectDocumentType } from '../services/documentParser';
 import './DocumentUpload.css';
 
 export interface ExtractedData {
@@ -27,12 +28,17 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState('');
   const [preview, setPreview] = useState('');
+  const [parseProgress, setParseProgress] = useState('');
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const validTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+    ];
     if (!validTypes.includes(selectedFile.type)) {
       setError('Unsupported file type. Please upload PDF, DOCX, or TXT files.');
       return;
@@ -56,41 +62,54 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
 
     setAnalyzing(true);
     setError('');
+    setParseProgress('Starting document analysis...');
 
     try {
-      const fileContent = await readFile(file);
-      const extractedData = parseDocumentContent(fileContent, file.name);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Parse document using the documentParser service
+      setParseProgress('Reading file...');
+      const parsedContent = await parseDocument(file);
+
+      setParseProgress('Extracting structure...');
+      const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+      const extractedData = parseDocumentContent(parsedContent.text, fileNameWithoutExt);
+
+      setParseProgress('Finalizing analysis...');
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
       onExtract(extractedData);
     } catch (err) {
-      setError(`Error analyzing document: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('Document analysis error:', err);
+      setError(
+        `Error analyzing document: ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
     } finally {
       setAnalyzing(false);
+      setParseProgress('');
     }
   };
 
-  const readFile = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (file.type === 'text/plain') {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsText(file);
-      } else {
-        reject(new Error('PDF/DOCX parsing requires backend. Uploading as reference.'));
-      }
-    });
-  };
-
   const parseDocumentContent = (content: string, fileName: string): ExtractedData => {
-    const lines = content.split('\n').filter((line) => line.trim());
+    const lines = content
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
     const documentName = fileName.replace(/\.[^/.]+$/, '');
 
+    // Extract sections (lines that are headers or all caps)
     const sections = lines
-      .filter((line) => line === line.toUpperCase() || line.startsWith('#'))
-      .map((line) => line.replace(/^#+\s*/, '').trim())
+      .filter(
+        (line) =>
+          line === line.toUpperCase() ||
+          line.startsWith('#') ||
+          line.match(/^[\d\.]+\s+[A-Z]/) ||
+          line.match(/^[A-Z][^a-z]*$/)
+      )
+      .map((line) => line.replace(/^#+\s*/, '').replace(/^[\d\.]+\s*/, '').trim())
+      .filter((line) => line.length > 3)
       .slice(0, 8);
 
+    // Component keywords to detect
     const componentKeywords = [
       'card',
       'grid',
@@ -107,48 +126,57 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
       'header',
       'footer',
     ];
-    const components = componentKeywords.filter((comp) =>
-      content.toLowerCase().includes(comp)
-    );
+    const components = componentKeywords
+      .filter((comp) => content.toLowerCase().includes(comp))
+      .slice(0, 6);
 
+    // Extract required items (lines containing keywords like must, required, shall)
     const requiredItems = lines
       .filter(
         (line) =>
-          line.toLowerCase().includes('must') ||
-          line.toLowerCase().includes('required') ||
-          line.toLowerCase().includes('shall')
+          (line.toLowerCase().includes('must') ||
+            line.toLowerCase().includes('required') ||
+            line.toLowerCase().includes('shall') ||
+            line.toLowerCase().includes('mandatory') ||
+            line.toLowerCase().includes('essential')) &&
+          line.length > 10
       )
       .slice(0, 5);
 
-    const lowerContent = content.toLowerCase();
-    let documentType = 'default';
-    if (lowerContent.includes('engineering')) documentType = 'engineering';
-    else if (lowerContent.includes('whitepaper')) documentType = 'whitepaper';
-    else if (lowerContent.includes('rfp') || lowerContent.includes('rfi')) documentType = 'rfp_rfi_response';
-    else if (lowerContent.includes('proposal')) documentType = 'rfp_rfi_response';
-    else if (lowerContent.includes('presentation')) documentType = 'internal_meeting_presentation';
+    // Detect document type using the service
+    const documentType = detectDocumentType(content);
+
+    // Calculate confidence based on extracted data quality
+    let confidence = 50;
+    if (sections.length > 0) confidence += 10;
+    if (sections.length > 3) confidence += 10;
+    if (components.length > 0) confidence += 10;
+    if (requiredItems.length > 0) confidence += 10;
+    if (lines.length > 100) confidence += 10;
+    confidence = Math.min(95, confidence);
 
     return {
       documentName,
       documentType,
-      sections,
-      components,
+      sections: sections.length > 0 ? sections : ['Introduction', 'Content', 'Conclusion'],
+      components: components.length > 0 ? components : ['card', 'paragraph'],
       requiredItems,
       suggestedConfig: {
         entity_type: documentType,
         structure: {
           sections: {
-            required: sections.slice(0, 3),
-            optional: sections.slice(3),
+            required: sections.slice(0, Math.max(1, Math.ceil(sections.length / 2))),
+            optional: sections.slice(Math.ceil(sections.length / 2)),
           },
           toc: {
             required: sections.length > 3,
-            max_depth: Math.min(3, sections.length),
+            max_depth: Math.min(3, Math.ceil(sections.length / 3)),
           },
         },
         design: {
           colors: {
-            primary: '#3498db',
+            primary: '#003366',
+            secondary: '#0066CC',
             max_colors_per_page: 5,
           },
           fonts: {
@@ -157,18 +185,21 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
           },
         },
       },
-      confidence: 65,
+      confidence,
     };
   };
 
   return (
     <div className="upload-analyzer-overlay">
       <div className="upload-analyzer-container">
-        <h2>📄 Upload & Extract Configuration</h2>
+        <h2>📄 {t('templates.uploadDocument') || 'Upload & Extract Configuration'}</h2>
 
         <div className="analyzer-section">
-          <h3>Upload Document</h3>
-          <p>Upload a sample document (PDF, DOCX, or TXT) to automatically extract:</p>
+          <h3>{t('templates.uploadDocument') || 'Upload Document'}</h3>
+          <p>
+            {t('templates.uploadDocumentDescription') ||
+              'Upload a sample document (PDF, DOCX, or TXT) to automatically extract:'}
+          </p>
           <ul>
             <li>Document structure and sections</li>
             <li>Recommended component types</li>
@@ -183,6 +214,7 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
               accept=".pdf,.docx,.txt"
               onChange={handleFileSelect}
               style={{ display: 'none' }}
+              disabled={analyzing}
             />
 
             <button
@@ -195,17 +227,25 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
 
             {file && <div className="file-info">✓ {preview}</div>}
             {error && <div className="error-message">❌ {error}</div>}
+            {parseProgress && <div className="parse-progress">⏳ {parseProgress}</div>}
           </div>
 
           <div className="supported-formats">
             <strong>Supported formats:</strong>
             <ul>
-              <li>PDF (.pdf) - Requires backend processing</li>
-              <li>Word (.docx) - Requires backend processing</li>
-              <li>Text (.txt) - Direct extraction</li>
+              <li>
+                <strong>PDF (.pdf)</strong> - Text extraction from all pages (requires pdfjs-dist)
+              </li>
+              <li>
+                <strong>Word (.docx)</strong> - Text extraction using Mammoth.js
+              </li>
+              <li>
+                <strong>Text (.txt)</strong> - Direct text reading
+              </li>
             </ul>
             <p className="note">
-              Note: PDF and DOCX parsing requires backend processing.
+              ✅ PDF and DOCX parsing is now supported client-side using modern JavaScript libraries.
+              Max file size: 10MB.
             </p>
           </div>
         </div>
