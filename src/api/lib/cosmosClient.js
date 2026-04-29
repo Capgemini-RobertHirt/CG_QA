@@ -232,7 +232,30 @@ async function getAllTemplates() {
       const fs = require('fs').promises
       const path = require('path')
       
-      const templatesDir = path.join(process.cwd(), 'src', 'api', 'templates')
+      // Try multiple possible paths for the templates directory
+      const possiblePaths = [
+        path.join(process.cwd(), 'src', 'api', 'templates'),
+        path.join(process.cwd(), 'api', 'templates'),
+        path.join(__dirname, '..', 'templates'),
+        path.join(__dirname, '../templates'),
+      ]
+      
+      let templatesDir = null
+      for (const dir of possiblePaths) {
+        try {
+          await fs.access(dir)
+          templatesDir = dir
+          console.log(`Found templates directory at: ${templatesDir}`)
+          break
+        } catch (e) {
+          // Continue to next path
+        }
+      }
+
+      if (!templatesDir) {
+        throw new Error(`Could not find templates directory in any of: ${possiblePaths.join(', ')}`)
+      }
+
       const templateFiles = [
         'default.json',
         'engineering.json',
@@ -252,39 +275,97 @@ async function getAllTemplates() {
           templates.push({
             id: template.entity_type,
             entityType: template.entity_type,
+            name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
             documentTypes: template.document_types || {},
             globalRules: template.global_rules || {},
-            structure: template.structure || {},
+            structure: template.structure || { sections: { required: [], optional: [] } },
             design: template.design || {},
             components: template.components,
             images: template.images,
             tables: template.tables,
             type: 'quality-template',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           })
         } catch (fileError) {
           console.warn(`Could not load template from ${file}:`, fileError.message)
         }
       }
 
-      return templates
+      if (templates.length > 0) {
+        return templates
+      }
+
+      throw new Error('No templates loaded from files')
     } catch (fileError) {
       console.error('Failed to load templates from files:', fileError.message)
-      // Return empty array with fallback template types
+      
+      // Return fallback templates with full structure embedded
       return [
-        'default',
-        'engineering',
-        'asset',
-        'whitepaper',
-        'point_of_view',
-        'rfp_rfi_response',
-        'internal_meeting_presentation',
-      ].map(type => ({
-        id: type,
-        entityType: type,
-        documentTypes: {},
-        structure: { sections: { required: [], optional: [] } },
-        type: 'quality-template',
-      }))
+        {
+          id: 'default',
+          entityType: 'default',
+          name: 'Default',
+          documentTypes: { general_document: {}, business_brief: {}, proposal: {}, report: {}, information_sheet: {} },
+          structure: { sections: { required: ['introduction', 'proposal'], optional: ['conclusion', 'appendix', 'references', 'acknowledgments'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'engineering',
+          entityType: 'engineering',
+          name: 'Engineering',
+          documentTypes: { technical_spec: {}, design_doc: {}, architecture: {} },
+          structure: { sections: { required: ['overview', 'requirements', 'design', 'implementation'], optional: ['appendix', 'references', 'glossary'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'asset',
+          entityType: 'asset',
+          name: 'Asset',
+          documentTypes: { asset_list: {}, asset_details: {} },
+          structure: { sections: { required: ['overview', 'details'], optional: ['appendix', 'references'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'whitepaper',
+          entityType: 'whitepaper',
+          name: 'Whitepaper',
+          documentTypes: { whitepaper: {}, technical_paper: {} },
+          structure: { sections: { required: ['abstract', 'introduction', 'content', 'conclusion'], optional: ['appendix', 'references', 'glossary', 'index'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'point_of_view',
+          entityType: 'point_of_view',
+          name: 'Point of View',
+          documentTypes: { pov: {}, perspective: {} },
+          structure: { sections: { required: ['introduction', 'perspective', 'conclusion'], optional: ['appendix', 'references'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'rfp_rfi_response',
+          entityType: 'rfp_rfi_response',
+          name: 'RFP/RFI Response',
+          documentTypes: { rfp_response: {}, rfi_response: {} },
+          structure: { sections: { required: ['executive_summary', 'approach', 'team', 'pricing'], optional: ['appendix', 'references', 'case_studies'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'internal_meeting_presentation',
+          entityType: 'internal_meeting_presentation',
+          name: 'Internal Meeting Presentation',
+          documentTypes: { presentation: {}, meeting_slides: {} },
+          structure: { sections: { required: ['agenda', 'content', 'action_items'], optional: ['appendix', 'references', 'notes'] } },
+          type: 'quality-template',
+          createdAt: new Date().toISOString(),
+        },
+      ]
     }
   }
 }

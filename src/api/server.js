@@ -18,59 +18,73 @@ app.use(express.json());
 let templates = [
   {
     id: 'template-default',
+    entityType: 'default',
     entity_type: 'default',
     name: 'Default',
     type: 'default',
     elements: 11,
-    sections: { required: 2, optional: 4 },
+    structure: { sections: { required: ['introduction', 'proposal'], optional: ['conclusion', 'appendix', 'references', 'acknowledgments'] }, toc: { required: false, max_depth: 2 } },
+    documentTypes: { general_document: {}, business_brief: {}, proposal: {}, report: {}, information_sheet: {} },
   },
   {
     id: 'template-engineering',
+    entityType: 'engineering',
     entity_type: 'engineering',
     name: 'Engineering',
     type: 'engineering',
     elements: 14,
-    sections: { required: 6, optional: 3 },
+    structure: { sections: { required: ['overview', 'requirements', 'design', 'implementation', 'testing', 'deployment'], optional: ['appendix', 'references', 'glossary'] } },
+    documentTypes: { technical_spec: {}, design_doc: {}, architecture: {}, implementation_guide: {}, test_plan: {}, deployment_guide: {} },
   },
   {
     id: 'template-asset',
+    entityType: 'asset',
     entity_type: 'asset',
     name: 'Asset',
     type: 'asset',
     elements: 14,
-    sections: { required: 6, optional: 3 },
+    structure: { sections: { required: ['overview', 'details'], optional: ['appendix', 'references'] } },
+    documentTypes: { asset_list: {}, asset_details: {}, asset_audit: {}, asset_inventory: {}, asset_catalog: {}, asset_management: {} },
   },
   {
     id: 'template-whitepaper',
+    entityType: 'whitepaper',
     entity_type: 'whitepaper',
     name: 'Whitepaper',
     type: 'whitepaper',
     elements: 18,
-    sections: { required: 10, optional: 3 },
+    structure: { sections: { required: ['abstract', 'introduction', 'content', 'conclusion'], optional: ['appendix', 'references', 'glossary', 'index', 'foreword', 'acknowledgments'] } },
+    documentTypes: { whitepaper: {}, technical_paper: {}, research_paper: {}, position_paper: {}, industry_report: {}, thought_leadership: {} },
   },
   {
     id: 'template-point_of_view',
+    entityType: 'point_of_view',
     entity_type: 'point_of_view',
     name: 'Point of View',
     type: 'point_of_view',
     elements: 15,
-    sections: { required: 7, optional: 3 },
+    structure: { sections: { required: ['introduction', 'perspective', 'conclusion'], optional: ['appendix', 'references', 'case_studies', 'recommendations'] } },
+    documentTypes: { pov: {}, perspective: {}, opinion_piece: {}, analysis: {}, commentary: {}, viewpoint: {} },
   },
   {
     id: 'template-rfp_rfi_response',
+    entityType: 'rfp_rfi_response',
     entity_type: 'rfp_rfi_response',
     name: 'RFP/RFI Response',
     type: 'rfp_rfi_response',
     elements: 16,
-    sections: { required: 8, optional: 3 },
+    structure: { sections: { required: ['executive_summary', 'approach', 'team', 'pricing'], optional: ['appendix', 'references', 'case_studies', 'testimonials', 'contract_terms'] } },
+    documentTypes: { rfp_response: {}, rfi_response: {}, proposal: {}, quote: {}, bid_response: {}, tender_response: {} },
   },
   {
     id: 'template-internal_meeting_presentation',
+    entityType: 'internal_meeting_presentation',
     entity_type: 'internal_meeting_presentation',
     name: 'Internal Meeting Presentation',
     type: 'internal_meeting_presentation',
     elements: 16,
-    sections: { required: 8, optional: 3 },
+    structure: { sections: { required: ['agenda', 'content', 'action_items'], optional: ['appendix', 'references', 'notes', 'follow_up', 'attachments'] } },
+    documentTypes: { presentation: {}, meeting_slides: {}, workshop_slides: {}, training_slides: {}, review_slides: {}, planning_slides: {} },
   },
 ];
 
@@ -98,6 +112,29 @@ app.get('/api/templates', (req, res) => {
     available_types: templates.map((t) => t.entity_type),
     templates: templates,
   });
+});
+
+/**
+ * GET /api/templates/available-types
+ * Get list of available template types
+ */
+app.get('/api/templates/available-types', (req, res) => {
+  res.json({
+    available_types: templates.map((t) => t.entity_type),
+    count: templates.length,
+  });
+});
+
+/**
+ * GET /api/templates-list
+ * Get all templates with full details
+ */
+app.get('/api/templates-list', (req, res) => {
+  res.json({
+    templates: templates,
+    count: templates.length,
+  });
+});
 });
 
 /**
