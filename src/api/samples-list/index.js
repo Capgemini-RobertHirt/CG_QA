@@ -43,4 +43,3 @@ module.exports = async function samplesList(context, req) {
     }
   }
 }
-}
