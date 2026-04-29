@@ -377,20 +377,46 @@ export const mockApi = {
    */
   getTemplates: async () => {
     // Create template objects from baseline configs
-    const baselineTemplates: Template[] = DEFAULT_TYPES.map(type => ({
-      id: `template-baseline-${type}`,
-      entity_type: type,
-      name: type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1),
-      global_rules: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.global_rules || {},
-      structure: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.structure,
-      design: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.design,
-      document_types: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.document_types,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      type: 'baseline',
-    }));
+    const baselineTemplates: Record<string, Template> = {};
+    DEFAULT_TYPES.forEach(type => {
+      baselineTemplates[`template-baseline-${type}`] = {
+        id: `template-baseline-${type}`,
+        entity_type: type,
+        name: type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1),
+        global_rules: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.global_rules || {},
+        structure: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.structure,
+        design: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.design,
+        document_types: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.document_types,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        type: 'baseline',
+      };
+    });
 
-    return [...baselineTemplates, ...customTemplates];
+    // Merge custom templates (which may override/extend baselines)
+    const result: Template[] = [];
+    const seenIds = new Set<string>();
+
+    // Add custom templates (which include baseline-modified versions)
+    customTemplates.forEach(template => {
+      result.push({
+        ...template,
+        // Ensure all structure fields are preserved if they exist
+        structure: template.structure || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.structure : undefined),
+        document_types: template.document_types || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.document_types : undefined),
+        design: template.design || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.design : undefined),
+      });
+      seenIds.add(template.id);
+    });
+
+    // Add baseline templates that haven't been modified
+    Object.entries(baselineTemplates).forEach(([id, template]) => {
+      if (!seenIds.has(id)) {
+        result.push(template);
+      }
+    });
+
+    return result;
   },
 
   /**
@@ -417,20 +443,63 @@ export const mockApi = {
    * Update an existing template
    */
   updateTemplate: async (id: string, template: any) => {
-    const index = customTemplates.findIndex(t => t.id === id);
-    if (index !== -1) {
-      customTemplates[index] = {
-        ...customTemplates[index],
+    // Check if it's a custom template
+    const customIndex = customTemplates.findIndex(t => t.id === id);
+    if (customIndex !== -1) {
+      customTemplates[customIndex] = {
+        ...customTemplates[customIndex],
         ...template,
         updated_at: new Date().toISOString(),
       };
-      console.log('Mock API: Template updated', id);
+      console.log('Mock API: Custom template updated', id);
       return {
-        id: customTemplates[index].id,
-        entity_type: customTemplates[index].entity_type,
+        id: customTemplates[customIndex].id,
+        entity_type: customTemplates[customIndex].entity_type,
         message: 'Template updated successfully',
       };
     }
+
+    // Check if it's a baseline template
+    if (id.startsWith('template-baseline-')) {
+      const baselineType = id.replace('template-baseline-', '');
+      const baselineConfig = TEMPLATE_CONFIGS[baselineType as keyof typeof TEMPLATE_CONFIGS];
+      
+      if (baselineConfig) {
+        // Create or update a custom template that modifies the baseline
+        const modifiedTemplate: Template = {
+          id: id, // Keep the same ID for the baseline
+          entity_type: baselineType,
+          name: template.name || baselineType.replace(/_/g, ' '),
+          global_rules: {
+            ...baselineConfig.global_rules,
+            custom_config: template.config || {},
+          },
+          structure: template.structure || baselineConfig.structure,
+          design: template.design || baselineConfig.design,
+          document_types: template.document_types || baselineConfig.document_types,
+          ...template,
+          type: 'baseline-modified',
+          created_at: baselineConfig.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        // Check if we already have a custom entry for this baseline
+        const existingIndex = customTemplates.findIndex(t => t.id === id);
+        if (existingIndex !== -1) {
+          customTemplates[existingIndex] = modifiedTemplate;
+        } else {
+          customTemplates.push(modifiedTemplate);
+        }
+        
+        console.log('Mock API: Baseline template updated', id);
+        return {
+          id: modifiedTemplate.id,
+          entity_type: modifiedTemplate.entity_type,
+          message: 'Template updated successfully',
+        };
+      }
+    }
+
     throw new Error(`Template with id ${id} not found`);
   },
 

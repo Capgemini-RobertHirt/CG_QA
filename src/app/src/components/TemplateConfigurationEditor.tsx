@@ -5,9 +5,19 @@ import './TemplateConfigurationEditor.css';
 
 interface Template {
   id?: string;
-  name: string;
-  type: string;
+  name?: string;
+  type?: string;
+  entity_type?: string;
   config?: Record<string, any>;
+  global_rules?: Record<string, any>;
+  structure?: Record<string, any>;
+  design?: Record<string, any>;
+  document_types?: Record<string, any>;
+  createdAt?: string;
+  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
 }
 
 interface TemplateConfigurationEditorProps {
@@ -19,11 +29,55 @@ interface TemplateConfigurationEditorProps {
 
 const TEMPLATE_TYPES = ['default', 'engineering', 'asset', 'whitepaper', 'point_of_view', 'rfp_rfi_response', 'internal_meeting_presentation'];
 
+// Helper function to extract configuration items from template
+function extractConfigItems(template?: Template | null): Array<{ key: string; value: string }> {
+  if (!template) return [{ key: '', value: '' }];
+
+  const items: Array<{ key: string; value: string }> = [];
+
+  // Extract from structure.sections
+  if (template.structure?.sections) {
+    if (template.structure.sections.required?.length > 0) {
+      items.push({
+        key: 'Required Sections',
+        value: template.structure.sections.required.join(', ')
+      });
+    }
+    if (template.structure.sections.optional?.length > 0) {
+      items.push({
+        key: 'Optional Sections',
+        value: template.structure.sections.optional.join(', ')
+      });
+    }
+  }
+
+  // Extract from document_types
+  if (template.document_types && Object.keys(template.document_types).length > 0) {
+    items.push({
+      key: 'Document Types',
+      value: Object.keys(template.document_types).join(', ')
+    });
+  }
+
+  // Extract from custom config
+  if (template.config && Object.keys(template.config).length > 0) {
+    Object.entries(template.config).forEach(([key, value]) => {
+      items.push({
+        key,
+        value: String(value)
+      });
+    });
+  }
+
+  // If no items extracted, return empty entry
+  return items.length > 0 ? items : [{ key: '', value: '' }];
+}
+
 function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }: TemplateConfigurationEditorProps) {
   const [name, setName] = useState(template?.name || '');
-  const [type, setType] = useState(template?.type || 'default');
+  const [type, setType] = useState(template?.type || template?.entity_type || 'default');
   const [configEntries, setConfigEntries] = useState<Array<{ key: string; value: string }>>(
-    template?.config ? Object.entries(template.config).map(([key, value]) => ({ key, value: String(value) })) : [{ key: '', value: '' }]
+    extractConfigItems(template)
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,15 +117,64 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
     setError(null);
 
     try {
-      // Build config object from entries, filtering out empty keys
-      const config: Record<string, string> = {};
+      // Separate configuration items into different categories
+      const customConfig: Record<string, string> = {};
+      let requiredSections: string[] = [];
+      let optionalSections: string[] = [];
+      let documentTypes: string[] = [];
+
       configEntries.forEach(entry => {
-        if (entry.key.trim()) {
-          config[entry.key.trim()] = entry.value;
+        if (!entry.key.trim()) return;
+
+        const key = entry.key.trim();
+        const value = entry.value.trim();
+
+        if (key === 'Required Sections' && value) {
+          requiredSections = value.split(',').map(s => s.trim()).filter(s => s);
+        } else if (key === 'Optional Sections' && value) {
+          optionalSections = value.split(',').map(s => s.trim()).filter(s => s);
+        } else if (key === 'Document Types' && value) {
+          documentTypes = value.split(',').map(d => d.trim()).filter(d => d);
+        } else {
+          customConfig[key] = value;
         }
       });
 
-      const templateData = { name: name.trim(), type, config };
+      // Build the template data
+      const templateData: any = { 
+        name: name.trim(), 
+        type,
+        config: customConfig 
+      };
+
+      // Preserve or update structure
+      if (template?.structure || requiredSections.length > 0 || optionalSections.length > 0) {
+        templateData.structure = template?.structure || {};
+        templateData.structure.sections = {
+          required: requiredSections.length > 0 ? requiredSections : (template?.structure?.sections?.required || []),
+          optional: optionalSections.length > 0 ? optionalSections : (template?.structure?.sections?.optional || [])
+        };
+      }
+
+      // Preserve document types
+      if (template?.document_types) {
+        if (documentTypes.length > 0) {
+          templateData.document_types = {};
+          documentTypes.forEach(doc => {
+            templateData.document_types[doc] = template.document_types?.[doc] || {};
+          });
+        } else {
+          templateData.document_types = template.document_types;
+        }
+      }
+
+      // Preserve design and global_rules
+      if (template?.design) {
+        templateData.design = template.design;
+      }
+      if (template?.global_rules) {
+        templateData.global_rules = template.global_rules;
+      }
 
       if (isEditing && template?.id) {
         await api.updateTemplate(template.id, templateData);
