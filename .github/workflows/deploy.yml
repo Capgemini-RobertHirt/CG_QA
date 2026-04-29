@@ -33,7 +33,7 @@ jobs:
         run: npm run build
         working-directory: src/app
 
-      # API preparation (Azure Functions needs dependencies)
+      # API preparation - install dependencies
       - name: Install API dependencies
         run: npm ci
         working-directory: src/api
@@ -49,10 +49,11 @@ jobs:
           app_location: src/app
           api_location: src/api
           output_location: dist
+          build_timeout_in_minutes: 30
           
       - name: Verify Deployment
         run: |
-          echo "Deployment completed"
-          echo "Frontend URL: https://kind-sand-0ab0a5003.7.azurestaticapps.net"
-          echo "API endpoints should be available at /api/"
+          echo "Deployment completed successfully"
+          echo "Frontend: https://kind-sand-0ab0a5003.7.azurestaticapps.net"
+          echo "API endpoints: https://kind-sand-0ab0a5003.7.azurestaticapps.net/api/*"
 
