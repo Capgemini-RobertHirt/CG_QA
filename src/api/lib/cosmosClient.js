@@ -209,12 +209,93 @@ async function upsertAnalysisResults(analysisId, results) {
   }
 }
 
+/**
+ * Get all templates with full structure and details
+ */
+async function getAllTemplates() {
+  try {
+    const { container } = await initializeCosmosClient()
+    const query = `SELECT * FROM c WHERE c.type = 'quality-template' ORDER BY c.entityType`
+    const { resources } = await container.items.query(query).fetchAll()
+
+    if (resources.length > 0) {
+      return resources
+    }
+    
+    // If Cosmos DB is empty, fall through to file-based loading
+    throw new Error('No templates found in Cosmos DB')
+  } catch (error) {
+    console.warn('Could not fetch templates from Cosmos DB, loading from files:', error.message)
+    
+    // Load templates from JSON files when Cosmos DB is unavailable
+    try {
+      const fs = require('fs').promises
+      const path = require('path')
+      
+      const templatesDir = path.join(process.cwd(), 'src', 'api', 'templates')
+      const templateFiles = [
+        'default.json',
+        'engineering.json',
+        'asset.json',
+        'whitepaper.json',
+        'point_of_view.json',
+        'rfp_rfi_response.json',
+        'internal_meeting_presentation.json',
+      ]
+
+      const templates = []
+      for (const file of templateFiles) {
+        try {
+          const filePath = path.join(templatesDir, file)
+          const fileContent = await fs.readFile(filePath, 'utf-8')
+          const template = JSON.parse(fileContent)
+          templates.push({
+            id: template.entity_type,
+            entityType: template.entity_type,
+            documentTypes: template.document_types || {},
+            globalRules: template.global_rules || {},
+            structure: template.structure || {},
+            design: template.design || {},
+            components: template.components,
+            images: template.images,
+            tables: template.tables,
+            type: 'quality-template',
+          })
+        } catch (fileError) {
+          console.warn(`Could not load template from ${file}:`, fileError.message)
+        }
+      }
+
+      return templates
+    } catch (fileError) {
+      console.error('Failed to load templates from files:', fileError.message)
+      // Return empty array with fallback template types
+      return [
+        'default',
+        'engineering',
+        'asset',
+        'whitepaper',
+        'point_of_view',
+        'rfp_rfi_response',
+        'internal_meeting_presentation',
+      ].map(type => ({
+        id: type,
+        entityType: type,
+        documentTypes: {},
+        structure: { sections: { required: [], optional: [] } },
+        type: 'quality-template',
+      }))
+    }
+  }
+}
+
 module.exports = {
   initializeCosmosClient,
   getTemplateContainer,
   upsertTemplate,
   getTemplateByEntityType,
   getAllTemplateEntityTypes,
+  getAllTemplates,
   upsertSample,
   getSamplesByDocumentType,
   upsertAnalysisResults,

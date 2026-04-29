@@ -30,17 +30,28 @@ module.exports = async function samplesList(context, req) {
 
     // If Cosmos DB returned empty, also check in-memory storage
     if (samples.length === 0) {
-      const inMemorySamples = getSamplesByType(documentType)
+      const inMemorySamples = getAllSamples()
       samples = inMemorySamples
     }
+
+    // Transform samples to include 'name' field for frontend
+    const transformedSamples = samples.map(sample => ({
+      id: sample.id,
+      name: sample.name || sample.fileName || sample.file_name || 'Untitled',
+      status: sample.status || sample.analysisStatus || 'uploaded',
+      quality: sample.quality || sample.qualityScore || sample.quality_score || 0,
+      documentType: sample.documentType || sample.document_type,
+      entityType: sample.entityType || sample.entity_type,
+      ...sample // Include all original fields
+    }))
 
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        samples,
-        count: samples.length,
-        message: samples.length === 0 ? 'No samples available' : undefined,
+        samples: transformedSamples,
+        count: transformedSamples.length,
+        message: transformedSamples.length === 0 ? 'No samples available' : undefined,
       }),
     }
   } catch (error) {

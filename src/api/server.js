@@ -187,9 +187,20 @@ app.post('/api/samples', (req, res) => {
  * Get all uploaded samples/proposals
  */
 app.get('/api/samples', (req, res) => {
+  // Transform samples to include 'name' field for frontend compatibility
+  const transformedSamples = samples.map(sample => ({
+    id: sample.id,
+    name: sample.name || sample.file_name || 'Untitled',
+    status: sample.status || 'uploaded',
+    quality: sample.quality || sample.quality_score || 0,
+    documentType: sample.documentType || sample.document_type,
+    entityType: sample.entityType || sample.template_type,
+    ...sample
+  }));
+  
   res.json({
-    samples: samples,
-    total: samples.length,
+    samples: transformedSamples,
+    total: transformedSamples.length,
   });
 });
 

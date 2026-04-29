@@ -65,10 +65,27 @@ function TemplateAdminDashboard() {
         response = await api.getTemplateTypes();
       }
       
-      // Handle both mock API (returns available_types as strings) and real API (returns template objects)
+      // Handle different API response formats
       let loadedTemplates: Template[] = [];
       
-      if (Array.isArray(response.data.available_types)) {
+      // First check for new templates-list endpoint format with full templates
+      if (Array.isArray(response.data.templates)) {
+        loadedTemplates = response.data.templates.map((template: any) => ({
+          id: template.id || template.entityType || `template-${template.entity_type}`,
+          name: template.name || template.entityType?.replace(/_/g, ' ') || template.entity_type?.replace(/_/g, ' '),
+          type: template.type || template.entityType || template.entity_type,
+          entity_type: template.entity_type || template.entityType || template.type,
+          config: template.config || template.globalRules?.custom_config || {},
+          structure: template.structure,
+          document_types: template.documentTypes || template.document_types,
+          global_rules: template.globalRules || template.global_rules,
+          design: template.design,
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
+        }));
+      }
+      // Then check for available_types endpoint format (returns entity types as strings or objects)
+      else if (Array.isArray(response.data.available_types)) {
         // API returning entity types
         loadedTemplates = response.data.available_types.map((type: any) => {
           // If it's a string, convert to template object
