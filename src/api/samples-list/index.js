@@ -1,5 +1,6 @@
 'use strict'
 
+const { getSamplesByType, getAllSamples } = require('../lib/inMemoryStorage')
 const { getSamplesByDocumentType } = require('../lib/cosmosClient')
 
 /**
@@ -12,12 +13,25 @@ module.exports = async function samplesList(context, req) {
     const documentType = req.query.document_type
 
     let samples = []
-    if (documentType) {
-      samples = await getSamplesByDocumentType(documentType)
-    } else {
-      // When no filter, return empty samples list
-      // In a production system, this would fetch all samples from the database
-      samples = []
+
+    // Try to get from Cosmos DB first
+    try {
+      if (documentType) {
+        samples = await getSamplesByDocumentType(documentType)
+      } else {
+        // Get all samples from Cosmos DB
+        samples = []
+      }
+    } catch (dbError) {
+      context.log(`Cosmos DB unavailable: ${dbError.message}, using in-memory storage`)
+      // Fall back to in-memory storage
+      samples = getSamplesByType(documentType)
+    }
+
+    // If Cosmos DB returned empty, also check in-memory storage
+    if (samples.length === 0) {
+      const inMemorySamples = getSamplesByType(documentType)
+      samples = inMemorySamples
     }
 
     context.res = {

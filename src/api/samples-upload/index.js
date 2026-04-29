@@ -1,8 +1,8 @@
 'use strict'
 
 const { v4: uuidv4 } = require('uuid')
-const { BlobServiceClient } = require('@azure/storage-blob')
 const { upsertSample } = require('../lib/cosmosClient')
+const { storeSample } = require('../lib/inMemoryStorage')
 
 /**
  * POST /api/samples
@@ -33,6 +33,7 @@ module.exports = async function samplesUpload(context, req) {
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
     if (connectionString) {
       try {
+        const { BlobServiceClient } = require('@azure/storage-blob')
         const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
         const containerClient = blobServiceClient.getContainerClient('documents')
         const blockBlobClient = containerClient.getBlockBlobClient(blobName)
@@ -48,7 +49,7 @@ module.exports = async function samplesUpload(context, req) {
     }
 
     // Store metadata in Cosmos DB (with fallback support)
-    const sample = await upsertSample({
+    const sampleData = {
       id: sampleId,
       document_type: documentType,
       entity_type: entityType,
@@ -57,7 +58,26 @@ module.exports = async function samplesUpload(context, req) {
       uploaded_by: uploadedBy || 'system',
       uploaded_at: new Date().toISOString(),
       analysis_status: 'pending',
-    })
+    }
+
+    let sample
+    try {
+      sample = await upsertSample(sampleData)
+    } catch (dbError) {
+      context.log(`Database unavailable, storing in memory: ${dbError.message}`)
+      // Store in memory when database is unavailable
+      sample = storeSample(sampleId, {
+        id: sampleId,
+        documentType: documentType,
+        entityType: entityType,
+        fileName: fileName || 'document',
+        fileUrl: fileUrl,
+        uploadedBy: uploadedBy || 'system',
+        uploadedAt: new Date().toISOString(),
+        analysisStatus: 'pending',
+        type: 'template-sample',
+      })
+    }
 
     context.res = {
       status: 201,
@@ -71,11 +91,12 @@ module.exports = async function samplesUpload(context, req) {
   } catch (error) {
     context.log(`Error uploading sample: ${error.message}`)
     // Return success with fallback response to maintain API availability
+    const fallbackId = require('uuid').v4()
     context.res = {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: uuidv4(),
+        id: fallbackId,
         message: 'Sample uploaded (using fallback)',
         fileUrl: 'blob://local',
       }),
