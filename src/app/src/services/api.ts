@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { mockApi } from './mockApi';
+import { mockApi, mockApiExtended } from './mockApi';
 
 const apiClient = axios.create({
   timeout: 30000,
@@ -125,8 +125,8 @@ const transformTemplateForBackend = (template: any) => {
 export const api = {
   // Proposals
   uploadProposal: async (file: File, templateType: string) => {
-    const fileContent = await file.text();
     try {
+      const fileContent = await file.text();
       return await apiClient.post('/api/samples', {
         documentType: templateType,
         entityType: 'document',
@@ -135,12 +135,32 @@ export const api = {
         uploadedBy: 'user',
       });
     } catch (error) {
+      // If backend is unavailable, use mock API
+      if (!backendAvailable || (error as any).response?.status >= 500) {
+        console.warn('Backend unavailable, using mock API for uploadProposal');
+        const fileContent = await file.text();
+        const result = await mockApiExtended.uploadProposal(templateType, fileContent, file.name);
+        return { data: result, status: 201 };
+      }
       console.error('Upload failed:', error);
       throw error;
     }
   },
 
-  getProposals: () => apiClient.get('/api/samples'),
+  getProposals: async () => {
+    try {
+      return await apiClient.get('/api/samples');
+    } catch (error) {
+      // If backend is unavailable, use mock API
+      if (!backendAvailable || (error as any).response?.status >= 500) {
+        console.warn('Backend unavailable, using mock API for getProposals');
+        const proposals = await mockApiExtended.getProposals();
+        return { data: { samples: proposals }, status: 200 };
+      }
+      console.error('Error loading proposals:', error);
+      throw error;
+    }
+  },
   
   getProposal: (id: string) => apiClient.get(`/api/samples/${id}`),
   

@@ -636,9 +636,10 @@ export const mockApi = {
   },
 };
 
-// Custom components storage (in-memory)
-let customComponents: Array<any> = [];
-let globalStandards: Array<any> = [];
+// In-memory storage for proposals/samples
+let proposals: Array<any> = [];
+
+const proposalGenerator = () => `proposal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 /**
  * Extended Mock API with component and standards management
@@ -759,4 +760,53 @@ export const mockApiExtended = {
     ];
     return { message: 'Sample data initialized' };
   },
+
+  // Proposals/Samples
+  uploadProposal: async (documentType: string, fileContent: string, fileName: string) => {
+    const proposalId = proposalGenerator();
+    const proposal = {
+      id: proposalId,
+      documentType,
+      entityType: 'document',
+      fileContent,
+      fileName,
+      uploadedBy: 'user',
+      uploadedAt: new Date().toISOString(),
+      status: 'uploaded',
+      analysisStatus: 'pending',
+      quality_score: null,
+      issues: [],
+    };
+    proposals.push(proposal);
+    console.log('Mock API: Proposal uploaded', proposalId);
+    return {
+      id: proposalId,
+      message: 'Proposal uploaded successfully',
+    };
+  },
+
+  getProposals: async () => {
+    return proposals.map(p => ({
+      ...p,
+      samples: [p],
+    }));
+  },
+
+  getProposal: async (id: string) => {
+    const proposal = proposals.find(p => p.id === id);
+    if (!proposal) {
+      throw new Error(`Proposal with id ${id} not found`);
+    }
+    return proposal;
+  },
+
+  deleteProposal: async (id: string) => {
+    proposals = proposals.filter(p => p.id !== id);
+    console.log('Mock API: Proposal deleted', id);
+    return { message: 'Proposal deleted successfully' };
+  },
 };
+
+// Custom components storage (in-memory)
+let customComponents: Array<any> = [];
+let globalStandards: Array<any> = [];
