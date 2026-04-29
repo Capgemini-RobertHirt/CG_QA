@@ -269,10 +269,14 @@ app.post('/api/analyze/:id', (req, res) => {
 
 /**
  * GET /api/analyze/:id
- * Get analysis results
+ * Get analysis results by analysis ID or sample ID
  */
 app.get('/api/analyze/:id', (req, res) => {
-  const analysis = analysisResults.find((a) => a.sample_id === req.params.id);
+  // Try to find by analysis ID first, then by sample_id
+  let analysis = analysisResults.find((a) => a.id === req.params.id);
+  if (!analysis) {
+    analysis = analysisResults.find((a) => a.sample_id === req.params.id);
+  }
   if (!analysis) {
     return res.status(404).json({ error: 'Analysis not found' });
   }
