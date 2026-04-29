@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TemplateConfigurationEditor from './TemplateConfigurationEditor';
+import { DocumentUploadAnalyzer, type ExtractedData } from './DocumentUploadAnalyzer';
 import { AdminControlPanel } from './AdminControlPanel';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
@@ -29,6 +30,7 @@ function TemplateAdminDashboard() {
   const [cloneSourceTemplate, setCloneSourceTemplate] = useState<Template | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showDocumentUploadAnalyzer, setShowDocumentUploadAnalyzer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -145,6 +147,39 @@ function TemplateAdminDashboard() {
     setShowEditor(true);
   };
 
+  const handleDocumentExtracted = (extractedData: ExtractedData) => {
+    // Create a new template from the extracted document data
+    const newTemplate: Template = {
+      name: extractedData.documentName,
+      type: extractedData.documentType,
+      entity_type: extractedData.documentType,
+      structure: {
+        sections: {
+          required: extractedData.sections.slice(0, Math.ceil(extractedData.sections.length / 2)),
+          optional: extractedData.sections.slice(Math.ceil(extractedData.sections.length / 2)),
+        },
+      },
+      config: {
+        suggestedComponents: extractedData.components,
+        requiredItems: extractedData.requiredItems,
+        confidence: extractedData.confidence,
+      },
+      document_types: extractedData.documentType ? { [extractedData.documentType]: {} } : {},
+      global_rules: extractedData.suggestedConfig,
+    };
+
+    // Set the extracted template for editing
+    setEditingTemplate(newTemplate);
+    setCloneSourceTemplate(null);
+    setShowDocumentUploadAnalyzer(false);
+    setShowEditor(true);
+
+    setSuccessMessage(
+      t('templates.documentAnalyzed') || 
+      `Document analyzed successfully! Confidence: ${extractedData.confidence}%`
+    );
+  };
+
   const handleDeleteTemplate = async (id: string | undefined) => {
     if (!id) return;
     
@@ -195,6 +230,15 @@ function TemplateAdminDashboard() {
     return <AdminControlPanel onClose={() => setShowAdminPanel(false)} />;
   }
 
+  if (showDocumentUploadAnalyzer) {
+    return (
+      <DocumentUploadAnalyzer
+        onExtract={handleDocumentExtracted}
+        onCancel={() => setShowDocumentUploadAnalyzer(false)}
+      />
+    );
+  }
+
   return (
     <div className="template-dashboard">
       <div className="dashboard-header">
@@ -202,6 +246,13 @@ function TemplateAdminDashboard() {
         <div className="header-actions">
           <button className="admin-button" onClick={() => setShowAdminPanel(true)}>
             ⚙️ {t('admin.controlPanel') || 'Admin Controls'}
+          </button>
+          <button 
+            className="upload-button" 
+            onClick={() => setShowDocumentUploadAnalyzer(true)}
+            title="Upload a document to automatically extract template configuration"
+          >
+            📄 {t('templates.uploadDocument') || 'Upload Document'}
           </button>
           <button className="create-button" onClick={handleCreateTemplate}>
             + {t('templates.createTemplate')}
