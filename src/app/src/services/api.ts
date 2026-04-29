@@ -168,6 +168,8 @@ export const api = {
 
   analyzeProposal: (id: string) => apiClient.post(`/api/analyze/${id}`, {}),
 
+  getAnalysis: (id: string) => apiClient.get(`/api/analyze/${id}`),
+
   // Templates - with fallback to mock API
   getTemplates: async () => {
     try {
