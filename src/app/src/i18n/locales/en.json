@@ -7,7 +7,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "logout": "Logout"
+    "logout": "Logout",
+    "edit": "Edit"
   },
   "auth": {
     "login": "Login",
@@ -40,12 +41,40 @@
   },
   "templates": {
     "templates": "Templates",
+    "manageTemplates": "Manage Templates",
     "createTemplate": "Create Template",
     "editTemplate": "Edit Template",
+    "cloneTemplate": "Clone Template",
     "deleteTemplate": "Delete Template",
     "templateName": "Template Name",
+    "enterTemplateName": "e.g., Technical Proposal",
     "templateType": "Template Type",
-    "configuration": "Configuration"
+    "type": "Type",
+    "configuration": "Configuration Items",
+    "configurationHint": "Add key-value pairs to configure your template",
+    "configKey": "Key",
+    "configValue": "Value",
+    "addItem": "Add Configuration Item",
+    "removeItem": "Remove this configuration item",
+    "clone": "Clone",
+    "items": "Items",
+    "updated": "Updated",
+    "noTemplates": "No templates found",
+    "createFirst": "Create your first template",
+    "confirmDelete": "Are you sure you want to delete this template? This action cannot be undone.",
+    "deleteSuccess": "Template deleted successfully",
+    "createSuccess": "Template created successfully",
+    "updateSuccess": "Template updated successfully",
+    "nameRequired": "Template name is required",
+    "basedOn": "Based on",
+    "editTooltip": "Edit this template",
+    "cloneTooltip": "Create a copy of this template",
+    "deleteTooltip": "Delete this template"
+  },
+  "errors": {
+    "loadFailed": "Failed to load templates",
+    "saveFailed": "Failed to save template",
+    "deleteFailed": "Failed to delete template"
   }
 }
 

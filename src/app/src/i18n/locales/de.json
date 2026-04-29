@@ -7,7 +7,8 @@
     "cancel": "Abbrechen",
     "save": "Speichern",
     "delete": "Löschen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "edit": "Bearbeiten"
   },
   "auth": {
     "login": "Anmelden",
@@ -40,12 +41,40 @@
   },
   "templates": {
     "templates": "Vorlagen",
+    "manageTemplates": "Vorlagen Verwalten",
     "createTemplate": "Vorlage Erstellen",
     "editTemplate": "Vorlage Bearbeiten",
+    "cloneTemplate": "Vorlage Klonen",
     "deleteTemplate": "Vorlage Löschen",
     "templateName": "Vorlagenname",
+    "enterTemplateName": "z.B. Technischer Vorschlag",
     "templateType": "Vorlagentyp",
-    "configuration": "Konfiguration"
+    "type": "Typ",
+    "configuration": "Konfigurationselemente",
+    "configurationHint": "Fügen Sie Schlüssel-Wert-Paare hinzu, um Ihre Vorlage zu konfigurieren",
+    "configKey": "Schlüssel",
+    "configValue": "Wert",
+    "addItem": "Konfigurationselement Hinzufügen",
+    "removeItem": "Dieses Konfigurationselement entfernen",
+    "clone": "Klonen",
+    "items": "Elemente",
+    "updated": "Aktualisiert",
+    "noTemplates": "Keine Vorlagen gefunden",
+    "createFirst": "Erstellen Sie Ihre erste Vorlage",
+    "confirmDelete": "Sind Sie sicher, dass Sie diese Vorlage löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteSuccess": "Vorlage erfolgreich gelöscht",
+    "createSuccess": "Vorlage erfolgreich erstellt",
+    "updateSuccess": "Vorlage erfolgreich aktualisiert",
+    "nameRequired": "Vorlagenname erforderlich",
+    "basedOn": "Basierend auf",
+    "editTooltip": "Diese Vorlage bearbeiten",
+    "cloneTooltip": "Eine Kopie dieser Vorlage erstellen",
+    "deleteTooltip": "Diese Vorlage löschen"
+  },
+  "errors": {
+    "loadFailed": "Fehler beim Laden der Vorlagen",
+    "saveFailed": "Fehler beim Speichern der Vorlage",
+    "deleteFailed": "Fehler beim Löschen der Vorlage"
   }
 }
 

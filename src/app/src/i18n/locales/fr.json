@@ -7,7 +7,8 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "edit": "Modifier"
   },
   "auth": {
     "login": "Connexion",
@@ -40,12 +41,40 @@
   },
   "templates": {
     "templates": "Modèles",
+    "manageTemplates": "Gérer les Modèles",
     "createTemplate": "Créer un Modèle",
     "editTemplate": "Modifier le Modèle",
+    "cloneTemplate": "Cloner le Modèle",
     "deleteTemplate": "Supprimer le Modèle",
     "templateName": "Nom du Modèle",
+    "enterTemplateName": "ex. Proposition Technique",
     "templateType": "Type de Modèle",
-    "configuration": "Configuration"
+    "type": "Type",
+    "configuration": "Éléments de Configuration",
+    "configurationHint": "Ajoutez des paires clé-valeur pour configurer votre modèle",
+    "configKey": "Clé",
+    "configValue": "Valeur",
+    "addItem": "Ajouter un Élément de Configuration",
+    "removeItem": "Supprimer cet élément de configuration",
+    "clone": "Cloner",
+    "items": "Éléments",
+    "updated": "Mis à jour",
+    "noTemplates": "Aucun modèle trouvé",
+    "createFirst": "Créez votre premier modèle",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce modèle? Cette action ne peut pas être annulée.",
+    "deleteSuccess": "Modèle supprimé avec succès",
+    "createSuccess": "Modèle créé avec succès",
+    "updateSuccess": "Modèle mis à jour avec succès",
+    "nameRequired": "Le nom du modèle est requis",
+    "basedOn": "Basé sur",
+    "editTooltip": "Modifier ce modèle",
+    "cloneTooltip": "Créer une copie de ce modèle",
+    "deleteTooltip": "Supprimer ce modèle"
+  },
+  "errors": {
+    "loadFailed": "Échec du chargement des modèles",
+    "saveFailed": "Échec de l'enregistrement du modèle",
+    "deleteFailed": "Échec de la suppression du modèle"
   }
 }
 

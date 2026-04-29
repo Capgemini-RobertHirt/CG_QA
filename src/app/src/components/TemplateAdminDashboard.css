@@ -2,6 +2,20 @@
   padding: 20px 0;
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
 .create-button {
   padding: 12px 20px;
   background-color: #27ae60;
@@ -9,71 +23,200 @@
   border: none;
   border-radius: 4px;
   font-weight: 600;
-  margin-bottom: 30px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .create-button:hover {
   background-color: #229954;
 }
 
+.alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  animation: slideDown 0.3s ease;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.empty-state button {
+  padding: 12px 24px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.empty-state button:hover {
+  background-color: #2980b9;
+}
+
 .templates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
 .template-card {
   background: white;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .template-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
-.template-card h3 {
-  color: #2c3e50;
-  margin-bottom: 10px;
-  font-size: 16px;
+.card-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
 }
 
-.template-card p {
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  word-break: break-word;
+}
+
+.card-content {
+  padding: 20px;
+  flex: 1;
+}
+
+.template-type,
+.template-items,
+.template-date {
   color: #7f8c8d;
   font-size: 14px;
-  margin-bottom: 8px;
+  margin: 8px 0;
+}
+
+.template-type strong,
+.template-items strong,
+.template-date strong {
+  color: #2c3e50;
 }
 
 .card-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid #ecf0f1;
+  background: #f8f9fa;
 }
 
-.card-actions button {
-  flex: 1;
-  padding: 10px;
+.btn {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 4px;
   font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
-.card-actions button.delete {
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.btn-danger {
   background-color: #e74c3c;
+  color: white;
 }
 
-.card-actions button.delete:hover {
+.btn-danger:hover {
   background-color: #c0392b;
 }
 
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 16px;
+  color: #7f8c8d;
+}
+
 @media (max-width: 768px) {
-  .templates-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .template-card {
-    padding: 15px;
+  .dashboard-header h2 {
+    font-size: 20px;
+  }
+
+  .create-button {
+    width: 100%;
+  }
+
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions {
+    grid-template-columns: 1fr;
   }
 }
