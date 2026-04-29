@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
 
@@ -21,22 +21,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: src/app/package-lock.json
 
+      # Frontend build
       - name: Install frontend dependencies
         run: npm ci
         working-directory: src/app
 
-      - name: Lint
+      - name: Lint frontend
         run: npm run lint
         working-directory: src/app
 
-      - name: Build
+      - name: Build frontend
         run: npm run build
         working-directory: src/app
 
-      - name: Deploy to Static Web App
+      # API build
+      - name: Install API dependencies
+        run: npm ci
+        working-directory: src/api
+
+      # Deploy to Static Web App (frontend + API)
+      - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOYMENT_TOKEN }}
@@ -45,4 +50,6 @@ jobs:
           app_location: src/app
           api_location: src/api
           output_location: dist
+          skip_app_build: false
+          skip_api_build: false
 
