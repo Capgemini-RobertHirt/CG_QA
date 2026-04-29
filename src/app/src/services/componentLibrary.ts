@@ -822,3 +822,18 @@ export const getSubcomponentById = (id: string): Subcomponent | undefined => {
 export const getComponentsByCategory = (category: string): Component[] => {
   return COMPONENT_LIBRARY.filter(c => c.category === category);
 };
+
+// Support for custom components
+let customComponentsStore: Component[] = [];
+
+export const loadCustomComponents = (components: Component[]) => {
+  customComponentsStore = components;
+};
+
+export const getAllComponents = (): Component[] => {
+  return [...COMPONENT_LIBRARY, ...customComponentsStore];
+};
+
+export const getComponentByIdExtended = (id: string): Component | undefined => {
+  return getAllComponents().find(c => c.id === id);
+};

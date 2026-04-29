@@ -81,10 +81,41 @@
     "componentSettings": "Paramètres du Composant",
     "legoBlocks": "Briques Lego"
   },
+  "admin": {
+    "controlPanel": "Contrôles Administrateur",
+    "customComponents": "Composants Personnalisés",
+    "globalStandards": "Normes Globales",
+    "documentExtraction": "Extraction de Documents",
+    "createComponent": "Créer un Nouveau Composant",
+    "manageStandards": "Gérer la Bibliothèque de Normes",
+    "uploadDocument": "Télécharger un Document",
+    "componentName": "Nom du Composant",
+    "componentDescription": "Description",
+    "componentCategory": "Catégorie",
+    "addProperty": "Ajouter une Propriété",
+    "propertyName": "Nom de la Propriété",
+    "propertyType": "Type de Propriété",
+    "required": "Obligatoire",
+    "defaultValue": "Valeur par Défaut",
+    "standardTitle": "Titre de la Norme",
+    "standardCategory": "Catégorie",
+    "standardDescription": "Description",
+    "standardContent": "Contenu Détaillé",
+    "referenceLinks": "Liens de Référence",
+    "applicableTemplates": "Modèles Applicables",
+    "documentName": "Nom du Document",
+    "documentType": "Type de Document",
+    "extractedConfiguration": "Configuration Extraite",
+    "sectionsFound": "Sections Trouvées",
+    "componentsDetected": "Composants Détectés",
+    "confidence": "Confiance",
+    "applyToTemplate": "Appliquer à un Nouveau Modèle"
+  },
   "errors": {
     "loadFailed": "Échec du chargement des modèles",
     "saveFailed": "Échec de l'enregistrement du modèle",
     "deleteFailed": "Échec de la suppression du modèle"
   }
 }
+
 

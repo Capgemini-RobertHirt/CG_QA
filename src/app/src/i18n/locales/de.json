@@ -81,10 +81,41 @@
     "componentSettings": "Komponenteneinstellungen",
     "legoBlocks": "Lego-Blöcke"
   },
+  "admin": {
+    "controlPanel": "Verwaltungssteuerung",
+    "customComponents": "Benutzerdefinierte Komponenten",
+    "globalStandards": "Globale Standards",
+    "documentExtraction": "Dokumentenextraktion",
+    "createComponent": "Neue Komponente Erstellen",
+    "manageStandards": "Standardbibliothek Verwalten",
+    "uploadDocument": "Dokument Hochladen",
+    "componentName": "Komponentenname",
+    "componentDescription": "Beschreibung",
+    "componentCategory": "Kategorie",
+    "addProperty": "Eigenschaft Hinzufügen",
+    "propertyName": "Eigenschaftsname",
+    "propertyType": "Eigenschaftstyp",
+    "required": "Erforderlich",
+    "defaultValue": "Standardwert",
+    "standardTitle": "Standard-Titel",
+    "standardCategory": "Kategorie",
+    "standardDescription": "Beschreibung",
+    "standardContent": "Detaillierter Inhalt",
+    "referenceLinks": "Referenzlinks",
+    "applicableTemplates": "Anwendbare Vorlagen",
+    "documentName": "Dokumentname",
+    "documentType": "Dokumenttyp",
+    "extractedConfiguration": "Extrahierte Konfiguration",
+    "sectionsFound": "Abschnitte Gefunden",
+    "componentsDetected": "Komponenten Erkannt",
+    "confidence": "Vertrauen",
+    "applyToTemplate": "Auf Neue Vorlage Anwenden"
+  },
   "errors": {
     "loadFailed": "Fehler beim Laden der Vorlagen",
     "saveFailed": "Fehler beim Speichern der Vorlage",
     "deleteFailed": "Fehler beim Löschen der Vorlage"
   }
 }
+
 

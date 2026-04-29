@@ -519,3 +519,128 @@ export const mockApi = {
     return { status: 'ok', mode: 'mock', message: 'Mock API running locally' };
   },
 };
+
+// Custom components storage (in-memory)
+let customComponents: Array<any> = [];
+let globalStandards: Array<any> = [];
+
+/**
+ * Extended Mock API with component and standards management
+ */
+export const mockApiExtended = {
+  // Custom Components
+  getCustomComponents: async () => {
+    return customComponents;
+  },
+
+  createCustomComponent: async (component: any) => {
+    const newComponent = {
+      ...component,
+      id: component.id || `comp-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isCustom: true,
+    };
+    customComponents.push(newComponent);
+    console.log('Mock API: Custom component created', newComponent.id);
+    return newComponent;
+  },
+
+  updateCustomComponent: async (id: string, component: any) => {
+    const index = customComponents.findIndex(c => c.id === id);
+    if (index !== -1) {
+      customComponents[index] = {
+        ...customComponents[index],
+        ...component,
+        updatedAt: new Date().toISOString(),
+      };
+      console.log('Mock API: Custom component updated', id);
+      return customComponents[index];
+    }
+    throw new Error(`Component with id ${id} not found`);
+  },
+
+  deleteCustomComponent: async (id: string) => {
+    customComponents = customComponents.filter(c => c.id !== id);
+    console.log('Mock API: Custom component deleted', id);
+    return { message: 'Component deleted successfully' };
+  },
+
+  // Global Standards
+  getGlobalStandards: async () => {
+    return globalStandards;
+  },
+
+  createGlobalStandard: async (standard: any) => {
+    const newStandard = {
+      ...standard,
+      id: standard.id || `std-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    globalStandards.push(newStandard);
+    console.log('Mock API: Global standard created', newStandard.id);
+    return newStandard;
+  },
+
+  updateGlobalStandard: async (id: string, standard: any) => {
+    const index = globalStandards.findIndex(s => s.id === id);
+    if (index !== -1) {
+      globalStandards[index] = {
+        ...globalStandards[index],
+        ...standard,
+        updatedAt: new Date().toISOString(),
+      };
+      console.log('Mock API: Global standard updated', id);
+      return globalStandards[index];
+    }
+    throw new Error(`Standard with id ${id} not found`);
+  },
+
+  deleteGlobalStandard: async (id: string) => {
+    globalStandards = globalStandards.filter(s => s.id !== id);
+    console.log('Mock API: Global standard deleted', id);
+    return { message: 'Standard deleted successfully' };
+  },
+
+  // Initialize with sample data
+  initializeSampleData: async () => {
+    // Sample standards
+    globalStandards = [
+      {
+        id: 'std-1',
+        title: 'Brand Color Compliance',
+        category: 'guideline',
+        description: 'All documents must use approved brand colors from the corporate palette',
+        content: 'Primary: #003366, Secondary: #3498db, Accent: #e74c3c',
+        links: [{ title: 'Brand Guidelines', url: 'https://brand.company.com' }],
+        applicableTemplates: ['default', 'whitepaper'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'std-2',
+        title: 'Font Standards',
+        category: 'standard',
+        description: 'Corporate font standards for all documents',
+        content: 'Body: Segoe UI 11pt, Headings: Segoe UI Bold 14-24pt',
+        links: [],
+        applicableTemplates: ['default', 'engineering'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'std-3',
+        title: 'Document Compliance Checklist',
+        category: 'policy',
+        description: 'Mandatory compliance requirements for all corporate documents',
+        content: 'Every document must include: title page, toc, footer with page numbers, company branding',
+        links: [],
+        applicableTemplates: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+    return { message: 'Sample data initialized' };
+  },
+};

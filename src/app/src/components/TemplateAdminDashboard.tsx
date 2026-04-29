@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TemplateConfigurationEditor from './TemplateConfigurationEditor';
+import { AdminControlPanel } from './AdminControlPanel';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import './TemplateAdminDashboard.css';
@@ -27,6 +28,7 @@ function TemplateAdminDashboard() {
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [cloneSourceTemplate, setCloneSourceTemplate] = useState<Template | null>(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -189,13 +191,22 @@ function TemplateAdminDashboard() {
 
   if (loading) return <div className="loading">{t('common.loading')}</div>;
 
+  if (showAdminPanel) {
+    return <AdminControlPanel onClose={() => setShowAdminPanel(false)} />;
+  }
+
   return (
     <div className="template-dashboard">
       <div className="dashboard-header">
         <h2>{t('templates.manageTemplates') || 'Manage Templates'}</h2>
-        <button className="create-button" onClick={handleCreateTemplate}>
-          + {t('templates.createTemplate')}
-        </button>
+        <div className="header-actions">
+          <button className="admin-button" onClick={() => setShowAdminPanel(true)}>
+            ⚙️ {t('admin.controlPanel') || 'Admin Controls'}
+          </button>
+          <button className="create-button" onClick={handleCreateTemplate}>
+            + {t('templates.createTemplate')}
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
