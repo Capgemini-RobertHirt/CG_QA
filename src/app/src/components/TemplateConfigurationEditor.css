@@ -13,7 +13,7 @@
   border-radius: 8px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
 }
 
 .editor-header {
@@ -36,6 +36,35 @@
 
 .clone-info strong {
   color: #3498db;
+}
+
+/* View Mode Tabs */
+.view-mode-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #7f8c8d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #3498db;
+}
+
+.tab-btn.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
 }
 
 .alert {
@@ -122,6 +151,8 @@
   background: #f8f9fa;
   padding: 15px;
   border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .config-row {
@@ -224,6 +255,17 @@
   cursor: not-allowed;
 }
 
+/* Component Editor View */
+.component-editor-view {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ecf0f1;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
 @media (max-width: 768px) {
   .template-editor-container {
     padding: 20px 10px;
@@ -231,6 +273,7 @@
 
   .template-editor {
     padding: 25px;
+    max-width: 100%;
   }
 
   .editor-header h2 {
@@ -248,23 +291,15 @@
   .form-actions {
     grid-template-columns: 1fr;
   }
-}
-}
 
-.actions button:first-child {
-  background-color: #27ae60;
-}
+  .view-mode-tabs {
+    flex-wrap: wrap;
+  }
 
-.actions button:first-child:hover {
-  background-color: #229954;
-}
-
-.actions button:last-child {
-  background-color: #95a5a6;
-}
-
-.actions button:last-child:hover {
-  background-color: #7f8c8d;
+  .tab-btn {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -272,15 +307,15 @@
     padding: 20px;
   }
 
-  .config-item {
+  .config-row {
     grid-template-columns: 1fr;
   }
 
-  .delete-button {
+  .btn-remove {
     grid-column: 1;
   }
 
-  .actions {
+  .form-actions {
     flex-direction: column;
   }
 }

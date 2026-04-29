@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
+import ComponentTreeEditor from './ComponentTreeEditor';
 import './TemplateConfigurationEditor.css';
 
 interface Template {
@@ -82,6 +83,7 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'simple' | 'components'>('simple');
   const { t } = useTranslation();
 
   const isEditing = Boolean(template?.id);
@@ -206,79 +208,109 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
           )}
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-
-        <div className="form-group">
-          <label htmlFor="template-name">{t('templates.templateName')} *</label>
-          <input
-            id="template-name"
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (nameError) setNameError(null);
-            }}
-            placeholder={t('templates.enterTemplateName') || 'e.g., Technical Proposal'}
-            className={nameError ? 'input-error' : ''}
-            maxLength={100}
-          />
-          {nameError && <span className="error-message">{nameError}</span>}
-          <span className="char-count">{name.length}/100</span>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="template-type">{t('templates.templateType')} *</label>
-          <select id="template-type" value={type} onChange={(e) => setType(e.target.value)}>
-            {TEMPLATE_TYPES.map(t => (
-              <option key={t} value={t}>
-                {t.replace(/_/g, ' ').charAt(0).toUpperCase() + t.replace(/_/g, ' ').slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>{t('templates.configuration')} ({configEntries.filter(e => e.key.trim()).length})</label>
-          <p className="form-hint">{t('templates.configurationHint') || 'Add key-value pairs for template configuration'}</p>
-          <div className="config-items">
-            {configEntries.map((entry, index) => (
-              <div key={index} className="config-row">
-                <input
-                  type="text"
-                  value={entry.key}
-                  onChange={(e) => handleConfigChange(index, 'key', e.target.value)}
-                  placeholder={t('templates.configKey') || 'Key'}
-                  className="config-key"
-                  maxLength={50}
-                />
-                <input
-                  type="text"
-                  value={entry.value}
-                  onChange={(e) => handleConfigChange(index, 'value', e.target.value)}
-                  placeholder={t('templates.configValue') || 'Value'}
-                  className="config-value"
-                  maxLength={100}
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveConfigItem(index)}
-                  className="btn-remove"
-                  title={t('templates.removeItem') || 'Remove this item'}
-                  aria-label="Remove configuration item"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
+        {/* View Mode Tabs */}
+        <div className="view-mode-tabs">
           <button
-            type="button"
-            onClick={handleAddConfigItem}
-            className="btn btn-secondary"
+            className={`tab-btn ${viewMode === 'simple' ? 'active' : ''}`}
+            onClick={() => setViewMode('simple')}
           >
-            + {t('templates.addItem') || 'Add Configuration Item'}
+            ⚙️ {t('templates.basicSettings') || 'Basic Settings'}
+          </button>
+          <button
+            className={`tab-btn ${viewMode === 'components' ? 'active' : ''}`}
+            onClick={() => setViewMode('components')}
+          >
+            📦 {t('templates.componentStructure') || 'Component Structure'}
           </button>
         </div>
+
+        {error && <div className="alert alert-error">{error}</div>}
+
+        {viewMode === 'simple' ? (
+          <>
+            <div className="form-group">
+              <label htmlFor="template-name">{t('templates.templateName')} *</label>
+              <input
+                id="template-name"
+                type="text"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (nameError) setNameError(null);
+                }}
+                placeholder={t('templates.enterTemplateName') || 'e.g., Technical Proposal'}
+                className={nameError ? 'input-error' : ''}
+                maxLength={100}
+              />
+              {nameError && <span className="error-message">{nameError}</span>}
+              <span className="char-count">{name.length}/100</span>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="template-type">{t('templates.templateType')} *</label>
+              <select id="template-type" value={type} onChange={(e) => setType(e.target.value)}>
+                {TEMPLATE_TYPES.map(t => (
+                  <option key={t} value={t}>
+                    {t.replace(/_/g, ' ').charAt(0).toUpperCase() + t.replace(/_/g, ' ').slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{t('templates.configuration')} ({configEntries.filter(e => e.key.trim()).length})</label>
+              <p className="form-hint">{t('templates.configurationHint') || 'Add key-value pairs for template configuration'}</p>
+              <div className="config-items">
+                {configEntries.map((entry, index) => (
+                  <div key={index} className="config-row">
+                    <input
+                      type="text"
+                      value={entry.key}
+                      onChange={(e) => handleConfigChange(index, 'key', e.target.value)}
+                      placeholder={t('templates.configKey') || 'Key'}
+                      className="config-key"
+                      maxLength={50}
+                    />
+                    <input
+                      type="text"
+                      value={entry.value}
+                      onChange={(e) => handleConfigChange(index, 'value', e.target.value)}
+                      placeholder={t('templates.configValue') || 'Value'}
+                      className="config-value"
+                      maxLength={100}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveConfigItem(index)}
+                      className="btn-remove"
+                      title={t('templates.removeItem') || 'Remove this item'}
+                      aria-label="Remove configuration item"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={handleAddConfigItem}
+                className="btn btn-secondary"
+              >
+                + {t('templates.addItem') || 'Add Configuration Item'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="component-editor-view">
+            <ComponentTreeEditor
+              templateStructure={template?.structure || {}}
+              onSave={(structure) => {
+                // Update template structure with component data
+                console.log('Component structure saved:', structure);
+              }}
+            />
+          </div>
+        )}
 
         <div className="form-actions">
           <button

@@ -58,6 +58,7 @@
     "removeItem": "Dieses Konfigurationselement entfernen",
     "clone": "Klonen",
     "items": "Elemente",
+    "sections": "Abschnitte",
     "updated": "Aktualisiert",
     "noTemplates": "Keine Vorlagen gefunden",
     "createFirst": "Erstellen Sie Ihre erste Vorlage",
@@ -69,7 +70,16 @@
     "basedOn": "Basierend auf",
     "editTooltip": "Diese Vorlage bearbeiten",
     "cloneTooltip": "Eine Kopie dieser Vorlage erstellen",
-    "deleteTooltip": "Diese Vorlage löschen"
+    "deleteTooltip": "Diese Vorlage löschen",
+    "basicSettings": "Grundeinstellungen",
+    "componentStructure": "Komponentenstruktur",
+    "components": "Komponenten",
+    "subcomponents": "Unterelemente",
+    "addComponent": "Komponente Hinzufügen",
+    "addSubcomponent": "Unterelement Hinzufügen",
+    "properties": "Eigenschaften",
+    "componentSettings": "Komponenteneinstellungen",
+    "legoBlocks": "Lego-Blöcke"
   },
   "errors": {
     "loadFailed": "Fehler beim Laden der Vorlagen",

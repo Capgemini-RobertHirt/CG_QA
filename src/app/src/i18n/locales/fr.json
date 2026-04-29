@@ -58,6 +58,7 @@
     "removeItem": "Supprimer cet élément de configuration",
     "clone": "Cloner",
     "items": "Éléments",
+    "sections": "Sections",
     "updated": "Mis à jour",
     "noTemplates": "Aucun modèle trouvé",
     "createFirst": "Créez votre premier modèle",
@@ -69,7 +70,16 @@
     "basedOn": "Basé sur",
     "editTooltip": "Modifier ce modèle",
     "cloneTooltip": "Créer une copie de ce modèle",
-    "deleteTooltip": "Supprimer ce modèle"
+    "deleteTooltip": "Supprimer ce modèle",
+    "basicSettings": "Paramètres de Base",
+    "componentStructure": "Structure des Composants",
+    "components": "Composants",
+    "subcomponents": "Sous-Éléments",
+    "addComponent": "Ajouter un Composant",
+    "addSubcomponent": "Ajouter un Sous-Élément",
+    "properties": "Propriétés",
+    "componentSettings": "Paramètres du Composant",
+    "legoBlocks": "Briques Lego"
   },
   "errors": {
     "loadFailed": "Échec du chargement des modèles",

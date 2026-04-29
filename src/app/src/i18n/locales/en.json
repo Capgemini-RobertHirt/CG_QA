@@ -58,6 +58,7 @@
     "removeItem": "Remove this configuration item",
     "clone": "Clone",
     "items": "Items",
+    "sections": "Sections",
     "updated": "Updated",
     "noTemplates": "No templates found",
     "createFirst": "Create your first template",
@@ -69,7 +70,16 @@
     "basedOn": "Based on",
     "editTooltip": "Edit this template",
     "cloneTooltip": "Create a copy of this template",
-    "deleteTooltip": "Delete this template"
+    "deleteTooltip": "Delete this template",
+    "basicSettings": "Basic Settings",
+    "componentStructure": "Component Structure",
+    "components": "Components",
+    "subcomponents": "Sub-elements",
+    "addComponent": "Add Component",
+    "addSubcomponent": "Add Sub-element",
+    "properties": "Properties",
+    "componentSettings": "Component Settings",
+    "legoBlocks": "Lego Blocks"
   },
   "errors": {
     "loadFailed": "Failed to load templates",
