@@ -303,7 +303,7 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
         ) : (
           <div className="component-editor-view">
             <ComponentTreeEditor
-              templateStructure={template?.structure || {}}
+              templateStructure={template?.structure?.legoBlocks || {}}
               onSave={(structure) => {
                 // Update template structure with component data
                 console.log('Component structure saved:', structure);

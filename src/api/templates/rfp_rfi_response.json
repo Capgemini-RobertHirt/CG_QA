@@ -7,19 +7,23 @@
     "case_study": {},
     "methodology_guide": {}
   },
-
   "global_rules": {
-    "severity_levels": ["blocker", "critical", "major", "minor", "advisory"],
+    "severity_levels": [
+      "blocker",
+      "critical",
+      "major",
+      "minor",
+      "advisory"
+    ],
     "scoring": {
       "weights": {
         "structure": 0.25,
         "design": 0.35,
-        "compliance": 0.20,
-        "business_context": 0.20
+        "compliance": 0.2,
+        "business_context": 0.2
       }
     }
   },
-
   "structure": {
     "sections": {
       "required": [
@@ -51,37 +55,447 @@
     "cross_references": {
       "figures_numbered": true,
       "tables_numbered": true
+    },
+    "legoBlocks": {
+      "executive_summary": {
+        "components": [
+          {
+            "id": "ef4515e1-c03d-429b-9fbc-3d0e213c83e4",
+            "componentId": "card",
+            "name": "Executive Summary",
+            "category": "container",
+            "properties": {
+              "title": "Executive Summary",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "2c12648b-98c6-48de-8c10-71e585a7dda7",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "60848269-4119-41a1-b086-6b4cccdfb789",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "solution_overview": {
+        "components": [
+          {
+            "id": "d6eb68e2-0f04-4ab5-9984-522b63d6127f",
+            "componentId": "card",
+            "name": "Solution Overview",
+            "category": "container",
+            "properties": {
+              "title": "Solution Overview",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "66810126-9f12-4d2c-89cb-603a962b4574",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "d713fd30-d490-4675-ae5c-795325a0aed4",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "approach_methodology": {
+        "components": [
+          {
+            "id": "e8c1bbfd-1fab-4b9b-8679-3d4c04cae7e2",
+            "componentId": "card",
+            "name": "Approach & Methodology",
+            "category": "container",
+            "properties": {
+              "title": "Approach & Methodology",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "eaacb43f-f50a-4558-876d-fc3f28009563",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "258f206a-a5d2-4fa2-91c2-31c4a3f9efe1",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "implementation_timeline": {
+        "components": [
+          {
+            "id": "48851b81-e82c-4d40-83bf-19112b8ee1c2",
+            "componentId": "timeline",
+            "name": "Implementation Timeline",
+            "category": "special",
+            "properties": {
+              "orientation": "vertical",
+              "itemCount": 4
+            },
+            "subcomponents": [
+              {
+                "id": "0a3aca7c-85ee-4b5d-a800-b93231171cb4",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "team_qualifications": {
+        "components": [
+          {
+            "id": "5dc34754-ea7c-408e-b40f-6a2f10c37cea",
+            "componentId": "card",
+            "name": "Team Qualifications",
+            "category": "container",
+            "properties": {
+              "title": "Team Qualifications",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "b954eee6-431b-4116-a98b-660847b1964a",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "47f5ab7c-b4c0-4c22-8cf0-20cc1934831b",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "risk_management": {
+        "components": [
+          {
+            "id": "c4c0f630-dcba-4348-b35f-019e30e60fe3",
+            "componentId": "table",
+            "name": "Risk Management",
+            "category": "media",
+            "properties": {
+              "title": "Risk Management"
+            },
+            "subcomponents": []
+          }
+        ]
+      },
+      "pricing_commercial": {
+        "components": [
+          {
+            "id": "6acc4ad0-2c56-46bf-9f00-99117e8c33c4",
+            "componentId": "table",
+            "name": "Pricing & Commercial",
+            "category": "media",
+            "properties": {
+              "title": "Pricing & Commercial"
+            },
+            "subcomponents": []
+          }
+        ]
+      },
+      "terms_conditions": {
+        "components": [
+          {
+            "id": "b31bd9d2-af9f-45dd-8fb2-0a6731ee8c34",
+            "componentId": "card",
+            "name": "Terms & Conditions",
+            "category": "container",
+            "properties": {
+              "title": "Terms & Conditions",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "f164fcc3-bd45-4d5d-8489-b257f40380ca",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "acb1c49c-1a1e-4a07-b94d-8177c51f1bec",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "case_studies": {
+        "components": [
+          {
+            "id": "105cd913-6af9-410a-8012-246ab47d7a75",
+            "componentId": "grid",
+            "name": "Case Studies",
+            "category": "layout",
+            "properties": {
+              "rows": 2,
+              "columns": 2,
+              "gap": "16px"
+            },
+            "subcomponents": [
+              {
+                "id": "dbf678fd-9338-42df-b0b0-4152783c1f06",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "appendix": {
+        "components": [
+          {
+            "id": "bbea9c24-8ef2-4765-92d7-683f65497068",
+            "componentId": "card",
+            "name": "Appendix",
+            "category": "container",
+            "properties": {
+              "title": "Appendix",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "0d76e493-73f5-4795-8f71-9810d2c21f61",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "177c2253-978f-43b5-bede-2b88b4661efe",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "references": {
+        "components": [
+          {
+            "id": "567c7447-bb23-4da1-999e-93929b03941f",
+            "componentId": "card",
+            "name": "References",
+            "category": "container",
+            "properties": {
+              "title": "References",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "3186efa0-6d00-4899-bb43-cc60982e64d0",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "699e0a6b-22f6-4833-8675-7d3d3d57b6c0",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "compliance_certifications": {
+        "components": [
+          {
+            "id": "78c176fc-d43a-4ee7-8b76-ac0cd36cf601",
+            "componentId": "card",
+            "name": "Compliance Certifications",
+            "category": "container",
+            "properties": {
+              "title": "Compliance Certifications",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "ca6fc852-ab55-4c66-8f66-ae11c18ca528",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "1cce0644-de63-46d7-97ac-d0867e760392",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   },
-
   "design": {
     "fonts": {
       "title": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 20, "max": 28 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 20,
+          "max": 28
+        },
         "weight": "bold"
       },
       "heading": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 14, "max": 18 },
-        "weight": ["bold", "semibold"]
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 14,
+          "max": 18
+        },
+        "weight": [
+          "bold",
+          "semibold"
+        ]
       },
       "body": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 10, "max": 12 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 10,
+          "max": 12
+        },
         "weight": "regular"
       }
     },
-
     "colors": {
       "palette_required": true,
-      "primary": ["#003366", "#0066CC"],
-      "secondary": ["#FFFFFF", "#F5F5F5"],
-      "text": ["#000000", "#1F1F1F"],
-      "accent": ["#FF6B35"],
+      "primary": [
+        "#003366",
+        "#0066CC"
+      ],
+      "secondary": [
+        "#FFFFFF",
+        "#F5F5F5"
+      ],
+      "text": [
+        "#000000",
+        "#1F1F1F"
+      ],
+      "accent": [
+        "#FF6B35"
+      ],
       "max_colors_per_page": 5
     },
-
     "grid": {
       "type": "column_grid",
       "columns": 12,
@@ -89,26 +503,30 @@
       "baseline_grid": true,
       "snap_tolerance_px": 4
     },
-
     "alignment": {
       "enforce_horizontal": true,
       "enforce_vertical": true,
-      "justification_allowed": ["left"],
+      "justification_allowed": [
+        "left"
+      ],
       "nearly_aligned_threshold_px": 6
     },
-
     "spacing": {
-      "line_spacing": { "min": 1.1, "max": 1.2 },
-      "paragraph_spacing_px": { "before": 6, "after": 6 },
+      "line_spacing": {
+        "min": 1.1,
+        "max": 1.2
+      },
+      "paragraph_spacing_px": {
+        "before": 6,
+        "after": 6
+      },
       "consistent_spacing_required": true
     },
-
     "master_usage": {
       "required": true,
       "allow_local_overrides": false
     }
   },
-
   "components": {
     "repeated_components": {
       "resource_card": {
@@ -133,7 +551,6 @@
       }
     }
   },
-
   "images": {
     "min_resolution_dpi": 150,
     "max_width_percent": 90,
@@ -143,14 +560,12 @@
     },
     "alignment_to_grid_required": true
   },
-
   "tables": {
     "header_required": true,
     "header_style": "bold",
     "border_style": "light_grid",
     "row_alignment_consistent": true
   },
-
   "header_footer": {
     "required": true,
     "locked": true,
@@ -162,7 +577,6 @@
     ],
     "date_required": true
   },
-
   "compliance": {
     "legal_disclaimer": {
       "required": true,
@@ -174,11 +588,13 @@
       "third_party_logos_disallowed": true
     },
     "confidentiality_level": {
-      "allowed": ["company_confidential", "client_confidential"],
+      "allowed": [
+        "company_confidential",
+        "client_confidential"
+      ],
       "must_match_document_type": true
     }
   },
-
   "business_context": {
     "client_specificity": {
       "client_name_required": true,
@@ -198,7 +614,6 @@
       "numbers_consistent_across_sections": true
     }
   },
-
   "anti_patterns": {
     "design": [
       "almost_aligned_elements",
@@ -214,7 +629,6 @@
       "tbd_entries"
     ]
   },
-
   "output": {
     "per_dimension_scores": true,
     "annotated_findings": true,

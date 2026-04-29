@@ -7,19 +7,23 @@
     "best_practices_guide": {},
     "resource_template": {}
   },
-
   "global_rules": {
-    "severity_levels": ["blocker", "critical", "major", "minor", "advisory"],
+    "severity_levels": [
+      "blocker",
+      "critical",
+      "major",
+      "minor",
+      "advisory"
+    ],
     "scoring": {
       "weights": {
         "structure": 0.25,
         "design": 0.35,
-        "compliance": 0.20,
-        "business_context": 0.20
+        "compliance": 0.2,
+        "business_context": 0.2
       }
     }
   },
-
   "structure": {
     "sections": {
       "required": [
@@ -48,37 +52,420 @@
     "cross_references": {
       "figures_numbered": true,
       "tables_numbered": true
+    },
+    "legoBlocks": {
+      "title_description": {
+        "components": [
+          {
+            "id": "e1ffbb56-2f88-4744-a784-259469df0e73",
+            "componentId": "card",
+            "name": "Title & Description",
+            "category": "container",
+            "properties": {
+              "title": "Title & Description",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "ca50f884-5e34-41c6-9a2a-ebea981bcf2f",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "f4c22f41-5cc9-480b-b77c-3a6e7817fc38",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "asset_overview": {
+        "components": [
+          {
+            "id": "a87102c7-d589-4226-bea3-d9abe65b9590",
+            "componentId": "card",
+            "name": "Asset Overview",
+            "category": "container",
+            "properties": {
+              "title": "Asset Overview",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "7f39f0f2-587c-4607-b7d9-cadfeb4ae6e0",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "45d9d61e-4a79-4ce4-b586-35a99dc50dcf",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "key_content": {
+        "components": [
+          {
+            "id": "0bbca406-ea62-4393-bd86-dadc3a72d604",
+            "componentId": "grid",
+            "name": "Key Content",
+            "category": "layout",
+            "properties": {
+              "rows": 2,
+              "columns": 2,
+              "gap": "16px"
+            },
+            "subcomponents": [
+              {
+                "id": "25566cab-7252-4cca-9bde-6e5b02e5a727",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "usage_instructions": {
+        "components": [
+          {
+            "id": "ffcdec61-10fd-407d-9090-c2cf76689937",
+            "componentId": "numbered_list",
+            "name": "Usage Instructions",
+            "category": "container",
+            "properties": {
+              "title": "Usage Instructions",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "de33634a-7b51-4780-80d8-3f809443ebce",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "d4d99d99-a3b0-4d38-af21-a2a199691919",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "business_value": {
+        "components": [
+          {
+            "id": "54c57111-ddf0-469a-8d29-a63112aa7b90",
+            "componentId": "card",
+            "name": "Business Value",
+            "category": "container",
+            "properties": {
+              "title": "Business Value",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "536fcb33-07c5-40c9-bdc3-df9698b6054a",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "b7c1f38d-c6f9-4bbe-baff-ad63a77128cf",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "related_assets": {
+        "components": [
+          {
+            "id": "e3511e55-270d-4e55-8fc0-c4ba060205ba",
+            "componentId": "grid",
+            "name": "Related Assets",
+            "category": "layout",
+            "properties": {
+              "rows": 2,
+              "columns": 2,
+              "gap": "16px"
+            },
+            "subcomponents": [
+              {
+                "id": "3ab960e1-5525-4754-84ff-eddeeb15b8ce",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "appendix": {
+        "components": [
+          {
+            "id": "2abebe32-a71c-4415-9059-32716b2073a8",
+            "componentId": "card",
+            "name": "Appendix",
+            "category": "container",
+            "properties": {
+              "title": "Appendix",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "b1dc4909-6557-4d67-94b9-d538932b66ff",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "f81808f1-806a-4649-b257-1554fa62ebaa",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "references": {
+        "components": [
+          {
+            "id": "735684ef-7554-4707-bf1e-b59653f74d28",
+            "componentId": "card",
+            "name": "References",
+            "category": "container",
+            "properties": {
+              "title": "References",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "bc369b7b-2e86-4eae-920f-99661af4e4e9",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "15bca4c2-672b-4549-a73c-75be9ab7397e",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "faq": {
+        "components": [
+          {
+            "id": "f3506177-420c-40ef-ad9b-0622bca0c5a1",
+            "componentId": "card",
+            "name": "FAQ",
+            "category": "container",
+            "properties": {
+              "title": "FAQ",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "f840d1d5-adc9-4135-a1fa-ba689b2fdb18",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "88e90e1b-dcb8-4518-b7b0-46986f9a7e93",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "support_contact": {
+        "components": [
+          {
+            "id": "c4f7a91c-38c8-4e91-b68c-fccace937463",
+            "componentId": "card",
+            "name": "Support Contact",
+            "category": "container",
+            "properties": {
+              "title": "Support Contact",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "f26f6d65-de4f-49be-a2a3-fd698980a48f",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "52738a9f-377c-4b7e-879b-e295c88db551",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   },
-
   "design": {
     "fonts": {
       "title": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 16, "max": 24 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 16,
+          "max": 24
+        },
         "weight": "bold"
       },
       "heading": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 12, "max": 16 },
-        "weight": ["bold", "semibold"]
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 12,
+          "max": 16
+        },
+        "weight": [
+          "bold",
+          "semibold"
+        ]
       },
       "body": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 10, "max": 12 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 10,
+          "max": 12
+        },
         "weight": "regular"
       }
     },
-
     "colors": {
       "palette_required": true,
-      "primary": ["#003366", "#0066CC"],
-      "secondary": ["#FFFFFF", "#F5F5F5"],
-      "text": ["#000000", "#1F1F1F"],
-      "accent": ["#FF6B35"],
+      "primary": [
+        "#003366",
+        "#0066CC"
+      ],
+      "secondary": [
+        "#FFFFFF",
+        "#F5F5F5"
+      ],
+      "text": [
+        "#000000",
+        "#1F1F1F"
+      ],
+      "accent": [
+        "#FF6B35"
+      ],
       "max_colors_per_page": 5
     },
-
     "grid": {
       "type": "column_grid",
       "columns": 12,
@@ -86,26 +473,30 @@
       "baseline_grid": true,
       "snap_tolerance_px": 4
     },
-
     "alignment": {
       "enforce_horizontal": true,
       "enforce_vertical": true,
-      "justification_allowed": ["left"],
+      "justification_allowed": [
+        "left"
+      ],
       "nearly_aligned_threshold_px": 6
     },
-
     "spacing": {
-      "line_spacing": { "min": 1.1, "max": 1.2 },
-      "paragraph_spacing_px": { "before": 6, "after": 6 },
+      "line_spacing": {
+        "min": 1.1,
+        "max": 1.2
+      },
+      "paragraph_spacing_px": {
+        "before": 6,
+        "after": 6
+      },
       "consistent_spacing_required": true
     },
-
     "master_usage": {
       "required": true,
       "allow_local_overrides": false
     }
   },
-
   "components": {
     "repeated_components": {
       "resource_card": {
@@ -126,7 +517,6 @@
       }
     }
   },
-
   "images": {
     "min_resolution_dpi": 150,
     "max_width_percent": 90,
@@ -136,14 +526,12 @@
     },
     "alignment_to_grid_required": true
   },
-
   "tables": {
     "header_required": true,
     "header_style": "bold",
     "border_style": "light_grid",
     "row_alignment_consistent": true
   },
-
   "header_footer": {
     "required": true,
     "locked": true,
@@ -154,7 +542,6 @@
     ],
     "date_required": true
   },
-
   "compliance": {
     "legal_disclaimer": {
       "required": false,
@@ -166,11 +553,13 @@
       "third_party_logos_disallowed": true
     },
     "confidentiality_level": {
-      "allowed": ["company_confidential", "internal_use"],
+      "allowed": [
+        "company_confidential",
+        "internal_use"
+      ],
       "must_match_document_type": false
     }
   },
-
   "business_context": {
     "client_specificity": {
       "client_name_required": false,
@@ -190,7 +579,6 @@
       "numbers_consistent_across_sections": true
     }
   },
-
   "anti_patterns": {
     "design": [
       "almost_aligned_elements",
@@ -205,7 +593,6 @@
       "low_practical_value"
     ]
   },
-
   "output": {
     "per_dimension_scores": true,
     "annotated_findings": true,

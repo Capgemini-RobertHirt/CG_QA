@@ -7,19 +7,23 @@
     "decision_briefing": {},
     "workshop_materials": {}
   },
-
   "global_rules": {
-    "severity_levels": ["blocker", "critical", "major", "minor", "advisory"],
+    "severity_levels": [
+      "blocker",
+      "critical",
+      "major",
+      "minor",
+      "advisory"
+    ],
     "scoring": {
       "weights": {
-        "structure": 0.30,
-        "design": 0.30,
+        "structure": 0.3,
+        "design": 0.3,
         "compliance": 0.15,
         "business_context": 0.25
       }
     }
   },
-
   "structure": {
     "sections": {
       "required": [
@@ -51,37 +55,493 @@
     "cross_references": {
       "figures_numbered": true,
       "tables_numbered": true
+    },
+    "legoBlocks": {
+      "title_slide": {
+        "components": [
+          {
+            "id": "c9b57033-db1e-4903-a295-4b6b975f659a",
+            "componentId": "card",
+            "name": "Title Slide",
+            "category": "container",
+            "properties": {
+              "title": "Title Slide",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "9cc014e9-de10-4672-84f5-8f9fa96ff4c5",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "eb485d5f-6f3a-42e1-822e-a515fb9e6a83",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "meeting_agenda": {
+        "components": [
+          {
+            "id": "d6691925-70ec-4ee0-b5b8-7b219634b5db",
+            "componentId": "numbered_list",
+            "name": "Meeting Agenda",
+            "category": "container",
+            "properties": {
+              "title": "Meeting Agenda",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "c5e9340d-7e3a-4113-8c20-003bd184e98e",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "126e167b-90b3-426a-8f45-4d05f0412624",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "executive_summary": {
+        "components": [
+          {
+            "id": "40f7fde7-fa3f-4d52-99d2-08f2f700a537",
+            "componentId": "card",
+            "name": "Executive Summary",
+            "category": "container",
+            "properties": {
+              "title": "Executive Summary",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "687f38e5-0b8d-4145-923b-12601388d9fc",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "26a34f41-139a-49b2-8464-116b6314167b",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "background_context": {
+        "components": [
+          {
+            "id": "0f4dce97-69cc-4495-b45e-b0c628dcd4b0",
+            "componentId": "card",
+            "name": "Background Context",
+            "category": "container",
+            "properties": {
+              "title": "Background Context",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "ac91f9fe-b47f-497d-8fe7-39e4c30db163",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "951a54d9-0720-447d-9d73-d851f2e89574",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "key_topics": {
+        "components": [
+          {
+            "id": "36a652a4-b5de-4caa-a33e-1b69d69810f6",
+            "componentId": "grid",
+            "name": "Key Topics",
+            "category": "layout",
+            "properties": {
+              "rows": 2,
+              "columns": 2,
+              "gap": "16px"
+            },
+            "subcomponents": [
+              {
+                "id": "78bdc4d1-f70a-4b9b-9db1-5c50b913ee26",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "discussion_points": {
+        "components": [
+          {
+            "id": "f634ad76-1a3d-4465-a7ca-445628bd2f51",
+            "componentId": "card",
+            "name": "Discussion Points",
+            "category": "container",
+            "properties": {
+              "title": "Discussion Points",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "aa70bb56-04cc-4073-a690-030e226c2143",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "f7a76905-b883-45bd-ada6-f068e9009ef7",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "action_items": {
+        "components": [
+          {
+            "id": "61acfa75-0410-46bb-8628-7f080fb4a9e3",
+            "componentId": "numbered_list",
+            "name": "Action Items",
+            "category": "container",
+            "properties": {
+              "title": "Action Items",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "4904d58d-7725-4e52-bc46-9ebfbdeac13b",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "75117193-9f7d-4a8e-8eae-6c6a0a05bbb7",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "next_steps": {
+        "components": [
+          {
+            "id": "d318b20a-6833-478b-99ef-21886e99f000",
+            "componentId": "timeline",
+            "name": "Next Steps",
+            "category": "special",
+            "properties": {
+              "orientation": "vertical",
+              "itemCount": 4
+            },
+            "subcomponents": [
+              {
+                "id": "53cdf03c-73c2-4b18-9b1f-1cb81930759b",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "appendix": {
+        "components": [
+          {
+            "id": "fbb18c74-b280-446e-b29e-7bc8076a92b1",
+            "componentId": "card",
+            "name": "Appendix",
+            "category": "container",
+            "properties": {
+              "title": "Appendix",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "1dee0ba8-e366-4bdb-9af0-17e89fa3f637",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "b3306808-7cf3-43d0-bb8e-ee08e81f78b8",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "references": {
+        "components": [
+          {
+            "id": "43df05d7-1e10-4d17-8f12-f2caf7bd0542",
+            "componentId": "card",
+            "name": "References",
+            "category": "container",
+            "properties": {
+              "title": "References",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "65b9dd62-1359-4754-bf22-2dc2864970f3",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "217ed1dc-dd9b-46d1-973e-05245f2f1c69",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "glossary": {
+        "components": [
+          {
+            "id": "c155192e-2e8a-4e70-a6aa-d90ee9aba4a9",
+            "componentId": "card",
+            "name": "Glossary",
+            "category": "container",
+            "properties": {
+              "title": "Glossary",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "362a216c-1f9b-4b29-b9e7-94d3379ca227",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "d73d6783-b749-4add-a2b9-23ad576d3236",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "contact_information": {
+        "components": [
+          {
+            "id": "38b2d97b-9714-4472-ba25-6f5cd74880ea",
+            "componentId": "card",
+            "name": "Contact Information",
+            "category": "container",
+            "properties": {
+              "title": "Contact Information",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "12ff1cc7-7467-404c-b244-5c7438869693",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "982c2603-a09a-46c9-8fa3-d30b9b545a8d",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   },
-
   "design": {
     "fonts": {
       "title": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 28, "max": 44 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 28,
+          "max": 44
+        },
         "weight": "bold"
       },
       "heading": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 18, "max": 24 },
-        "weight": ["bold", "semibold"]
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 18,
+          "max": 24
+        },
+        "weight": [
+          "bold",
+          "semibold"
+        ]
       },
       "body": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 12, "max": 14 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 12,
+          "max": 14
+        },
         "weight": "regular"
       }
     },
-
     "colors": {
       "palette_required": true,
-      "primary": ["#003366", "#0066CC"],
-      "secondary": ["#FFFFFF", "#F5F5F5"],
-      "text": ["#000000", "#1F1F1F"],
-      "accent": ["#FF6B35"],
+      "primary": [
+        "#003366",
+        "#0066CC"
+      ],
+      "secondary": [
+        "#FFFFFF",
+        "#F5F5F5"
+      ],
+      "text": [
+        "#000000",
+        "#1F1F1F"
+      ],
+      "accent": [
+        "#FF6B35"
+      ],
       "max_colors_per_page": 5
     },
-
     "grid": {
       "type": "column_grid",
       "columns": 12,
@@ -89,26 +549,31 @@
       "baseline_grid": true,
       "snap_tolerance_px": 4
     },
-
     "alignment": {
       "enforce_horizontal": true,
       "enforce_vertical": true,
-      "justification_allowed": ["left", "center"],
+      "justification_allowed": [
+        "left",
+        "center"
+      ],
       "nearly_aligned_threshold_px": 6
     },
-
     "spacing": {
-      "line_spacing": { "min": 1.2, "max": 1.5 },
-      "paragraph_spacing_px": { "before": 8, "after": 8 },
+      "line_spacing": {
+        "min": 1.2,
+        "max": 1.5
+      },
+      "paragraph_spacing_px": {
+        "before": 8,
+        "after": 8
+      },
       "consistent_spacing_required": true
     },
-
     "master_usage": {
       "required": true,
       "allow_local_overrides": false
     }
   },
-
   "components": {
     "repeated_components": {
       "agenda_item": {
@@ -127,7 +592,6 @@
       }
     }
   },
-
   "images": {
     "min_resolution_dpi": 120,
     "max_width_percent": 85,
@@ -137,14 +601,12 @@
     },
     "alignment_to_grid_required": true
   },
-
   "tables": {
     "header_required": true,
     "header_style": "bold",
     "border_style": "light_grid",
     "row_alignment_consistent": true
   },
-
   "header_footer": {
     "required": true,
     "locked": true,
@@ -155,7 +617,6 @@
     ],
     "date_required": true
   },
-
   "compliance": {
     "legal_disclaimer": {
       "required": false,
@@ -167,11 +628,13 @@
       "third_party_logos_disallowed": true
     },
     "confidentiality_level": {
-      "allowed": ["internal_only", "company_confidential"],
+      "allowed": [
+        "internal_only",
+        "company_confidential"
+      ],
       "must_match_document_type": false
     }
   },
-
   "business_context": {
     "client_specificity": {
       "client_name_required": false,
@@ -191,7 +654,6 @@
       "numbers_consistent_across_sections": true
     }
   },
-
   "anti_patterns": {
     "design": [
       "overcrowded_slides",
@@ -206,7 +668,6 @@
       "no_time_allocations"
     ]
   },
-
   "output": {
     "per_dimension_scores": true,
     "annotated_findings": true,

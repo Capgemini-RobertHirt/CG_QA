@@ -7,19 +7,23 @@
     "executive_article": {},
     "thought_leadership": {}
   },
-
   "global_rules": {
-    "severity_levels": ["blocker", "critical", "major", "minor", "advisory"],
+    "severity_levels": [
+      "blocker",
+      "critical",
+      "major",
+      "minor",
+      "advisory"
+    ],
     "scoring": {
       "weights": {
         "structure": 0.25,
         "design": 0.35,
-        "compliance": 0.20,
-        "business_context": 0.20
+        "compliance": 0.2,
+        "business_context": 0.2
       }
     }
   },
-
   "structure": {
     "sections": {
       "required": [
@@ -48,37 +52,429 @@
     "cross_references": {
       "figures_numbered": true,
       "tables_numbered": true
+    },
+    "legoBlocks": {
+      "title_overview": {
+        "components": [
+          {
+            "id": "43443238-d170-44a5-a5a0-f2a7cc9a9d42",
+            "componentId": "card",
+            "name": "Title Overview",
+            "category": "container",
+            "properties": {
+              "title": "Title Overview",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "5bca310d-fe9d-4e21-a0cc-9e19c8ee4dba",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "23a994f6-9f5a-47e2-9fab-a74f180622bf",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "executive_perspective": {
+        "components": [
+          {
+            "id": "e9f66a10-5a02-41fc-97a4-e0b921a94ae2",
+            "componentId": "callout",
+            "name": "Executive Perspective",
+            "category": "special",
+            "properties": {
+              "title": "Executive Perspective",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "60b8b876-ffd8-45bf-a026-46d8b48768c2",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "99a1c6bb-9ebc-4570-9261-efe849101823",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "business_context": {
+        "components": [
+          {
+            "id": "2524358b-5c55-47fe-a1c6-d9400b0b17c5",
+            "componentId": "card",
+            "name": "Business Context",
+            "category": "container",
+            "properties": {
+              "title": "Business Context",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "42c61ecb-7720-417c-9ef5-f79c7efcf5c3",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "c83b0a28-94a4-4dbf-b2b0-3ba6e5fdb7ad",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "key_insights": {
+        "components": [
+          {
+            "id": "9c0e8345-5e32-499d-93d2-c6d40e6f9a1e",
+            "componentId": "card",
+            "name": "Key Insights",
+            "category": "container",
+            "properties": {
+              "title": "Key Insights",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "859926f6-e6f7-482d-8ce6-850adb9eb688",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "373bef53-ee9f-4ed1-8634-538854adfab7",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "market_implications": {
+        "components": [
+          {
+            "id": "be45cb14-5c36-494b-b2f6-145b58e4c4b7",
+            "componentId": "card",
+            "name": "Market Implications",
+            "category": "container",
+            "properties": {
+              "title": "Market Implications",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "fe54bfc6-0a20-4de4-ae08-e4ec486b684a",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "26ba680a-db2f-4b68-a58d-253354ffba9a",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "strategic_recommendations": {
+        "components": [
+          {
+            "id": "82c77c60-ad1a-44f6-a86e-97f7d90f7f52",
+            "componentId": "card",
+            "name": "Strategic Recommendations",
+            "category": "container",
+            "properties": {
+              "title": "Strategic Recommendations",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "d878e5d7-5d2a-41e1-9645-07ab0b5e14cf",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "9d4f87e0-97fd-4537-b6e0-4a9ea8896e37",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "call_to_action": {
+        "components": [
+          {
+            "id": "b915feb1-46dd-4a6e-9f28-4cd5d3321323",
+            "componentId": "callout",
+            "name": "Call to Action",
+            "category": "special",
+            "properties": {
+              "title": "Call to Action",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "4860d702-caef-4f3d-a6fe-7adc7b166a87",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "707938ff-a3e9-4394-b228-d6b9aa0dd88b",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "case_examples": {
+        "components": [
+          {
+            "id": "5d727c60-3a84-4273-b080-49155b484af8",
+            "componentId": "grid",
+            "name": "Case Examples",
+            "category": "layout",
+            "properties": {
+              "rows": 2,
+              "columns": 2,
+              "gap": "16px"
+            },
+            "subcomponents": [
+              {
+                "id": "cde08050-41c2-483a-9e7f-9119dacd6f89",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "appendix": {
+        "components": [
+          {
+            "id": "93f55183-a6e2-4781-9955-7cbff244e01b",
+            "componentId": "card",
+            "name": "Appendix",
+            "category": "container",
+            "properties": {
+              "title": "Appendix",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "e920d6e3-9e33-46ba-baf4-23cf179d6024",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "70aa5e50-bd4b-4f69-9dd2-e9f565f96f2a",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "references": {
+        "components": [
+          {
+            "id": "e593b8c5-e616-486a-8dd1-8ae8476d5e04",
+            "componentId": "card",
+            "name": "References",
+            "category": "container",
+            "properties": {
+              "title": "References",
+              "variant": "default"
+            },
+            "subcomponents": [
+              {
+                "id": "84de2ea5-b061-41e3-abe3-ac99877f325b",
+                "subcomponentId": "title",
+                "name": "Section Title",
+                "properties": {
+                  "fontSize": "24px",
+                  "fontWeight": "bold",
+                  "alignment": "left",
+                  "marginBottom": "16px"
+                }
+              },
+              {
+                "id": "ef71abf3-eb96-4ca8-8c30-cb41bba471e1",
+                "subcomponentId": "paragraph",
+                "name": "Section Content",
+                "properties": {
+                  "fontSize": "12px",
+                  "lineHeight": "1.5",
+                  "color": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   },
-
   "design": {
     "fonts": {
       "title": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 20, "max": 28 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 20,
+          "max": 28
+        },
         "weight": "bold"
       },
       "heading": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 14, "max": 18 },
-        "weight": ["bold", "semibold"]
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 14,
+          "max": 18
+        },
+        "weight": [
+          "bold",
+          "semibold"
+        ]
       },
       "body": {
-        "allowed": ["Calibri", "Segoe UI"],
-        "size": { "min": 10, "max": 12 },
+        "allowed": [
+          "Calibri",
+          "Segoe UI"
+        ],
+        "size": {
+          "min": 10,
+          "max": 12
+        },
         "weight": "regular"
       }
     },
-
     "colors": {
       "palette_required": true,
-      "primary": ["#003366", "#0066CC"],
-      "secondary": ["#FFFFFF", "#F5F5F5"],
-      "text": ["#000000", "#1F1F1F"],
-      "accent": ["#FF6B35"],
+      "primary": [
+        "#003366",
+        "#0066CC"
+      ],
+      "secondary": [
+        "#FFFFFF",
+        "#F5F5F5"
+      ],
+      "text": [
+        "#000000",
+        "#1F1F1F"
+      ],
+      "accent": [
+        "#FF6B35"
+      ],
       "max_colors_per_page": 5
     },
-
     "grid": {
       "type": "column_grid",
       "columns": 12,
@@ -86,26 +482,30 @@
       "baseline_grid": true,
       "snap_tolerance_px": 4
     },
-
     "alignment": {
       "enforce_horizontal": true,
       "enforce_vertical": true,
-      "justification_allowed": ["left"],
+      "justification_allowed": [
+        "left"
+      ],
       "nearly_aligned_threshold_px": 6
     },
-
     "spacing": {
-      "line_spacing": { "min": 1.1, "max": 1.2 },
-      "paragraph_spacing_px": { "before": 6, "after": 6 },
+      "line_spacing": {
+        "min": 1.1,
+        "max": 1.2
+      },
+      "paragraph_spacing_px": {
+        "before": 6,
+        "after": 6
+      },
       "consistent_spacing_required": true
     },
-
     "master_usage": {
       "required": true,
       "allow_local_overrides": false
     }
   },
-
   "components": {
     "repeated_components": {
       "insight_callout": {
@@ -117,7 +517,6 @@
       }
     }
   },
-
   "images": {
     "min_resolution_dpi": 150,
     "max_width_percent": 90,
@@ -127,14 +526,12 @@
     },
     "alignment_to_grid_required": true
   },
-
   "tables": {
     "header_required": true,
     "header_style": "bold",
     "border_style": "light_grid",
     "row_alignment_consistent": true
   },
-
   "header_footer": {
     "required": true,
     "locked": true,
@@ -145,7 +542,6 @@
     ],
     "date_required": true
   },
-
   "compliance": {
     "legal_disclaimer": {
       "required": false,
@@ -157,11 +553,13 @@
       "third_party_logos_disallowed": true
     },
     "confidentiality_level": {
-      "allowed": ["company_confidential", "public"],
+      "allowed": [
+        "company_confidential",
+        "public"
+      ],
       "must_match_document_type": false
     }
   },
-
   "business_context": {
     "client_specificity": {
       "client_name_required": false,
@@ -181,7 +579,6 @@
       "numbers_consistent_across_sections": true
     }
   },
-
   "anti_patterns": {
     "design": [
       "almost_aligned_elements",
@@ -196,7 +593,6 @@
       "weak_call_to_action"
     ]
   },
-
   "output": {
     "per_dimension_scores": true,
     "annotated_findings": true,

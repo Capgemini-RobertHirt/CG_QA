@@ -360,6 +360,100 @@ const countConfigItems = (config: any): number => {
   return count;
 };
 
+// Helper function to generate legoBlocks from section configuration
+const generateLegoBlocks = (config: any) => {
+  if (!config?.structure?.sections) {
+    return {};
+  }
+
+  const legoBlocks: Record<string, any> = {};
+  const allSections = [
+    ...(config.structure.sections.required || []),
+    ...(config.structure.sections.optional || []),
+  ];
+
+  // Section name to component mapping
+  const sectionComponentMap: Record<string, { comp: string; name: string }> = {
+    'introduction': { comp: 'card', name: 'Introduction' },
+    'executive_summary': { comp: 'card', name: 'Executive Summary' },
+    'overview': { comp: 'card', name: 'Overview' },
+    'proposal': { comp: 'card', name: 'Proposal' },
+    'technical_overview': { comp: 'card', name: 'Technical Overview' },
+    'architecture': { comp: 'column', name: 'Architecture' },
+    'design': { comp: 'card', name: 'Design' },
+    'implementation': { comp: 'card', name: 'Implementation' },
+    'business_case': { comp: 'card', name: 'Business Case' },
+    'benefits': { comp: 'card', name: 'Benefits' },
+    'risk_mitigation': { comp: 'table', name: 'Risk Mitigation' },
+    'compliance': { comp: 'card', name: 'Compliance' },
+    'performance': { comp: 'chart', name: 'Performance' },
+    'support': { comp: 'card', name: 'Support' },
+    'conclusion': { comp: 'card', name: 'Conclusion' },
+    'appendix': { comp: 'card', name: 'Appendix' },
+    'references': { comp: 'card', name: 'References' },
+    'pricing': { comp: 'table', name: 'Pricing' },
+    'title_description': { comp: 'card', name: 'Title & Description' },
+    'asset_overview': { comp: 'card', name: 'Asset Overview' },
+    'key_content': { comp: 'grid', name: 'Key Content' },
+    'usage_instructions': { comp: 'numbered_list', name: 'Usage Instructions' },
+    'related_assets': { comp: 'grid', name: 'Related Assets' },
+    'faq': { comp: 'card', name: 'FAQ' },
+    'title_slide': { comp: 'card', name: 'Title Slide' },
+    'meeting_agenda': { comp: 'numbered_list', name: 'Meeting Agenda' },
+    'background_context': { comp: 'card', name: 'Background Context' },
+    'key_topics': { comp: 'grid', name: 'Key Topics' },
+    'discussion_points': { comp: 'card', name: 'Discussion Points' },
+  };
+
+  // Generate component instance for each section
+  allSections.forEach(section => {
+    const mapping = sectionComponentMap[section] || {
+      comp: 'card',
+      name: section.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
+    };
+
+    legoBlocks[section] = {
+      components: [
+        {
+          id: `comp-${Date.now()}-${Math.random()}`,
+          componentId: mapping.comp,
+          name: mapping.name,
+          category: 'container',
+          properties: {
+            title: mapping.name,
+            variant: 'default',
+          },
+          subcomponents: [
+            {
+              id: `subcomp-${Date.now()}-title`,
+              subcomponentId: 'title',
+              name: 'Section Title',
+              properties: {
+                fontSize: '24px',
+                fontWeight: 'bold',
+                alignment: 'left',
+                marginBottom: '16px',
+              },
+            },
+            {
+              id: `subcomp-${Date.now()}-paragraph`,
+              subcomponentId: 'paragraph',
+              name: 'Section Content',
+              properties: {
+                fontSize: '12px',
+                lineHeight: '1.5',
+                color: '#333333',
+              },
+            },
+          ],
+        },
+      ],
+    };
+  });
+
+  return legoBlocks;
+};
+
 export const mockApi = {
   /**
    * Get all available template types (entity types)
@@ -379,14 +473,20 @@ export const mockApi = {
     // Create template objects from baseline configs
     const baselineTemplates: Record<string, Template> = {};
     DEFAULT_TYPES.forEach(type => {
+      const config = TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS];
+      const structure = {
+        ...config?.structure,
+        legoBlocks: generateLegoBlocks(config),
+      };
+      
       baselineTemplates[`template-baseline-${type}`] = {
         id: `template-baseline-${type}`,
         entity_type: type,
         name: type.replace(/_/g, ' ').charAt(0).toUpperCase() + type.replace(/_/g, ' ').slice(1),
-        global_rules: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.global_rules || {},
-        structure: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.structure,
-        design: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.design,
-        document_types: TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]?.document_types,
+        global_rules: config?.global_rules || {},
+        structure,
+        design: config?.design,
+        document_types: config?.document_types,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         type: 'baseline',
@@ -399,12 +499,18 @@ export const mockApi = {
 
     // Add custom templates (which include baseline-modified versions)
     customTemplates.forEach(template => {
+      const baseConfig = template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS] : undefined;
+      const templateConfig = template.structure || baseConfig;
+      
       result.push({
         ...template,
-        // Ensure all structure fields are preserved if they exist
-        structure: template.structure || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.structure : undefined),
-        document_types: template.document_types || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.document_types : undefined),
-        design: template.design || (template.entity_type ? TEMPLATE_CONFIGS[template.entity_type as keyof typeof TEMPLATE_CONFIGS]?.design : undefined),
+        // Ensure all structure fields are preserved and include legoBlocks
+        structure: {
+          ...(template.structure || (baseConfig?.structure || {})),
+          legoBlocks: template.structure?.legoBlocks || generateLegoBlocks(templateConfig),
+        },
+        document_types: template.document_types || (baseConfig?.document_types),
+        design: template.design || (baseConfig?.design),
       });
       seenIds.add(template.id);
     });
@@ -446,11 +552,21 @@ export const mockApi = {
     // Check if it's a custom template
     const customIndex = customTemplates.findIndex(t => t.id === id);
     if (customIndex !== -1) {
-      customTemplates[customIndex] = {
+      const updatedTemplate = {
         ...customTemplates[customIndex],
         ...template,
         updated_at: new Date().toISOString(),
       };
+      
+      // Regenerate legoBlocks if structure changed
+      if (template.structure && !template.structure.legoBlocks) {
+        updatedTemplate.structure = {
+          ...template.structure,
+          legoBlocks: generateLegoBlocks(template),
+        };
+      }
+      
+      customTemplates[customIndex] = updatedTemplate;
       console.log('Mock API: Custom template updated', id);
       return {
         id: customTemplates[customIndex].id,
