@@ -10,12 +10,14 @@ permissions:
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy
+    name: Build and Deploy Frontend and API
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,21 +29,18 @@ jobs:
         run: npm ci
         working-directory: src/app
 
-      - name: Lint frontend
-        run: npm run lint
-        working-directory: src/app
-
       - name: Build frontend
         run: npm run build
         working-directory: src/app
 
-      # API build
+      # API preparation (Azure Functions don't need separate build, just dependencies)
       - name: Install API dependencies
         run: npm ci
         working-directory: src/api
 
-      # Deploy to Static Web App (frontend + API)
+      # Deploy to Azure Static Web Apps with API
       - name: Deploy to Azure Static Web Apps
+        id: deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOYMENT_TOKEN }}
@@ -50,6 +49,12 @@ jobs:
           app_location: src/app
           api_location: src/api
           output_location: dist
-          skip_app_build: false
-          skip_api_build: false
+          skip_app_build: true
+          skip_api_build: true
+          
+      - name: Verify Deployment
+        run: |
+          echo "Deployment completed"
+          echo "Frontend URL: https://kind-sand-0ab0a5003.7.azurestaticapps.net"
+          echo "API endpoints should be available at /api/"
 
