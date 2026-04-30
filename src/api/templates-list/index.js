@@ -4,14 +4,18 @@ const fs = require('fs')
 const path = require('path')
 
 /**
- * GET /api/templates-list
- * Returns all templates with full structure and details
+ * GET /api/templates/list
+ * Returns all templates with full structure, details, and legoBlocks
+ * GUARANTEED to return valid template data with legoBlocks
  */
 module.exports = async function templatesList(context, req) {
+  const startTime = Date.now()
+  const logPrefix = `[templates-list ${new Date().toISOString()}]`
+  
   try {
-    context.log('templates-list endpoint called')
+    context.log(`${logPrefix} Endpoint invoked`)
+    context.log(`${logPrefix} CWD: ${process.cwd()}, __dirname: ${__dirname}`)
     
-    // Try to load templates from JSON files directly
     const templateNames = [
       'default.json',
       'engineering.json',
@@ -24,27 +28,36 @@ module.exports = async function templatesList(context, req) {
     
     const templates = []
     
-    // Try multiple paths
+    // Try multiple paths - be very specific about Azure deployment paths
     const possiblePaths = [
-      path.join(__dirname, '..', 'templates'),
-      path.join(process.cwd(), 'src', 'api', 'templates'),
-      path.join(process.cwd(), 'api', 'templates'),
-      path.join(process.cwd(), '..', 'api', 'templates'),
-      path.join(process.cwd(), '..', 'src', 'api', 'templates'),
+      path.join(__dirname, '..', 'templates'),  // From function directory: ../templates
+      path.join(__dirname, '..', '..', 'templates'),  // From function: ../../templates
+      '/home/site/wwwroot/src/api/templates',  // Azure SWA full path
+      path.join(process.cwd(), 'src', 'api', 'templates'),  // CWD based
+      path.join(process.cwd(), 'api', 'templates'),  // Alternative
     ]
     
+    context.log(`${logPrefix} Searching for templates in ${possiblePaths.length} possible paths`)
+    
     let templatesDir = null
-    for (const dir of possiblePaths) {
-      if (fs.existsSync(dir)) {
-        templatesDir = dir
-        context.log(`✓ Found templates directory: ${templatesDir}`)
-        break
-      } else {
-        context.log(`✗ Templates directory not found: ${dir}`)
+    for (let i = 0; i < possiblePaths.length; i++) {
+      const dir = possiblePaths[i]
+      try {
+        if (fs.existsSync(dir)) {
+          templatesDir = dir
+          context.log(`${logPrefix} SUCCESS: Found templates at path #${i + 1}: ${dir}`)
+          break
+        } else {
+          context.log(`${logPrefix} Path #${i + 1} not found: ${dir}`)
+        }
+      } catch (pathError) {
+        context.log(`${logPrefix} Error checking path #${i + 1}: ${pathError.message}`)
       }
     }
     
+    // Load templates from files if directory found
     if (templatesDir) {
+      context.log(`${logPrefix} Loading ${templateNames.length} template files from: ${templatesDir}`)
       for (const filename of templateNames) {
         const filePath = path.join(templatesDir, filename)
         try {
@@ -56,19 +69,17 @@ module.exports = async function templatesList(context, req) {
             const legoBlocks = template.structure?.legoBlocks || {}
             const legoBlockKeys = Object.keys(legoBlocks)
             const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
-              const sectionComponents = section.components ? section.components.length : 0
-              return sum + sectionComponents
+              return sum + (section.components ? section.components.length : 0)
             }, 0)
             
-            context.log(`Processing ${filename}: structure exists=${!!template.structure}, legoBlocks found=${legoBlockKeys.length} sections with ${componentCount} total components`)
+            context.log(`${logPrefix} Loaded ${filename}: ${legoBlockKeys.length} sections, ${componentCount} components`)
             
-            // Create complete template object - DON'T spread template to avoid nesting issues
+            // Create complete template object - explicitly set all properties
             const completeTemplate = {
               id: template.entity_type,
               entityType: template.entity_type,
               entity_type: template.entity_type,
               name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-              // Include all key properties from original template
               document_types: template.document_types || {},
               documentTypes: template.document_types || {},
               global_rules: template.global_rules || {},
@@ -83,42 +94,51 @@ module.exports = async function templatesList(context, req) {
               business_context: template.business_context,
               anti_patterns: template.anti_patterns,
               output: template.output,
-              // IMPORTANT: Surface legoBlocks at root level
-              legoBlocks: legoBlocks,
+              legoBlocks: legoBlocks, // CRITICAL: Surface at root level
               type: 'quality-template',
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             }
             
             templates.push(completeTemplate)
-            context.log(`Loaded template: ${template.entity_type} with ${legoBlockKeys.length} sections and ${componentCount} components - legoBlocks keys: ${legoBlockKeys.join(', ')}`)
+          } else {
+            context.log(`${logPrefix} File not found: ${filePath}`)
           }
-        } catch (e) {
-          context.log(`Error loading ${filename}: ${e.message}`)
+        } catch (fileError) {
+          context.log(`${logPrefix} Error processing ${filename}: ${fileError.message}`)
         }
       }
+    } else {
+      context.log(`${logPrefix} WARNING: Could not find templates directory in any path`)
     }
     
-    // If we loaded templates from files, return them
+    // If we successfully loaded templates from files, return them
     if (templates.length > 0) {
+      context.log(`${logPrefix} SUCCESS: Returning ${templates.length} templates loaded from files (${Date.now() - startTime}ms)`)
       context.res = {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           templates: templates,
           count: templates.length,
+          source: 'file',
         }),
       }
       return
     }
     
-    // Fallback - always return something
-    context.log('No templates loaded from files, using fallback templates with legoBlocks')
+    context.log(`${logPrefix} No templates from files, using comprehensive fallback templates`)
+    
+    context.log(`${logPrefix} No templates from files, using comprehensive fallback templates`)
+    
+    // Fallback with full legoBlocks - guaranteed to return valid template data
     const fallbackTemplates = [
       { 
         id: 'default', 
         entityType: 'default', 
+        entity_type: 'default',
         name: 'Default', 
+        documentTypes: {},
         structure: { sections: { required: ['introduction', 'proposal'], optional: ['conclusion', 'appendix', 'references', 'acknowledgments'] } },
         legoBlocks: {
           introduction: { components: [{ id: '1', componentId: 'card', name: 'Introduction', subcomponents: [{ id: '1a', subcomponentId: 'title', name: 'Title' }, { id: '1b', subcomponentId: 'paragraph', name: 'Content' }] }] },
@@ -127,48 +147,57 @@ module.exports = async function templatesList(context, req) {
           appendix: { components: [{ id: '4', componentId: 'card', name: 'Appendix', subcomponents: [{ id: '4a', subcomponentId: 'title', name: 'Title' }, { id: '4b', subcomponentId: 'paragraph', name: 'Content' }] }] },
           references: { components: [{ id: '5', componentId: 'card', name: 'References', subcomponents: [{ id: '5a', subcomponentId: 'list', name: 'Reference List' }] }] },
           acknowledgments: { components: [{ id: '6', componentId: 'card', name: 'Acknowledgments', subcomponents: [{ id: '6a', subcomponentId: 'paragraph', name: 'Acknowledgment Text' }] }] },
-        }
+        },
+        type: 'quality-template',
       },
       { 
         id: 'engineering', 
         entityType: 'engineering', 
+        entity_type: 'engineering',
         name: 'Engineering', 
+        documentTypes: {},
         structure: { sections: { required: ['overview', 'requirements', 'design', 'implementation'], optional: ['appendix', 'references', 'glossary'] } },
         legoBlocks: {
-          overview: { components: [{ id: '1', componentId: 'card', name: 'Overview', subcomponents: [{ id: '1a', subcomponentId: 'title', name: 'Title' }, { id: '1b', subcomponentId: 'paragraph', name: 'Content' }] }] },
-          requirements: { components: [{ id: '2', componentId: 'card', name: 'Requirements', subcomponents: [{ id: '2a', subcomponentId: 'title', name: 'Title' }, { id: '2b', subcomponentId: 'list', name: 'Requirements List' }] }] },
-          design: { components: [{ id: '3', componentId: 'card', name: 'Design', subcomponents: [{ id: '3a', subcomponentId: 'title', name: 'Title' }, { id: '3b', subcomponentId: 'diagram', name: 'Diagram' }] }] },
-          implementation: { components: [{ id: '4', componentId: 'card', name: 'Implementation', subcomponents: [{ id: '4a', subcomponentId: 'title', name: 'Title' }, { id: '4b', subcomponentId: 'code', name: 'Code' }] }] },
-          appendix: { components: [{ id: '5', componentId: 'card', name: 'Appendix', subcomponents: [{ id: '5a', subcomponentId: 'content', name: 'Additional Content' }] }] },
-          references: { components: [{ id: '6', componentId: 'card', name: 'References', subcomponents: [{ id: '6a', subcomponentId: 'list', name: 'Reference List' }] }] },
-          glossary: { components: [{ id: '7', componentId: 'card', name: 'Glossary', subcomponents: [{ id: '7a', subcomponentId: 'definitions', name: 'Term Definitions' }] }] },
-          technical_overview: { components: [{ id: '8', componentId: 'card', name: 'Technical Overview', subcomponents: [{ id: '8a', subcomponentId: 'title', name: 'Title' }, { id: '8b', subcomponentId: 'paragraph', name: 'Content' }] }] },
-          architecture: { components: [{ id: '9', componentId: 'card', name: 'Architecture', subcomponents: [{ id: '9a', subcomponentId: 'diagram', name: 'Architecture Diagram' }] }] },
-          support: { components: [{ id: '10', componentId: 'card', name: 'Support', subcomponents: [{ id: '10a', subcomponentId: 'contact', name: 'Contact Information' }] }] },
-        }
+          overview: { components: [{ id: '1', componentId: 'card', name: 'Overview' }] },
+          requirements: { components: [{ id: '2', componentId: 'card', name: 'Requirements' }] },
+          design: { components: [{ id: '3', componentId: 'card', name: 'Design' }] },
+          implementation: { components: [{ id: '4', componentId: 'card', name: 'Implementation' }] },
+          appendix: { components: [{ id: '5', componentId: 'card', name: 'Appendix' }] },
+          references: { components: [{ id: '6', componentId: 'card', name: 'References' }] },
+          glossary: { components: [{ id: '7', componentId: 'card', name: 'Glossary' }] },
+          technical_overview: { components: [{ id: '8', componentId: 'card', name: 'Technical Overview' }] },
+          architecture: { components: [{ id: '9', componentId: 'card', name: 'Architecture' }] },
+          support: { components: [{ id: '10', componentId: 'card', name: 'Support' }] },
+        },
+        type: 'quality-template',
       },
       { 
         id: 'asset', 
         entityType: 'asset', 
+        entity_type: 'asset',
         name: 'Asset', 
+        documentTypes: {},
         structure: { sections: { required: ['overview', 'inventory', 'specifications'], optional: ['appendix', 'references', 'details'] } },
         legoBlocks: {
-          overview: { components: [{ id: '1', componentId: 'card', name: 'Overview', subcomponents: [{ id: '1a', subcomponentId: 'title', name: 'Title' }, { id: '1b', subcomponentId: 'paragraph', name: 'Description' }] }] },
-          inventory: { components: [{ id: '2', componentId: 'card', name: 'Inventory', subcomponents: [{ id: '2a', subcomponentId: 'title', name: 'Title' }, { id: '2b', subcomponentId: 'table', name: 'Inventory Table' }] }] },
-          specifications: { components: [{ id: '3', componentId: 'card', name: 'Specifications', subcomponents: [{ id: '3a', subcomponentId: 'title', name: 'Title' }, { id: '3b', subcomponentId: 'specs', name: 'Technical Specs' }] }] },
-          appendix: { components: [{ id: '4', componentId: 'card', name: 'Appendix', subcomponents: [{ id: '4a', subcomponentId: 'content', name: 'Content' }] }] },
-          references: { components: [{ id: '5', componentId: 'card', name: 'References', subcomponents: [{ id: '5a', subcomponentId: 'list', name: 'References' }] }] },
-          details: { components: [{ id: '6', componentId: 'card', name: 'Details', subcomponents: [{ id: '6a', subcomponentId: 'paragraph', name: 'Additional Details' }] }] },
+          overview: { components: [{ id: '1', componentId: 'card', name: 'Overview' }] },
+          inventory: { components: [{ id: '2', componentId: 'card', name: 'Inventory' }] },
+          specifications: { components: [{ id: '3', componentId: 'card', name: 'Specifications' }] },
+          appendix: { components: [{ id: '4', componentId: 'card', name: 'Appendix' }] },
+          references: { components: [{ id: '5', componentId: 'card', name: 'References' }] },
+          details: { components: [{ id: '6', componentId: 'card', name: 'Details' }] },
           title_description: { components: [{ id: '7', componentId: 'card', name: 'Title & Description' }] },
           asset_overview: { components: [{ id: '8', componentId: 'card', name: 'Asset Overview' }] },
           key_content: { components: [{ id: '9', componentId: 'card', name: 'Key Content' }] },
           usage_instructions: { components: [{ id: '10', componentId: 'card', name: 'Usage Instructions' }] },
-        }
+        },
+        type: 'quality-template',
       },
       { 
         id: 'whitepaper', 
         entityType: 'whitepaper', 
+        entity_type: 'whitepaper',
         name: 'Whitepaper', 
+        documentTypes: {},
         structure: { sections: { required: ['abstract', 'introduction', 'content', 'conclusion', 'references'], optional: ['appendix', 'glossary', 'index', 'foreword'] } },
         legoBlocks: {
           abstract: { components: [{ id: '1', componentId: 'card', name: 'Abstract' }] },
@@ -182,15 +211,18 @@ module.exports = async function templatesList(context, req) {
           foreword: { components: [{ id: '9', componentId: 'card', name: 'Foreword' }] },
           title_page: { components: [{ id: '10', componentId: 'card', name: 'Title Page' }] },
           executive_summary: { components: [{ id: '11', componentId: 'card', name: 'Executive Summary' }] },
-          background_context: { components: [{ id: '12', componentId: 'card', name: 'Background & Context' }] },
+          background_context: { components: [{ id: '12', componentId: 'card', name: 'Background' }] },
           case_studies: { components: [{ id: '13', componentId: 'card', name: 'Case Studies' }] },
           acknowledgments: { components: [{ id: '14', componentId: 'card', name: 'Acknowledgments' }] },
-        }
+        },
+        type: 'quality-template',
       },
       { 
         id: 'point_of_view', 
         entityType: 'point_of_view', 
+        entity_type: 'point_of_view',
         name: 'Point of View', 
+        documentTypes: {},
         structure: { sections: { required: ['introduction', 'perspective', 'rationale', 'conclusion'], optional: ['appendix', 'references', 'case_studies'] } },
         legoBlocks: {
           introduction: { components: [{ id: '1', componentId: 'card', name: 'Introduction' }] },
@@ -203,12 +235,15 @@ module.exports = async function templatesList(context, req) {
           title_overview: { components: [{ id: '8', componentId: 'card', name: 'Title & Overview' }] },
           executive_perspective: { components: [{ id: '9', componentId: 'card', name: 'Executive Perspective' }] },
           key_insights: { components: [{ id: '10', componentId: 'card', name: 'Key Insights' }] },
-        }
+        },
+        type: 'quality-template',
       },
       { 
         id: 'rfp_rfi_response', 
         entityType: 'rfp_rfi_response', 
+        entity_type: 'rfp_rfi_response',
         name: 'RFP/RFI Response', 
+        documentTypes: {},
         structure: { sections: { required: ['executive_summary', 'approach', 'team', 'pricing', 'timeline'], optional: ['appendix', 'references', 'case_studies', 'credentials'] } },
         legoBlocks: {
           executive_summary: { components: [{ id: '1', componentId: 'card', name: 'Executive Summary' }] },
@@ -222,13 +257,16 @@ module.exports = async function templatesList(context, req) {
           credentials: { components: [{ id: '9', componentId: 'card', name: 'Credentials' }] },
           solution_overview: { components: [{ id: '10', componentId: 'card', name: 'Solution Overview' }] },
           implementation_timeline: { components: [{ id: '11', componentId: 'card', name: 'Implementation Timeline' }] },
-          compliance_certifications: { components: [{ id: '12', componentId: 'card', name: 'Compliance & Certifications' }] },
-        }
+          compliance_certifications: { components: [{ id: '12', componentId: 'card', name: 'Compliance' }] },
+        },
+        type: 'quality-template',
       },
       { 
         id: 'internal_meeting_presentation', 
         entityType: 'internal_meeting_presentation', 
+        entity_type: 'internal_meeting_presentation',
         name: 'Internal Meeting Presentation', 
+        documentTypes: {},
         structure: { sections: { required: ['agenda', 'content', 'action_items', 'next_steps'], optional: ['appendix', 'references', 'notes', 'attendees'] } },
         legoBlocks: {
           agenda: { components: [{ id: '1', componentId: 'card', name: 'Agenda' }] },
@@ -243,36 +281,44 @@ module.exports = async function templatesList(context, req) {
           executive_summary: { components: [{ id: '10', componentId: 'card', name: 'Executive Summary' }] },
           discussion_points: { components: [{ id: '11', componentId: 'card', name: 'Discussion Points' }] },
           contact_information: { components: [{ id: '12', componentId: 'card', name: 'Contact Information' }] },
-        }
+        },
+        type: 'quality-template',
       },
     ]
     
+    context.log(`${logPrefix} Returning ${fallbackTemplates.length} fallback templates (${Date.now() - startTime}ms)`)
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         templates: fallbackTemplates,
         count: fallbackTemplates.length,
+        source: 'fallback',
       }),
     }
   } catch (error) {
-    context.log(`Error in templates-list: ${error.message}`)
+    context.log(`${logPrefix} CRITICAL ERROR: ${error.message} | Stack: ${error.stack}`)
     
-    // Ultimate fallback - return at least the template names
+    // Ultimate fallback - return minimal valid response with legoBlocks
+    const ultimateFallback = [
+      { id: 'default', entityType: 'default', entity_type: 'default', name: 'Default', legoBlocks: { default: { components: [{ id: '1', name: 'Default' }] } }, type: 'quality-template' },
+      { id: 'engineering', entityType: 'engineering', entity_type: 'engineering', name: 'Engineering', legoBlocks: { engineering: { components: [{ id: '1', name: 'Engineering' }] } }, type: 'quality-template' },
+      { id: 'asset', entityType: 'asset', entity_type: 'asset', name: 'Asset', legoBlocks: { asset: { components: [{ id: '1', name: 'Asset' }] } }, type: 'quality-template' },
+      { id: 'whitepaper', entityType: 'whitepaper', entity_type: 'whitepaper', name: 'Whitepaper', legoBlocks: { whitepaper: { components: [{ id: '1', name: 'Whitepaper' }] } }, type: 'quality-template' },
+      { id: 'point_of_view', entityType: 'point_of_view', entity_type: 'point_of_view', name: 'Point of View', legoBlocks: { pov: { components: [{ id: '1', name: 'POV' }] } }, type: 'quality-template' },
+      { id: 'rfp_rfi_response', entityType: 'rfp_rfi_response', entity_type: 'rfp_rfi_response', name: 'RFP/RFI Response', legoBlocks: { rfp: { components: [{ id: '1', name: 'RFP' }] } }, type: 'quality-template' },
+      { id: 'internal_meeting_presentation', entityType: 'internal_meeting_presentation', entity_type: 'internal_meeting_presentation', name: 'Internal Meeting Presentation', legoBlocks: { presentation: { components: [{ id: '1', name: 'Presentation' }] } }, type: 'quality-template' },
+    ]
+    
+    context.log(`${logPrefix} Returning ultimate fallback with ${ultimateFallback.length} templates`)
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        templates: [
-          { id: 'default', entityType: 'default', name: 'Default' },
-          { id: 'engineering', entityType: 'engineering', name: 'Engineering' },
-          { id: 'asset', entityType: 'asset', name: 'Asset' },
-          { id: 'whitepaper', entityType: 'whitepaper', name: 'Whitepaper' },
-          { id: 'point_of_view', entityType: 'point_of_view', name: 'Point of View' },
-          { id: 'rfp_rfi_response', entityType: 'rfp_rfi_response', name: 'RFP/RFI Response' },
-          { id: 'internal_meeting_presentation', entityType: 'internal_meeting_presentation', name: 'Internal Meeting Presentation' },
-        ],
-        count: 7,
+        templates: ultimateFallback,
+        count: ultimateFallback.length,
+        source: 'ultimate-fallback',
+        error: error.message,
       }),
     }
   }
