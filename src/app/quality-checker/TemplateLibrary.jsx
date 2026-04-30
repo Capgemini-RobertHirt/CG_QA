@@ -66,8 +66,8 @@ export default function TemplateLibrary() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
         {templates.map((template) => {
-          // Calculate total components
-          const legoBlocks = template.legoBlocks || template.lego_blocks || {}
+          // Calculate total components - get legoBlocks from either root or structure
+          const legoBlocks = template.legoBlocks || template.structure?.legoBlocks || {}
           const totalComponents = Object.values(legoBlocks).reduce((sum, section) => {
             return sum + (section.components ? section.components.length : 0)
           }, 0)
@@ -103,7 +103,7 @@ export default function TemplateLibrary() {
         })}
       </div>
 
-      {selectedTemplate && (
+          {selectedTemplate && (
         <div style={{ marginTop: '2rem', border: '1px solid #0066cc', padding: '1rem', borderRadius: '8px' }}>
           <h2>{selectedTemplate.entityType || selectedTemplate.name}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -125,36 +125,42 @@ export default function TemplateLibrary() {
             </div>
           </div>
 
-          {selectedTemplate.legoBlocks && Object.keys(selectedTemplate.legoBlocks).length > 0 && (
-            <div style={{ marginTop: '1.5rem' }}>
-              <h4>Components by Section</h4>
-              {Object.entries(selectedTemplate.legoBlocks).map(([sectionName, sectionData]) => (
-                <div key={sectionName} style={{ marginBottom: '1.5rem', paddingLeft: '1rem', borderLeft: '3px solid #0066cc' }}>
-                  <h5 style={{ margin: '0.5rem 0' }}>{sectionName.replace(/_/g, ' ').toUpperCase()}</h5>
-                  {sectionData.components && sectionData.components.length > 0 ? (
-                    <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
-                      {sectionData.components.map((component) => (
-                        <li key={component.id} style={{ marginBottom: '0.5rem' }}>
-                          <strong>{component.name}</strong> ({component.componentId})
-                          {component.subcomponents && component.subcomponents.length > 0 && (
-                            <ul style={{ marginTop: '0.25rem', marginBottom: '0.5rem' }}>
-                              {component.subcomponents.map((sub) => (
-                                <li key={sub.id} style={{ fontSize: '0.9em', color: '#666' }}>
-                                  {sub.name}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p style={{ color: '#999', fontSize: '0.9em' }}>No components defined</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          {(() => {
+            // Get legoBlocks from either root level or structure
+            const legoBlocks = selectedTemplate.legoBlocks || selectedTemplate.structure?.legoBlocks || {}
+            const hasComponents = Object.keys(legoBlocks).length > 0
+            
+            return hasComponents && (
+              <div style={{ marginTop: '1.5rem' }}>
+                <h4>Components by Section ({Object.keys(legoBlocks).length} sections)</h4>
+                {Object.entries(legoBlocks).map(([sectionName, sectionData]) => (
+                  <div key={sectionName} style={{ marginBottom: '1.5rem', paddingLeft: '1rem', borderLeft: '3px solid #0066cc' }}>
+                    <h5 style={{ margin: '0.5rem 0' }}>{sectionName.replace(/_/g, ' ').toUpperCase()}</h5>
+                    {sectionData.components && sectionData.components.length > 0 ? (
+                      <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                        {sectionData.components.map((component) => (
+                          <li key={component.id} style={{ marginBottom: '0.5rem' }}>
+                            <strong>{component.name}</strong> ({component.componentId})
+                            {component.subcomponents && component.subcomponents.length > 0 && (
+                              <ul style={{ marginTop: '0.25rem', marginBottom: '0.5rem' }}>
+                                {component.subcomponents.map((sub) => (
+                                  <li key={sub.id} style={{ fontSize: '0.9em', color: '#666' }}>
+                                    {sub.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p style={{ color: '#999', fontSize: '0.9em' }}>No components defined</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
           <div style={{ marginTop: '1rem' }}>
             <h4>Design Standards</h4>

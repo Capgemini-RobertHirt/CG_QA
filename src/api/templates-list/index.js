@@ -47,14 +47,26 @@ module.exports = async function templatesList(context, req) {
           if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf-8')
             const template = JSON.parse(fileContent)
-            templates.push({
+            
+            // Extract legoBlocks from structure if it exists there
+            const legoBlocks = template.structure?.legoBlocks || template.legoBlocks || {}
+            
+            // Create complete template object with all data
+            const completeTemplate = {
               id: template.entity_type,
               entityType: template.entity_type,
               entity_type: template.entity_type,
               name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+              // Preserve all original fields
               ...template,
-            })
-            context.log(`Loaded template: ${template.entity_type}`)
+              // Ensure legoBlocks is at root level for easy access
+              legoBlocks: legoBlocks,
+              // Also ensure structure is complete
+              structure: template.structure || { sections: { required: [], optional: [] } },
+            }
+            
+            templates.push(completeTemplate)
+            context.log(`Loaded template: ${template.entity_type} with ${Object.keys(legoBlocks).length} sections`)
           }
         } catch (e) {
           context.log(`Error loading ${filename}: ${e.message}`)

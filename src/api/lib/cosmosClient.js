@@ -156,6 +156,9 @@ async function getTemplateByEntityType(entityType) {
       const fileContent = fs.readFileSync(filePath, 'utf-8')
       const template = JSON.parse(fileContent)
       
+      // Extract legoBlocks from structure if it exists there
+      const legoBlocks = template.structure?.legoBlocks || template.legoBlocks || {}
+      
       // Transform to standard format
       const fullTemplate = {
         id: template.entity_type,
@@ -164,6 +167,8 @@ async function getTemplateByEntityType(entityType) {
         name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
         // Preserve all original fields
         ...template,
+        // Ensure legoBlocks is at root level for easy access
+        legoBlocks: legoBlocks,
         // Ensure standard names are set
         documentTypes: template.document_types || template.documentTypes || {},
         globalRules: template.global_rules || template.globalRules || {},
@@ -172,7 +177,7 @@ async function getTemplateByEntityType(entityType) {
         type: 'quality-template',
       }
       
-      console.log(`Loaded template ${entityType} from file: ${filename}`)
+      console.log(`Loaded template ${entityType} from file: ${filename} with ${Object.keys(legoBlocks).length} sections`)
       return fullTemplate
     } catch (fileError) {
       console.error(`Failed to load template ${entityType} from file:`, fileError.message)
