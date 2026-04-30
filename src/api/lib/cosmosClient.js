@@ -95,10 +95,91 @@ async function getTemplateByEntityType(entityType) {
     const query = `SELECT * FROM c WHERE c.entityType = @entityType AND c.type = 'quality-template'`
     const { resources } = await container.items.query({ query, parameters: [{ name: '@entityType', value: entityType }] }).fetchAll()
 
-    return resources.length > 0 ? resources[0] : null
+    if (resources.length > 0) {
+      return resources[0]
+    }
+    
+    // Fallback to file-based loading
+    throw new Error('Template not found in Cosmos DB')
   } catch (error) {
-    console.error('Error fetching template:', error)
-    throw error
+    console.warn(`Template ${entityType} not found in Cosmos DB, trying files:`, error.message)
+    
+    // Load template from JSON file when Cosmos DB is unavailable
+    try {
+      const fs = require('fs')
+      const path = require('path')
+      
+      // Try multiple possible paths for the templates directory
+      const possiblePaths = [
+        path.join(process.cwd(), 'src', 'api', 'templates'),
+        path.join(process.cwd(), 'api', 'templates'),
+        path.join(__dirname, '..', 'templates'),
+        path.join(__dirname, '../templates'),
+      ]
+      
+      let templatesDir = null
+      for (const dir of possiblePaths) {
+        if (fs.existsSync(dir)) {
+          templatesDir = dir
+          console.log(`Found templates directory: ${templatesDir}`)
+          break
+        }
+      }
+
+      if (!templatesDir) {
+        throw new Error(`Could not find templates directory`)
+      }
+
+      // Map entity type to filename
+      const filenameMap = {
+        'default': 'default.json',
+        'engineering': 'engineering.json',
+        'asset': 'asset.json',
+        'whitepaper': 'whitepaper.json',
+        'point_of_view': 'point_of_view.json',
+        'rfp_rfi_response': 'rfp_rfi_response.json',
+        'internal_meeting_presentation': 'internal_meeting_presentation.json',
+      }
+      
+      const filename = filenameMap[entityType]
+      if (!filename) {
+        console.warn(`Unknown entity type: ${entityType}`)
+        return null
+      }
+
+      const filePath = path.join(templatesDir, filename)
+      if (!fs.existsSync(filePath)) {
+        console.warn(`Template file not found: ${filePath}`)
+        return null
+      }
+
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+      const template = JSON.parse(fileContent)
+      
+      // Transform to standard format
+      const fullTemplate = {
+        id: template.entity_type,
+        entityType: template.entity_type,
+        entity_type: template.entity_type,
+        name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        // Preserve all original fields
+        ...template,
+        // Ensure standard names are set
+        documentTypes: template.document_types || template.documentTypes || {},
+        globalRules: template.global_rules || template.globalRules || {},
+        structure: template.structure || { sections: { required: [], optional: [] } },
+        design: template.design || {},
+        type: 'quality-template',
+      }
+      
+      console.log(`Loaded template ${entityType} from file: ${filename}`)
+      return fullTemplate
+    } catch (fileError) {
+      console.error(`Failed to load template ${entityType} from file:`, fileError.message)
+      
+      // Return null to trigger 404 response
+      return null
+    }
   }
 }
 
