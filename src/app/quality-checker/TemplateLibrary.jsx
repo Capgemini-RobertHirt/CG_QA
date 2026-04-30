@@ -15,9 +15,9 @@ export default function TemplateLibrary() {
     try {
       setLoading(true)
       
-      // Try to fetch from templates-list endpoint first
+      // Try to fetch from templates/list endpoint first
       try {
-        const listResponse = await fetch('/api/templates-list')
+        const listResponse = await fetch('/api/templates/list')
         if (listResponse.ok) {
           const listData = await listResponse.json()
           if (listData.templates && listData.templates.length > 0) {
@@ -26,7 +26,7 @@ export default function TemplateLibrary() {
           }
         }
       } catch (err) {
-        console.warn('Could not fetch from templates-list, trying available-types:', err)
+        console.warn('Could not fetch from /api/templates/list, trying available-types:', err)
       }
       
       // Fallback: Fetch from available-types and get individual templates

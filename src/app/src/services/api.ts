@@ -173,11 +173,11 @@ export const api = {
   // Templates - with fallback to mock API
   getTemplates: async () => {
     try {
-      // First try to get full templates with structure from templates-list
+      // First try to get full templates with structure from templates/list
       try {
-        return await apiClient.get('/api/templates-list');
+        return await apiClient.get('/api/templates/list');
       } catch (e) {
-        // Fall back to available-types if templates-list is not available
+        // Fall back to available-types if templates/list is not available
         return await apiClient.get('/api/templates/available-types');
       }
     } catch (error) {
