@@ -156,28 +156,39 @@ async function getTemplateByEntityType(entityType) {
       const fileContent = fs.readFileSync(filePath, 'utf-8')
       const template = JSON.parse(fileContent)
       
-      // Extract legoBlocks from structure if it exists there
-      const legoBlocks = template.structure?.legoBlocks || template.legoBlocks || {}
+      // Extract legoBlocks from structure
+      const legoBlocks = template.structure?.legoBlocks || {}
+      const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
+        return sum + (section.components ? section.components.length : 0)
+      }, 0)
       
-      // Transform to standard format
+      // Transform to standard format - DON'T use spread to avoid nesting issues
       const fullTemplate = {
         id: template.entity_type,
         entityType: template.entity_type,
         entity_type: template.entity_type,
         name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        // Preserve all original fields
-        ...template,
-        // Ensure legoBlocks is at root level for easy access
-        legoBlocks: legoBlocks,
-        // Ensure standard names are set
-        documentTypes: template.document_types || template.documentTypes || {},
-        globalRules: template.global_rules || template.globalRules || {},
+        // Include all properties explicitly
+        document_types: template.document_types || {},
+        documentTypes: template.document_types || {},
+        global_rules: template.global_rules || {},
+        globalRules: template.global_rules || {},
         structure: template.structure || { sections: { required: [], optional: [] } },
         design: template.design || {},
+        components: template.components,
+        images: template.images,
+        tables: template.tables,
+        header_footer: template.header_footer,
+        compliance: template.compliance,
+        business_context: template.business_context,
+        anti_patterns: template.anti_patterns,
+        output: template.output,
+        // IMPORTANT: Surface legoBlocks at root level
+        legoBlocks: legoBlocks,
         type: 'quality-template',
       }
       
-      console.log(`Loaded template ${entityType} from file: ${filename} with ${Object.keys(legoBlocks).length} sections`)
+      console.log(`Loaded template ${entityType} from file: ${filename} with ${Object.keys(legoBlocks).length} sections and ${componentCount} components`)
       return fullTemplate
     } catch (fileError) {
       console.error(`Failed to load template ${entityType} from file:`, fileError.message)
@@ -358,25 +369,42 @@ async function getAllTemplates() {
           const filePath = path.join(templatesDir, file)
           const fileContent = await fs.readFile(filePath, 'utf-8')
           const template = JSON.parse(fileContent)
-          // Preserve all template data from the JSON file
+          
+          // Extract legoBlocks from structure
+          const legoBlocks = template.structure?.legoBlocks || {}
+          const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
+            return sum + (section.components ? section.components.length : 0)
+          }, 0)
+          
+          // Preserve all template data from the JSON file - DON'T use spread to avoid nesting issues
           const fullTemplate = {
             id: template.entity_type,
             entityType: template.entity_type,
             entity_type: template.entity_type,
             name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-            // Preserve all original fields
-            ...template,
-            // Ensure standard names are set
-            documentTypes: template.document_types || template.documentTypes || {},
-            globalRules: template.global_rules || template.globalRules || {},
+            // Include all properties explicitly
+            document_types: template.document_types || {},
+            documentTypes: template.document_types || {},
+            global_rules: template.global_rules || {},
+            globalRules: template.global_rules || {},
             structure: template.structure || { sections: { required: [], optional: [] } },
             design: template.design || {},
+            components: template.components,
+            images: template.images,
+            tables: template.tables,
+            header_footer: template.header_footer,
+            compliance: template.compliance,
+            business_context: template.business_context,
+            anti_patterns: template.anti_patterns,
+            output: template.output,
+            // IMPORTANT: Surface legoBlocks at root level
+            legoBlocks: legoBlocks,
             type: 'quality-template',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
           templates.push(fullTemplate)
-          console.log(`Loaded template: ${fullTemplate.name} with structure sections`)
+          console.log(`Loaded template: ${fullTemplate.name} with ${Object.keys(legoBlocks).length} sections and ${componentCount} components`)
         } catch (fileError) {
           console.warn(`Could not load template from ${file}:`, fileError.message)
         }
