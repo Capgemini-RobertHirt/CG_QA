@@ -8,24 +8,14 @@ const { getTemplateByEntityType } = require('../lib/cosmosClient')
  */
 module.exports = async function templatesGet(context, req) {
   try {
-    // Safely extract route parameter with defensive check
-    const route = context.bindingData?.route
-    if (!route) {
-      context.res = {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Route parameter is missing' }),
-      }
-      return
-    }
-
-    const { entityType } = route
+    // Extract route parameter - it comes as entityType in bindingData
+    const entityType = context.bindingData?.entityType || req.params?.entityType
 
     if (!entityType) {
       context.res = {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Entity type is required' }),
+        body: JSON.stringify({ error: 'Entity type is required in URL path' }),
       }
       return
     }
