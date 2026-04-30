@@ -50,11 +50,13 @@ module.exports = async function templatesList(context, req) {
             
             // Extract legoBlocks from structure
             const legoBlocks = template.structure?.legoBlocks || {}
+            const legoBlockKeys = Object.keys(legoBlocks)
             const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
-              return sum + (section.components ? section.components.length : 0)
+              const sectionComponents = section.components ? section.components.length : 0
+              return sum + sectionComponents
             }, 0)
             
-            context.log(`Template ${template.entity_type}: found ${Object.keys(legoBlocks).length} sections with ${componentCount} total components`)
+            context.log(`Processing ${filename}: structure exists=${!!template.structure}, legoBlocks found=${legoBlockKeys.length} sections with ${componentCount} total components`)
             
             // Create complete template object - DON'T spread template to avoid nesting issues
             const completeTemplate = {
@@ -85,7 +87,7 @@ module.exports = async function templatesList(context, req) {
             }
             
             templates.push(completeTemplate)
-            context.log(`Loaded template: ${template.entity_type} with ${Object.keys(legoBlocks).length} sections and ${componentCount} components`)
+            context.log(`Loaded template: ${template.entity_type} with ${legoBlockKeys.length} sections and ${componentCount} components - legoBlocks keys: ${legoBlockKeys.join(', ')}`)
           }
         } catch (e) {
           context.log(`Error loading ${filename}: ${e.message}`)

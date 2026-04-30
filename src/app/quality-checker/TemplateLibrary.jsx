@@ -20,7 +20,16 @@ export default function TemplateLibrary() {
         const listResponse = await fetch('/api/templates/list')
         if (listResponse.ok) {
           const listData = await listResponse.json()
+          console.log('Received from /api/templates/list:', listData)
           if (listData.templates && listData.templates.length > 0) {
+            // Log each template's legoBlocks
+            listData.templates.forEach((t) => {
+              const legoBlocks = t.legoBlocks || {}
+              const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
+                return sum + (section.components ? section.components.length : 0)
+              }, 0)
+              console.log(`Template ${t.entityType}: legoBlocks=${Object.keys(legoBlocks).length} sections, ${componentCount} components`)
+            })
             setTemplates(listData.templates)
             return
           }
@@ -39,7 +48,13 @@ export default function TemplateLibrary() {
           try {
             const detailResponse = await fetch(`/api/templates/${entityType}`)
             if (detailResponse.ok) {
-              return await detailResponse.json()
+              const template = await detailResponse.json()
+              const legoBlocks = template.legoBlocks || {}
+              const componentCount = Object.values(legoBlocks).reduce((sum, section) => {
+                return sum + (section.components ? section.components.length : 0)
+              }, 0)
+              console.log(`Fetched ${entityType}: legoBlocks=${Object.keys(legoBlocks).length} sections, ${componentCount} components`)
+              return template
             }
           } catch (err) {
             console.error(`Error fetching template ${entityType}:`, err)
@@ -49,6 +64,7 @@ export default function TemplateLibrary() {
       )
 
       const validTemplates = templateDetails.filter((t) => t !== null)
+      console.log('Final templates loaded:', validTemplates.length)
       setTemplates(validTemplates)
     } catch (err) {
       setError(`Failed to load templates: ${err.message}`)
@@ -71,6 +87,10 @@ export default function TemplateLibrary() {
           const totalComponents = Object.values(legoBlocks).reduce((sum, section) => {
             return sum + (section.components ? section.components.length : 0)
           }, 0)
+          
+          if (totalComponents === 0) {
+            console.log(`${template.entityType} has 0 components - legoBlocks:`, legoBlocks)
+          }
           
           return (
             <div
