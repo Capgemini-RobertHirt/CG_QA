@@ -13,10 +13,34 @@ function ProposalsList() {
   useEffect(() => {
     const loadProposals = async () => {
       try {
+        // Try to get proposals from API
         const response = await api.getProposals();
-        setProposals(response.data.samples || []);
+        const apiProposals = response.data.samples || [];
+        
+        // If API returns proposals, use them and update localStorage
+        if (apiProposals.length > 0) {
+          setProposals(apiProposals);
+          localStorage.setItem('cached_proposals', JSON.stringify(apiProposals));
+        } else {
+          // If API returns empty, try localStorage fallback
+          const cachedProposals = localStorage.getItem('cached_proposals');
+          if (cachedProposals) {
+            const parsed = JSON.parse(cachedProposals);
+            console.log('Using cached proposals from localStorage:', parsed);
+            setProposals(parsed);
+          } else {
+            setProposals([]);
+          }
+        }
       } catch (error) {
         console.error('Error loading proposals:', error);
+        // On error, try to load from localStorage
+        const cachedProposals = localStorage.getItem('cached_proposals');
+        if (cachedProposals) {
+          const parsed = JSON.parse(cachedProposals);
+          console.log('Error loading from API, using cached proposals:', parsed);
+          setProposals(parsed);
+        }
       } finally {
         setLoading(false);
       }

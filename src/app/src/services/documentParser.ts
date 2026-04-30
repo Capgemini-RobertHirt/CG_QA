@@ -6,12 +6,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 
-// Set up PDF worker - use local worker from node_modules instead of CDN
-// This avoids CDN failures and ensures reliable PDF parsing
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url
-).href;
+// Set up PDF worker - use public assets path for all environments
+// This ensures the worker file is properly served by the web server
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/build/pdf.worker.min.js';
 
 export interface ParsedDocumentContent {
   text: string;

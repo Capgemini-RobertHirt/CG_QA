@@ -106,11 +106,28 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
     setLoading(true);
     try {
       const response = await api.uploadProposal(selectedFile, templateType);
+      
+      // Cache the uploaded proposal to localStorage
+      const uploadedProposal = {
+        id: response.data.id || `proposal_${Date.now()}`,
+        name: selectedFile.name,
+        status: 'uploaded',
+        quality: 0,
+        documentType: templateType,
+        uploadedAt: new Date().toISOString(),
+      };
+      
+      const cachedProposals = localStorage.getItem('cached_proposals');
+      const proposals = cachedProposals ? JSON.parse(cachedProposals) : [];
+      proposals.unshift(uploadedProposal); // Add to beginning of list
+      localStorage.setItem('cached_proposals', JSON.stringify(proposals));
+      
       setMessage({ type: 'success', text: 'Document uploaded successfully' });
       setSelectedFile(null);
       onUploadSuccess?.();
     } catch (error) {
       setMessage({ type: 'error', text: 'Upload failed' });
+      console.error('Upload error:', error);
     } finally {
       setLoading(false);
     }
