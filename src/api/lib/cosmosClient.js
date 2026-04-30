@@ -272,21 +272,25 @@ async function getAllTemplates() {
           const filePath = path.join(templatesDir, file)
           const fileContent = await fs.readFile(filePath, 'utf-8')
           const template = JSON.parse(fileContent)
-          templates.push({
+          // Preserve all template data from the JSON file
+          const fullTemplate = {
             id: template.entity_type,
             entityType: template.entity_type,
+            entity_type: template.entity_type,
             name: template.name || template.entity_type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-            documentTypes: template.document_types || {},
-            globalRules: template.global_rules || {},
+            // Preserve all original fields
+            ...template,
+            // Ensure standard names are set
+            documentTypes: template.document_types || template.documentTypes || {},
+            globalRules: template.global_rules || template.globalRules || {},
             structure: template.structure || { sections: { required: [], optional: [] } },
             design: template.design || {},
-            components: template.components,
-            images: template.images,
-            tables: template.tables,
             type: 'quality-template',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          })
+          }
+          templates.push(fullTemplate)
+          console.log(`Loaded template: ${fullTemplate.name} with structure sections`)
         } catch (fileError) {
           console.warn(`Could not load template from ${file}:`, fileError.message)
         }
