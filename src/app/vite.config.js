@@ -12,8 +12,9 @@ export default defineConfig({
       enforce: 'post',
       generateBundle() {
         // Copy PDF.js worker file to dist/pdfjs-dist/build/
-        const workerSrc = resolve('./node_modules/pdfjs-dist/build/pdf.worker.min.js')
-        const workerDest = resolve('./dist/pdfjs-dist/build/pdf.worker.min.js')
+        // Note: pdfjs-dist v5.x uses .mjs (ES modules) instead of .js
+        const workerSrc = resolve('./node_modules/pdfjs-dist/build/pdf.worker.min.mjs')
+        const workerDest = resolve('./dist/pdfjs-dist/build/pdf.worker.min.mjs')
         
         try {
           // Create directory if it doesn't exist

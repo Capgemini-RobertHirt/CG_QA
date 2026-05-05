@@ -8,7 +8,8 @@ import mammoth from 'mammoth';
 
 // Set up PDF worker - use public assets path for all environments
 // This ensures the worker file is properly served by the web server
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/build/pdf.worker.min.js';
+// Note: pdfjs-dist v5.x uses .mjs (ES modules) instead of .js
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/build/pdf.worker.min.mjs';
 
 export interface ParsedDocumentContent {
   text: string;
