@@ -28,7 +28,8 @@ interface TemplateConfigurationEditorProps {
   onSave?: () => void;
 }
 
-const TEMPLATE_TYPES = ['default', 'engineering', 'asset', 'whitepaper', 'point_of_view', 'rfp_rfi_response', 'internal_meeting_presentation'];
+// Types that are already in the system (for uniqueness validation)
+const EXISTING_TEMPLATE_TYPES = ['default', 'engineering', 'asset', 'whitepaper', 'point_of_view', 'rfp_rfi_response', 'internal_meeting_presentation'];
 
 // Helper function to extract configuration items from template
 function extractConfigItems(template?: Template | null): Array<{ key: string; value: string }> {
@@ -76,13 +77,14 @@ function extractConfigItems(template?: Template | null): Array<{ key: string; va
 
 function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }: TemplateConfigurationEditorProps) {
   const [name, setName] = useState(template?.name || '');
-  const [type, setType] = useState(template?.type || template?.entity_type || 'default');
+  const [type, setType] = useState(template?.type || template?.entity_type || '');
   const [configEntries, setConfigEntries] = useState<Array<{ key: string; value: string }>>(
     extractConfigItems(template)
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [typeError, setTypeError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'simple' | 'components'>('simple');
   const { t } = useTranslation();
 
@@ -90,11 +92,33 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
   const isCloning = Boolean(cloneSource);
 
   const validateForm = (): boolean => {
-    if (!name.trim()) {
-      setNameError(t('templates.nameRequired') || 'Template name is required');
+    // When creating from document, name is optional (uses type as identifier)
+    if (!template?.id && !name.trim() && !type.trim()) {
+      setNameError(t('templates.nameRequired') || 'Template name or type is required');
+      setTypeError(t('templates.typeRequired') || 'Template type is required');
       return false;
     }
+    
+    // Template type is always required
+    if (!type.trim()) {
+      setTypeError(t('templates.typeRequired') || 'Template type is required');
+      return false;
+    }
+    
+    // Check for unique type name (only when creating new template)
+    if (!template?.id && EXISTING_TEMPLATE_TYPES.includes(type.toLowerCase().trim())) {
+      setTypeError(`Template type "${type}" already exists. Please choose a unique name.`);
+      return false;
+    }
+    
+    // Validate type name format (alphanumeric, underscores, hyphens)
+    if (!/^[a-zA-Z0-9_-]+$/.test(type.trim())) {
+      setTypeError('Template type can only contain letters, numbers, underscores, and hyphens');
+      return false;
+    }
+    
     setNameError(null);
+    setTypeError(null);
     return true;
   };
 
@@ -228,33 +252,48 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
 
         {viewMode === 'simple' ? (
           <>
-            <div className="form-group">
-              <label htmlFor="template-name">{t('templates.templateName')} *</label>
-              <input
-                id="template-name"
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (nameError) setNameError(null);
-                }}
-                placeholder={t('templates.enterTemplateName') || 'e.g., Technical Proposal'}
-                className={nameError ? 'input-error' : ''}
-                maxLength={100}
-              />
-              {nameError && <span className="error-message">{nameError}</span>}
-              <span className="char-count">{name.length}/100</span>
-            </div>
+            {template?.id && (
+              <div className="form-group">
+                <label htmlFor="template-name">{t('templates.templateName')} *</label>
+                <input
+                  id="template-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    if (nameError) setNameError(null);
+                  }}
+                  placeholder={t('templates.enterTemplateName') || 'e.g., Technical Proposal'}
+                  className={nameError ? 'input-error' : ''}
+                  maxLength={100}
+                />
+                {nameError && <span className="error-message">{nameError}</span>}
+                <span className="char-count">{name.length}/100</span>
+              </div>
+            )}
 
             <div className="form-group">
               <label htmlFor="template-type">{t('templates.templateType')} *</label>
-              <select id="template-type" value={type} onChange={(e) => setType(e.target.value)}>
-                {TEMPLATE_TYPES.map(t => (
-                  <option key={t} value={t}>
-                    {t.replace(/_/g, ' ').charAt(0).toUpperCase() + t.replace(/_/g, ' ').slice(1)}
-                  </option>
-                ))}
-              </select>
+              <input
+                id="template-type"
+                type="text"
+                value={type}
+                onChange={(e) => {
+                  setType(e.target.value);
+                  if (typeError) setTypeError(null);
+                }}
+                placeholder="e.g., proposal, technical_spec, report"
+                className={typeError ? 'input-error' : ''}
+                maxLength={50}
+                disabled={template?.id ? false : false}
+              />
+              {typeError && <span className="error-message">{typeError}</span>}
+              <span className="form-hint">
+                {template?.id 
+                  ? 'Template type identifier (cannot be changed)' 
+                  : 'Enter a unique name for this template type (letters, numbers, underscores, hyphens)'}
+              </span>
+              <span className="char-count">{type.length}/50</span>
             </div>
 
             <div className="form-group">

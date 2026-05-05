@@ -109,26 +109,8 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
       .filter((line) => line.length > 3)
       .slice(0, 8);
 
-    // Component keywords to detect
-    const componentKeywords = [
-      'card',
-      'grid',
-      'table',
-      'timeline',
-      'chart',
-      'image',
-      'list',
-      'callout',
-      'quote',
-      'code',
-      'column',
-      'section',
-      'header',
-      'footer',
-    ];
-    const components = componentKeywords
-      .filter((comp) => content.toLowerCase().includes(comp))
-      .slice(0, 6);
+    // Enhanced component detection by analyzing document structure
+    const components = extractDocumentComponents(content, lines);
 
     // Extract required items (lines containing keywords like must, required, shall)
     const requiredItems = lines
@@ -187,6 +169,107 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
       },
       confidence,
     };
+  };
+
+  // Helper function to intelligently extract components from document structure
+  const extractDocumentComponents = (content: string, lines: string[]): string[] => {
+    const components: Set<string> = new Set();
+    const contentLower = content.toLowerCase();
+
+    // Analyze document structure patterns
+    
+    // 1. Check for headings (different levels indicate hierarchical structure)
+    const headingLevels = (content.match(/^#+\s/gm) || []).length;
+    if (headingLevels > 0) {
+      components.add('heading');
+      components.add('hierarchy');
+    }
+
+    // 2. Check for lists and bullet points
+    if (content.match(/^[\s]*[-•*]\s/m) || content.match(/^[\s]*\d+\.\s/m)) {
+      components.add('list');
+      components.add('bullet-point');
+    }
+
+    // 3. Check for tables (pipes or structured columns)
+    if (content.includes('|') || lines.filter(l => l.includes('|')).length > 2) {
+      components.add('table');
+      components.add('grid');
+    }
+
+    // 4. Check for code blocks or technical content
+    if (content.includes('```') || content.includes('```') || contentLower.includes('code') || contentLower.includes('example:')) {
+      components.add('code-block');
+      components.add('example');
+    }
+
+    // 5. Check for quotes or highlighted sections
+    if (content.includes('\"') || content.includes('"') || contentLower.includes('quote')) {
+      components.add('quote');
+      components.add('callout');
+    }
+
+    // 6. Check for numbered sections (indicates structure/steps)
+    if (content.match(/^\d+\.\s/m)) {
+      components.add('numbered-list');
+      components.add('steps');
+    }
+
+    // 7. Check for dates, timelines, or chronological content
+    if (content.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/) || contentLower.includes('timeline') || contentLower.includes('schedule')) {
+      components.add('timeline');
+      components.add('date-range');
+    }
+
+    // 8. Check for metrics, statistics, or data points
+    if (content.match(/\d+%/) || content.match(/\$[\d,]+/) || contentLower.includes('metric') || contentLower.includes('statistic')) {
+      components.add('metric');
+      components.add('chart');
+      components.add('data-point');
+    }
+
+    // 9. Check for images or visual references
+    if (contentLower.includes('figure') || contentLower.includes('diagram') || contentLower.includes('image') || contentLower.includes('illustration')) {
+      components.add('image');
+      components.add('diagram');
+      components.add('visual');
+    }
+
+    // 10. Check for contact information or metadata
+    if (contentLower.includes('email') || contentLower.includes('phone') || contentLower.includes('contact') || content.match(/\S+@\S+\.\S+/)) {
+      components.add('contact-info');
+      components.add('metadata');
+    }
+
+    // 11. Check for signature or approval sections
+    if (contentLower.includes('signature') || contentLower.includes('approved') || contentLower.includes('authorized')) {
+      components.add('signature');
+      components.add('approval');
+    }
+
+    // 12. Basic paragraph structure
+    if (lines.length > 5) {
+      components.add('paragraph');
+    }
+
+    // 13. Check for tables of contents
+    if (contentLower.includes('table of contents') || contentLower.includes('contents')) {
+      components.add('toc');
+      components.add('navigation');
+    }
+
+    // 14. Check for headers/footers (repeated content)
+    const firstLine = lines[0];
+    const lastLine = lines[lines.length - 1];
+    if (firstLine && lastLine && firstLine === lastLine) {
+      components.add('header');
+      components.add('footer');
+    }
+
+    // Convert set to sorted array, limiting to 8 components
+    return Array.from(components)
+      .sort()
+      .slice(0, 8);
   };
 
   return (
