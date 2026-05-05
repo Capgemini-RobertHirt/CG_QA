@@ -8,7 +8,7 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/api/*", "/_framework/*", "/assets/*"]
+    "exclude": ["/api/*", "/_framework/*", "/assets/*", "/pdfjs-dist/*"]
   },
   "responseOverrides": {
     "401": {
