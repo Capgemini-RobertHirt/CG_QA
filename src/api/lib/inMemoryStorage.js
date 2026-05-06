@@ -50,6 +50,15 @@ function getAnalysisResult(id) {
 }
 
 /**
+ * Delete analysis by ID
+ */
+function deleteAnalysis(id) {
+  const result = analyses.has(id)
+  analyses.delete(id)
+  return result
+}
+
+/**
  * Get samples by document type
  */
 function getSamplesByType(documentType) {
@@ -83,6 +92,7 @@ module.exports = {
   getAllSamples,
   storeAnalysis,
   getAnalysisResult,
+  deleteAnalysis,
   getSamplesByType,
   deleteSample,
   clearSamples,

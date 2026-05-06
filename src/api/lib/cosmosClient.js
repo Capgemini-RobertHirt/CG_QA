@@ -381,6 +381,35 @@ async function getAnalysisResultById(id) {
 }
 
 /**
+ * Delete a sample by ID
+ */
+async function deleteSampleById(id) {
+  try {
+    const { container } = await initializeCosmosClient()
+    const sample = await getSampleById(id)
+    if (!sample) {
+      return false
+    }
+
+    await container.item(id, id).delete()
+
+    const analysisId = sample.analysisId || sample.analysis_id
+    if (analysisId) {
+      try {
+        await container.item(analysisId, analysisId).delete()
+      } catch (error) {
+        console.warn(`Could not delete analysis result ${analysisId}:`, error.message)
+      }
+    }
+
+    return true
+  } catch (error) {
+    console.warn('Error deleting sample by id from Cosmos DB:', error.message)
+    return false
+  }
+}
+
+/**
  * Get all templates with full structure and details
  */
 async function getAllTemplates() {
@@ -670,4 +699,5 @@ module.exports = {
   getSampleById,
   upsertAnalysisResults,
   getAnalysisResultById,
+  deleteSampleById,
 }

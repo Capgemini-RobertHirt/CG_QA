@@ -56,7 +56,9 @@ function ProposalsList() {
   const handleDeleteProposal = async (id: string) => {
     try {
       await api.deleteProposal(id);
-      setProposals(proposals.filter(p => p.id !== id));
+      const updatedProposals = proposals.filter(p => p.id !== id);
+      setProposals(updatedProposals);
+      localStorage.setItem('cached_proposals', JSON.stringify(updatedProposals));
     } catch (error) {
       console.error('Error deleting proposal:', error);
     }
