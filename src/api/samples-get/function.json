@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "route": "samples/{id}",
-      "methods": ["get"]
+      "methods": ["get", "delete"]
     },
     {
       "type": "http",
