@@ -183,6 +183,10 @@ function TemplateAdminDashboard() {
       },
       document_types: extractedData.documentType ? { [extractedData.documentType]: {} } : {},
       global_rules: extractedData.suggestedConfig,
+      design: extractedData.suggestedConfig?.design || {
+        colors: { primary: '#003366', secondary: '#0066CC' },
+        fonts: { body: 'Segoe UI', heading: 'Segoe UI' },
+      },
     };
 
     // Set the extracted template for editing

@@ -88,90 +88,8 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
     }
   };
 
-  const parseDocumentContent = (content: string, fileName: string): ExtractedData => {
-    const lines = content
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
-
-    const documentName = fileName.replace(/\.[^/.]+$/, '');
-
-    // Extract sections (lines that are headers or all caps)
-    const sections = lines
-      .filter(
-        (line) =>
-          line === line.toUpperCase() ||
-          line.startsWith('#') ||
-          line.match(/^[\d\.]+\s+[A-Z]/) ||
-          line.match(/^[A-Z][^a-z]*$/)
-      )
-      .map((line) => line.replace(/^#+\s*/, '').replace(/^[\d\.]+\s*/, '').trim())
-      .filter((line) => line.length > 3)
-      .slice(0, 8);
-
-    // Enhanced component detection by analyzing document structure
-    const components = extractDocumentComponents(content, lines);
-
-    // Extract required items (lines containing keywords like must, required, shall)
-    const requiredItems = lines
-      .filter(
-        (line) =>
-          (line.toLowerCase().includes('must') ||
-            line.toLowerCase().includes('required') ||
-            line.toLowerCase().includes('shall') ||
-            line.toLowerCase().includes('mandatory') ||
-            line.toLowerCase().includes('essential')) &&
-          line.length > 10
-      )
-      .slice(0, 5);
-
-    // Detect document type using the service
-    const documentType = detectDocumentType(content);
-
-    // Calculate confidence based on extracted data quality
-    let confidence = 50;
-    if (sections.length > 0) confidence += 10;
-    if (sections.length > 3) confidence += 10;
-    if (components.length > 0) confidence += 10;
-    if (requiredItems.length > 0) confidence += 10;
-    if (lines.length > 100) confidence += 10;
-    confidence = Math.min(95, confidence);
-
-    return {
-      documentName,
-      documentType,
-      sections: sections.length > 0 ? sections : ['Introduction', 'Content', 'Conclusion'],
-      components: components.length > 0 ? components : ['card', 'paragraph'],
-      requiredItems,
-      suggestedConfig: {
-        entity_type: documentType,
-        structure: {
-          sections: {
-            required: sections.slice(0, Math.max(1, Math.ceil(sections.length / 2))),
-            optional: sections.slice(Math.ceil(sections.length / 2)),
-          },
-          toc: {
-            required: sections.length > 3,
-            max_depth: Math.min(3, Math.ceil(sections.length / 3)),
-          },
-        },
-        design: {
-          colors: {
-            primary: '#003366',
-            secondary: '#0066CC',
-            max_colors_per_page: 5,
-          },
-          fonts: {
-            body: 'Segoe UI',
-            heading: 'Segoe UI',
-          },
-        },
-      },
-      confidence,
-    };
-  };
-
   // Helper function to intelligently extract components from document structure
+  // MUST be defined before parseDocumentContent that uses it
   const extractDocumentComponents = (content: string, lines: string[]): string[] => {
     const components: Set<string> = new Set();
     const contentLower = content.toLowerCase();
@@ -270,6 +188,89 @@ export const DocumentUploadAnalyzer: React.FC<DocumentUploadAnalyzerProps> = ({
     return Array.from(components)
       .sort()
       .slice(0, 8);
+  };
+
+  const parseDocumentContent = (content: string, fileName: string): ExtractedData => {
+    const lines = content
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const documentName = fileName.replace(/\.[^/.]+$/, '');
+
+    // Extract sections (lines that are headers or all caps)
+    const sections = lines
+      .filter(
+        (line) =>
+          line === line.toUpperCase() ||
+          line.startsWith('#') ||
+          line.match(/^[\d\.]+\s+[A-Z]/) ||
+          line.match(/^[A-Z][^a-z]*$/)
+      )
+      .map((line) => line.replace(/^#+\s*/, '').replace(/^[\d\.]+\s*/, '').trim())
+      .filter((line) => line.length > 3)
+      .slice(0, 8);
+
+    // Enhanced component detection by analyzing document structure
+    const components = extractDocumentComponents(content, lines);
+
+    // Extract required items (lines containing keywords like must, required, shall)
+    const requiredItems = lines
+      .filter(
+        (line) =>
+          (line.toLowerCase().includes('must') ||
+            line.toLowerCase().includes('required') ||
+            line.toLowerCase().includes('shall') ||
+            line.toLowerCase().includes('mandatory') ||
+            line.toLowerCase().includes('essential')) &&
+          line.length > 10
+      )
+      .slice(0, 5);
+
+    // Detect document type using the service
+    const documentType = detectDocumentType(content);
+
+    // Calculate confidence based on extracted data quality
+    let confidence = 50;
+    if (sections.length > 0) confidence += 10;
+    if (sections.length > 3) confidence += 10;
+    if (components.length > 0) confidence += 10;
+    if (requiredItems.length > 0) confidence += 10;
+    if (lines.length > 100) confidence += 10;
+    confidence = Math.min(95, confidence);
+
+    return {
+      documentName,
+      documentType,
+      sections: sections.length > 0 ? sections : ['Introduction', 'Content', 'Conclusion'],
+      components: components.length > 0 ? components : ['card', 'paragraph'],
+      requiredItems,
+      suggestedConfig: {
+        entity_type: documentType,
+        structure: {
+          sections: {
+            required: sections.slice(0, Math.max(1, Math.ceil(sections.length / 2))),
+            optional: sections.slice(Math.ceil(sections.length / 2)),
+          },
+          toc: {
+            required: sections.length > 3,
+            max_depth: Math.min(3, Math.ceil(sections.length / 3)),
+          },
+        },
+        design: {
+          colors: {
+            primary: '#003366',
+            secondary: '#0066CC',
+            max_colors_per_page: 5,
+          },
+          fonts: {
+            body: 'Segoe UI',
+            heading: 'Segoe UI',
+          },
+        },
+      },
+      confidence,
+    };
   };
 
   return (
