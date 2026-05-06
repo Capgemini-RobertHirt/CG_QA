@@ -88,14 +88,14 @@ module.exports = async function samplesUpload(context, req) {
         const analysisId = uuidv4()
         analysisResults = {
           id: analysisId,
-          ...analyzeDocumentAgainstTemplate({
+          ...(await analyzeDocumentAgainstTemplate({
             sampleId,
             fileName: fileName || 'document',
             entityType: documentType,
             documentType,
             documentContent: fileContent,
             template,
-          }),
+          })),
         }
 
         await upsertAnalysisResults(analysisId, analysisResults)

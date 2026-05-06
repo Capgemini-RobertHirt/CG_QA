@@ -91,6 +91,78 @@ Update `src/api/local.settings.json` with Cosmos DB credentials from Azure Porta
 }
 ```
 
+### Azure OpenAI QA Agent Config
+The recommendation agent can now run in `hybrid` or `llm` mode through Azure OpenAI. Add these settings to the Function App or local settings:
+
+```json
+{
+  "QA_AGENT_STRATEGY": "hybrid",
+  "QA_LLM_AGENT_ID": "recommendation-agent",
+  "QA_LLM_AGENT_IDS": "recommendation-agent,standards-agent,structure-agent",
+  "QA_LLM_TIMEOUT_MS": "15000",
+  "AZURE_OPENAI_ENDPOINT": "https://<azure-openai-resource>.openai.azure.com",
+  "AZURE_OPENAI_DEPLOYMENT": "<chat-deployment-name>",
+  "AZURE_OPENAI_API_VERSION": "2024-10-21",
+  "AZURE_OPENAI_API_KEY": "<optional-api-key-for-local-dev>",
+  "AZURE_OPENAI_AUTH_MODE": "auto",
+  "AZURE_OPENAI_ENDPOINT_RECOMMENDATION_AGENT": "https://<optional-recommendation-resource>.openai.azure.com",
+  "AZURE_OPENAI_ENDPOINT_STANDARDS_AGENT": "https://<optional-standards-resource>.openai.azure.com",
+  "AZURE_OPENAI_ENDPOINT_STRUCTURE_AGENT": "https://<optional-structure-resource>.openai.azure.com",
+  "AZURE_OPENAI_DEPLOYMENT_RECOMMENDATION_AGENT": "<optional-recommendation-deployment>",
+  "AZURE_OPENAI_DEPLOYMENT_STANDARDS_AGENT": "<optional-standards-deployment>",
+  "AZURE_OPENAI_DEPLOYMENT_STRUCTURE_AGENT": "<optional-structure-deployment>",
+  "AZURE_OPENAI_AUTH_MODE_RECOMMENDATION_AGENT": "auto",
+  "AZURE_OPENAI_AUTH_MODE_STANDARDS_AGENT": "managed-identity",
+  "AZURE_OPENAI_AUTH_MODE_STRUCTURE_AGENT": "api-key"
+}
+```
+
+Notes:
+- `QA_AGENT_STRATEGY=heuristic` disables all LLM calls.
+- `QA_LLM_AGENT_IDS` is the preferred setting for enabling more than one LLM-backed agent.
+- `QA_AGENT_STRATEGY=hybrid` keeps the existing deterministic agents and upgrades only the listed agents to Azure OpenAI when configured.
+- `QA_AGENT_STRATEGY=llm` still uses the same boundary but prefers Azure OpenAI reasoning for the listed agents.
+- `AZURE_OPENAI_AUTH_MODE` and `AZURE_OPENAI_AUTH_MODE_<AGENT_ID>` accept `auto`, `api-key`, or `managed-identity`.
+- `auto` prefers API key when present and otherwise falls back to managed identity.
+- `AZURE_OPENAI_ENDPOINT_<AGENT_ID>` lets you split agents across separate Azure OpenAI resources, not only separate deployments.
+- `AZURE_OPENAI_DEPLOYMENT_<AGENT_ID>` lets you split deployments by role, for example `AZURE_OPENAI_DEPLOYMENT_STANDARDS_AGENT`.
+- If no API key is supplied, the API will try managed identity via `DefaultAzureCredential`.
+
+### Values Needed For A Live Smoke Test
+This repository does not contain a real Azure OpenAI endpoint, deployment name, or credential. To run the smoke test end-to-end, supply these from your Azure subscription in Function App settings or `local.settings.json`.
+
+API key flow:
+
+```json
+{
+  "AZURE_OPENAI_ENDPOINT": "https://<your-resource>.openai.azure.com",
+  "AZURE_OPENAI_DEPLOYMENT": "<your-chat-deployment>",
+  "AZURE_OPENAI_AUTH_MODE": "api-key",
+  "AZURE_OPENAI_API_KEY": "<your-api-key>"
+}
+```
+
+Managed identity flow:
+
+```json
+{
+  "AZURE_OPENAI_ENDPOINT": "https://<your-resource>.openai.azure.com",
+  "AZURE_OPENAI_DEPLOYMENT": "<your-chat-deployment>",
+  "AZURE_OPENAI_AUTH_MODE": "managed-identity"
+}
+```
+
+For agent-specific resources, use `AZURE_OPENAI_ENDPOINT_<AGENT_ID>`, `AZURE_OPENAI_DEPLOYMENT_<AGENT_ID>`, and optionally `AZURE_OPENAI_AUTH_MODE_<AGENT_ID>`.
+
+### Successful Smoke Test Path
+Once working Azure OpenAI settings are available, run this from `src/api`:
+
+```bash
+npm run smoke:qa-agents
+```
+
+The smoke test prints each agent's effective strategy, provider, endpoint host, deployment, auth mode, and any fallback reason. A successful Azure OpenAI run should show `provider: "azure-openai"` and `strategy: "hybrid"` or `"llm"` for the configured agents without a fallback reason.
+
 **To retrieve the key:**
 ```bash
 az cosmosdb keys list --resource-group CG_QA_rg --name cosmosdb-fh-cg-qa --query primaryMasterKey -o tsv

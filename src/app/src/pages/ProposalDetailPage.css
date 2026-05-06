@@ -14,8 +14,133 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.analysis-results {
+  margin-top: 24px;
+}
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.score-item {
+  padding: 14px;
+  border-radius: 10px;
+  background: #eef3f8;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.score-item.overall {
+  background: #dfeee5;
+}
+
+.agent-insights {
+  margin-top: 24px;
+}
+
+.agent-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.agent-insight-card {
+  border: 1px solid #d7e1ea;
+  border-radius: 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%);
+}
+
+.agent-insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.agent-strategy-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.strategy-heuristic {
+  background: #eef1f5;
+  color: #405261;
+}
+
+.strategy-hybrid {
+  background: #dff4ea;
+  color: #146c43;
+}
+
+.strategy-llm {
+  background: #e3eefc;
+  color: #1857a4;
+}
+
+.agent-summary {
+  margin: 0 0 14px;
+  color: #334a5f;
+}
+
+.agent-meta-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin: 0 0 16px;
+}
+
+.agent-meta-list div {
+  min-width: 0;
+}
+
+.agent-meta-list dt {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6a7d90;
+  margin-bottom: 4px;
+}
+
+.agent-meta-list dd {
+  margin: 0;
+  color: #1f3347;
+  word-break: break-word;
+}
+
+.agent-findings ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.agent-fallback-reason {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff2e8;
+  color: #8a4b17;
+}
+
+.agent-fallback-reason p {
+  margin: 6px 0 0;
+}
+
 @media (max-width: 768px) {
   .proposal-details {
     padding: 15px;
+  }
+
+  .agent-meta-list {
+    grid-template-columns: 1fr;
   }
 }

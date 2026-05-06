@@ -41,14 +41,14 @@ module.exports = async function analyze(context, req) {
     const analysisId = uuidv4()
     const analysisResults = {
       id: analysisId,
-      ...analyzeDocumentAgainstTemplate({
+      ...(await analyzeDocumentAgainstTemplate({
         sampleId: null,
         fileName: file_name || 'document',
         entityType: entity_type,
         documentType: document_type,
         documentContent: document_content,
         template,
-      }),
+      })),
     }
 
     // Store results

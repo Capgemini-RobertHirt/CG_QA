@@ -2,8 +2,8 @@
 
 const { runQualityAssuranceAgents } = require('./qaAgents/orchestrator')
 
-function analyzeDocumentAgainstTemplate({ sampleId, fileName, entityType, documentType, documentContent, template }) {
-  const orchestrationResult = runQualityAssuranceAgents({
+async function analyzeDocumentAgainstTemplate({ sampleId, fileName, entityType, documentType, documentContent, template }) {
+  const orchestrationResult = await runQualityAssuranceAgents({
     sampleId,
     fileName,
     entityType,

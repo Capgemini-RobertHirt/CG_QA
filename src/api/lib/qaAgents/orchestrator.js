@@ -13,11 +13,11 @@ function weightedAverage(values) {
   return Math.round(present.reduce((sum, value) => sum + value, 0) / present.length)
 }
 
-function runQualityAssuranceAgents(input) {
-  const structureReport = runStructureAgent(input)
+async function runQualityAssuranceAgents(input) {
+  const structureReport = await runStructureAgent(input)
   const componentReport = runComponentAgent(input)
-  const standardsReport = runStandardsAgent(input)
-  const recommendationReport = runRecommendationAgent({
+  const standardsReport = await runStandardsAgent(input)
+  const recommendationReport = await runRecommendationAgent({
     ...input,
     agentReports: [structureReport, componentReport, standardsReport],
   })

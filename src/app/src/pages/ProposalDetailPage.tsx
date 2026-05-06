@@ -5,6 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import './ProposalDetailPage.css';
 
+function formatAgentValue(value: unknown) {
+  if (value === null || value === undefined || value === '') {
+    return 'Not configured';
+  }
+
+  return String(value);
+}
+
 function ProposalDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -61,14 +69,7 @@ function ProposalDetailPage() {
       <Navigation />
       <div className="page-content">
         <button onClick={() => navigate('/')}>&larr; Back</button>
-        <h1>TESTING - {t('proposals.proposalTitle')}</h1>
-        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
-          <p><strong>Debug Info:</strong></p>
-          <p>ID: {id}</p>
-          <p>Loading: {loading ? 'yes' : 'no'}</p>
-          <p>Proposal: {proposal ? 'loaded' : 'not loaded'}</p>
-          <p>Proposal ID: {proposal?.id}</p>
-        </div>
+        <h1>{t('proposals.proposalTitle')}</h1>
         {proposal ? (
           <div className="proposal-details">
             <div className="proposal-info">
@@ -117,20 +118,55 @@ function ProposalDetailPage() {
                 )}
 
                 {analysis.agent_reports && analysis.agent_reports.length > 0 && (
-                  <div className="recommendations">
+                  <div className="agent-insights">
                     <h4>QA Agent Insights:</h4>
-                    <ul>
+                    <div className="agent-insight-grid">
                       {analysis.agent_reports.map((agent: any) => (
-                        <li key={agent.id}>
-                          <strong>{agent.name}:</strong> {agent.summary}
-                          {agent.findings?.length > 0 && (
+                        <article key={agent.id} className="agent-insight-card">
+                          <div className="agent-insight-header">
+                            <strong>{agent.name}</strong>
+                            <span className={`agent-strategy-badge strategy-${String(agent.strategy || 'heuristic').toLowerCase()}`}>
+                              {formatAgentValue(agent.strategy)}
+                            </span>
+                          </div>
+                          <p className="agent-summary">{agent.summary}</p>
+                          <dl className="agent-meta-list">
                             <div>
-                              Findings: {agent.findings.slice(0, 2).map((finding: any) => finding.message).join(' | ')}
+                              <dt>Provider</dt>
+                              <dd>{formatAgentValue(agent.insights?.provider)}</dd>
+                            </div>
+                            <div>
+                              <dt>Endpoint</dt>
+                              <dd>{formatAgentValue(agent.insights?.endpoint_host)}</dd>
+                            </div>
+                            <div>
+                              <dt>Deployment</dt>
+                              <dd>{formatAgentValue(agent.insights?.deployment)}</dd>
+                            </div>
+                            <div>
+                              <dt>Auth</dt>
+                              <dd>{formatAgentValue(agent.insights?.auth_mode)}</dd>
+                            </div>
+                          </dl>
+                          {agent.findings?.length > 0 && (
+                            <div className="agent-findings">
+                              <strong>Findings</strong>
+                              <ul>
+                                {agent.findings.slice(0, 3).map((finding: any, index: number) => (
+                                  <li key={`${agent.id}-finding-${index}`}>{finding.message}</li>
+                                ))}
+                              </ul>
                             </div>
                           )}
-                        </li>
+                          {agent.insights?.fallbackReason && (
+                            <div className="agent-fallback-reason">
+                              <strong>Fallback</strong>
+                              <p>{agent.insights.fallbackReason}</p>
+                            </div>
+                          )}
+                        </article>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
               </div>

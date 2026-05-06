@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "func start",
-    "test": "node --test tests/"
+    "test": "node --test tests/",
+    "smoke:qa-agents": "node smoke/qaAgentsSmokeTest.js"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",

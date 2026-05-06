@@ -1,8 +1,10 @@
 'use strict'
 
 const { normalizeText } = require('./shared')
+const { getQaAgentConfig, canUseAzureOpenAi, isLlmAgentEnabled, getAzureOpenAiConfigForAgent, getAzureOpenAiInsightMetadata } = require('./config')
+const { requestJsonChatCompletion } = require('./providers/azureOpenAI')
 
-function runStandardsAgent({ documentContent, template }) {
+function buildHeuristicStandardsReport({ documentContent, template }) {
   const content = normalizeText(documentContent)
   const findings = []
   let designScore = 78
@@ -36,9 +38,6 @@ function runStandardsAgent({ documentContent, template }) {
   }
 
   return {
-    id: 'standards-agent',
-    name: 'Standards Agent',
-    strategy: 'heuristic',
     summary: 'Checked structural standards, navigation requirements, and cross-reference rules against the selected template.',
     scores: {
       design: Math.max(0, Math.min(100, designScore)),
@@ -50,6 +49,135 @@ function runStandardsAgent({ documentContent, template }) {
       figureNumberingRequired: Boolean(template?.structure?.cross_references?.figures_numbered),
       tableNumberingRequired: Boolean(template?.structure?.cross_references?.tables_numbered),
     },
+  }
+}
+
+function truncateText(value, maxLength) {
+  const text = String(value || '')
+  if (text.length <= maxLength) {
+    return text
+  }
+  return `${text.slice(0, maxLength)}\n\n[truncated]`
+}
+
+function buildStandardsPrompt({ documentContent, template, heuristicReport }) {
+  return {
+    systemPrompt: [
+      'You are a proposal QA reviewer specializing in document standards and compliance.',
+      'Return strict JSON with keys: summary, scores, findings.',
+      'scores must be an object with integer design and compliance values from 0 to 100.',
+      'findings must be an array of up to 4 objects with keys severity, dimension, message.',
+      'Focus on table of contents, numbering, references, formatting standards, and structural navigation quality.',
+    ].join(' '),
+    userPrompt: JSON.stringify(
+      {
+        task: 'Assess the document against the template standards and compliance expectations.',
+        templateStandards: {
+          tocRequired: Boolean(template?.structure?.toc?.required),
+          figureNumberingRequired: Boolean(template?.structure?.cross_references?.figures_numbered),
+          tableNumberingRequired: Boolean(template?.structure?.cross_references?.tables_numbered),
+        },
+        heuristicBaseline: {
+          summary: heuristicReport.summary,
+          scores: heuristicReport.scores,
+          findings: heuristicReport.findings,
+        },
+        documentExcerpt: truncateText(documentContent, 12000),
+      },
+      null,
+      2
+    ),
+  }
+}
+
+function normalizeScore(value, fallback) {
+  const numeric = Number.parseInt(value, 10)
+  if (Number.isFinite(numeric)) {
+    return Math.max(0, Math.min(100, numeric))
+  }
+  return fallback
+}
+
+function normalizeFindings(findings, fallbackFindings) {
+  if (!Array.isArray(findings)) {
+    return fallbackFindings
+  }
+
+  const normalizedFindings = findings
+    .filter((finding) => finding && typeof finding.message === 'string')
+    .map((finding) => ({
+      severity: finding.severity || 'minor',
+      dimension: finding.dimension || 'compliance',
+      message: finding.message.trim(),
+    }))
+
+  return normalizedFindings.length > 0 ? normalizedFindings : fallbackFindings
+}
+
+async function runStandardsAgent({ documentContent, template }) {
+  const heuristicReport = buildHeuristicStandardsReport({ documentContent, template })
+  const qaConfig = getQaAgentConfig()
+  const azureOpenAiConfig = getAzureOpenAiConfigForAgent(qaConfig, 'standards-agent')
+  const shouldAttemptLlm =
+    isLlmAgentEnabled(qaConfig, 'standards-agent') &&
+    qaConfig.strategy !== 'heuristic' &&
+    canUseAzureOpenAi({ azureOpenAi: azureOpenAiConfig })
+
+  if (shouldAttemptLlm) {
+    try {
+      const prompt = buildStandardsPrompt({ documentContent, template, heuristicReport })
+      const completion = await requestJsonChatCompletion({
+        ...azureOpenAiConfig,
+        ...prompt,
+      })
+      const payload = completion.payload
+
+      return {
+        id: 'standards-agent',
+        name: 'Standards Agent',
+        strategy: qaConfig.strategy === 'llm' ? 'llm' : 'hybrid',
+        summary:
+          typeof payload?.summary === 'string' && payload.summary.trim().length > 0
+            ? payload.summary.trim()
+            : heuristicReport.summary,
+        scores: {
+          design: normalizeScore(payload?.scores?.design, heuristicReport.scores.design),
+          compliance: normalizeScore(payload?.scores?.compliance, heuristicReport.scores.compliance),
+        },
+        findings: normalizeFindings(payload?.findings, heuristicReport.findings),
+        insights: {
+          ...heuristicReport.insights,
+          ...getAzureOpenAiInsightMetadata({
+            ...azureOpenAiConfig,
+            authMode: completion.authMode,
+          }),
+        },
+      }
+    } catch (error) {
+      return {
+        id: 'standards-agent',
+        name: 'Standards Agent',
+        strategy: 'heuristic',
+        summary: heuristicReport.summary,
+        scores: heuristicReport.scores,
+        findings: heuristicReport.findings,
+        insights: {
+          ...heuristicReport.insights,
+          fallbackReason: error.message,
+          ...getAzureOpenAiInsightMetadata(azureOpenAiConfig),
+        },
+      }
+    }
+  }
+
+  return {
+    id: 'standards-agent',
+    name: 'Standards Agent',
+    strategy: 'heuristic',
+    summary: heuristicReport.summary,
+    scores: heuristicReport.scores,
+    findings: heuristicReport.findings,
+    insights: heuristicReport.insights,
   }
 }
 
