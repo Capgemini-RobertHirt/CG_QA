@@ -110,13 +110,19 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
       // Cache the uploaded proposal to localStorage
       const uploadedProposal = {
         id: response.data.id || `proposal_${Date.now()}`,
-        name: selectedFile.name,
+        name: response.data.file_name || selectedFile.name,
+        file_name: response.data.file_name || selectedFile.name,
         status: response.data.analysis_id ? 'analyzed' : 'uploaded',
         quality: response.data.quality_score || 0,
+        quality_score: response.data.quality_score || 0,
         documentType: templateType,
+        document_type: templateType,
         template_type: templateType,
+        entity_type: templateType,
         analysis_id: response.data.analysis_id,
-        uploadedAt: new Date().toISOString(),
+        analysis: response.data.analysis,
+        created_at: response.data.created_at || new Date().toISOString(),
+        uploadedAt: response.data.created_at || new Date().toISOString(),
       };
       
       const cachedProposals = localStorage.getItem('cached_proposals');

@@ -10,6 +10,54 @@ let backendAvailable = true;
 let backendCheckTime = 0;
 const BACKEND_CHECK_INTERVAL = 30000; // Check every 30 seconds
 
+const getCachedProposals = () => {
+  try {
+    const cached = localStorage.getItem('cached_proposals');
+    return cached ? JSON.parse(cached) : [];
+  } catch {
+    return [];
+  }
+};
+
+const setCachedProposals = (proposals: any[]) => {
+  localStorage.setItem('cached_proposals', JSON.stringify(proposals));
+};
+
+const getCachedProposalById = (id: string) => getCachedProposals().find((proposal: any) => proposal.id === id);
+
+const toCachedProposalDetail = (proposal: any) => ({
+  id: proposal.id,
+  file_name: proposal.file_name || proposal.fileName || proposal.name || 'document',
+  status: proposal.status || proposal.analysisStatus || 'uploaded',
+  template_type: proposal.template_type || proposal.documentType || proposal.document_type,
+  quality_score: proposal.quality_score ?? proposal.quality ?? 0,
+  created_at: proposal.created_at || proposal.uploadedAt || new Date().toISOString(),
+  analysis_id: proposal.analysis_id,
+  document_type: proposal.documentType || proposal.document_type || proposal.template_type,
+  entity_type: proposal.entity_type || proposal.template_type || proposal.documentType,
+});
+
+const toFallbackAnalysis = (proposal: any) => ({
+  id: proposal.analysis_id || `analysis-${proposal.id}`,
+  sample_id: proposal.id,
+  entity_type: proposal.entity_type || proposal.template_type || proposal.documentType,
+  document_type: proposal.documentType || proposal.document_type || proposal.template_type,
+  file_name: proposal.file_name || proposal.fileName || proposal.name || 'document',
+  scores: proposal.analysis?.scores || {
+    structure: proposal.quality_score || proposal.quality || 0,
+    design: proposal.quality_score || proposal.quality || 0,
+    content: proposal.quality_score || proposal.quality || 0,
+    completeness: proposal.quality_score || proposal.quality || 0,
+  },
+  overall_score: proposal.analysis?.overall_score || proposal.quality_score || proposal.quality || 0,
+  recommendations: proposal.analysis?.recommendations || [
+    'Re-upload the document if you need a fresh backend analysis.',
+    'This view is using cached proposal data because the backend copy is not available.',
+  ],
+  findings: proposal.analysis?.findings || [],
+  created_at: proposal.analysis?.created_at || proposal.created_at || proposal.uploadedAt || new Date().toISOString(),
+});
+
 // Add auth token to all requests
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
@@ -162,13 +210,51 @@ export const api = {
     }
   },
   
-  getProposal: (id: string) => apiClient.get(`/api/samples/${id}`),
+  getProposal: async (id: string) => {
+    try {
+      return await apiClient.get(`/api/samples/${id}`);
+    } catch (error) {
+      if ((error as any).response?.status === 404) {
+        const cachedProposal = getCachedProposalById(id);
+        if (cachedProposal) {
+          return { data: toCachedProposalDetail(cachedProposal), status: 200 };
+        }
+      }
+      throw error;
+    }
+  },
   
-  deleteProposal: (id: string) => apiClient.delete(`/api/samples/${id}`),
+  deleteProposal: async (id: string) => {
+    try {
+      const response = await apiClient.delete(`/api/samples/${id}`);
+      const filtered = getCachedProposals().filter((proposal: any) => proposal.id !== id);
+      setCachedProposals(filtered);
+      return response;
+    } catch (error) {
+      if ((error as any).response?.status === 404) {
+        const filtered = getCachedProposals().filter((proposal: any) => proposal.id !== id);
+        setCachedProposals(filtered);
+        return { data: { message: 'Proposal removed from cache' }, status: 200 };
+      }
+      throw error;
+    }
+  },
 
   analyzeProposal: (id: string) => apiClient.post(`/api/analyze/${id}`, {}),
 
-  getAnalysis: (id: string) => apiClient.get(`/api/analyze/${id}`),
+  getAnalysis: async (id: string) => {
+    try {
+      return await apiClient.get(`/api/analyze/${id}`);
+    } catch (error) {
+      if ((error as any).response?.status === 404) {
+        const cachedProposal = getCachedProposals().find((proposal: any) => proposal.analysis_id === id || proposal.id === id);
+        if (cachedProposal) {
+          return { data: toFallbackAnalysis(cachedProposal), status: 200 };
+        }
+      }
+      throw error;
+    }
+  },
 
   // Templates - with fallback to mock API
   getTemplates: async () => {
