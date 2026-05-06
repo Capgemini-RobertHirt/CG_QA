@@ -115,6 +115,24 @@ function ProposalDetailPage() {
                     </ul>
                   </div>
                 )}
+
+                {analysis.agent_reports && analysis.agent_reports.length > 0 && (
+                  <div className="recommendations">
+                    <h4>QA Agent Insights:</h4>
+                    <ul>
+                      {analysis.agent_reports.map((agent: any) => (
+                        <li key={agent.id}>
+                          <strong>{agent.name}:</strong> {agent.summary}
+                          {agent.findings?.length > 0 && (
+                            <div>
+                              Findings: {agent.findings.slice(0, 2).map((finding: any) => finding.message).join(' | ')}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>

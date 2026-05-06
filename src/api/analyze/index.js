@@ -2,6 +2,7 @@
 
 const { v4: uuidv4 } = require('uuid')
 const { getTemplateByEntityType, upsertAnalysisResults } = require('../lib/cosmosClient')
+const { analyzeDocumentAgainstTemplate } = require('../lib/analysisEngine')
 
 /**
  * POST /api/analyze
@@ -37,35 +38,17 @@ module.exports = async function analyze(context, req) {
       return
     }
 
-    // TODO: Implement actual document analysis logic
-    // For now, return placeholder results
     const analysisId = uuidv4()
     const analysisResults = {
       id: analysisId,
-      entity_type,
-      document_type,
-      file_name: file_name || 'document',
-      scores: {
-        structure: 85,
-        design: 75,
-        compliance: 90,
-        business_context: 80,
-        overall: 82.5,
-      },
-      findings: [
-        {
-          dimension: 'structure',
-          severity: 'minor',
-          message: 'Missing appendix section',
-        },
-        {
-          dimension: 'design',
-          severity: 'major',
-          message: 'Inconsistent font usage',
-        },
-      ],
-      annotations: [],
-      heatmap: null,
+      ...analyzeDocumentAgainstTemplate({
+        sampleId: null,
+        fileName: file_name || 'document',
+        entityType: entity_type,
+        documentType: document_type,
+        documentContent: document_content,
+        template,
+      }),
     }
 
     // Store results
