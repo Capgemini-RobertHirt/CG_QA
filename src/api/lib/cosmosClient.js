@@ -236,9 +236,12 @@ async function upsertSample(sample) {
       entityType: sample.entity_type,
       fileName: sample.file_name,
       fileUrl: sample.file_url,
+      fileContent: sample.file_content,
       uploadedBy: sample.uploaded_by,
       uploadedAt: sample.uploaded_at || new Date().toISOString(),
       analysisStatus: sample.analysis_status || 'pending',
+      analysisId: sample.analysis_id,
+      qualityScore: sample.quality_score,
       analysisResults: sample.analysis_results,
       type: 'template-sample',
     })
@@ -254,11 +257,30 @@ async function upsertSample(sample) {
       entityType: sample.entity_type,
       fileName: sample.file_name,
       fileUrl: sample.file_url,
+      fileContent: sample.file_content,
       uploadedBy: sample.uploaded_by,
       uploadedAt: sample.uploaded_at || new Date().toISOString(),
       analysisStatus: sample.analysis_status || 'pending',
+      analysisId: sample.analysis_id,
+      qualityScore: sample.quality_score,
+      analysisResults: sample.analysis_results,
       type: 'template-sample',
     }
+  }
+}
+
+/**
+ * Get all stored samples
+ */
+async function getAllStoredSamples() {
+  try {
+    const { container } = await initializeCosmosClient()
+    const query = `SELECT * FROM c WHERE c.type = 'template-sample' ORDER BY c.uploadedAt DESC`
+    const { resources } = await container.items.query(query).fetchAll()
+    return resources
+  } catch (error) {
+    console.warn('Error fetching all samples from Cosmos DB:', error.message)
+    return []
   }
 }
 
@@ -281,6 +303,21 @@ async function getSamplesByDocumentType(documentType) {
 }
 
 /**
+ * Get a sample by ID
+ */
+async function getSampleById(id) {
+  try {
+    const { container } = await initializeCosmosClient()
+    const query = `SELECT * FROM c WHERE c.id = @id AND c.type = 'template-sample'`
+    const { resources } = await container.items.query({ query, parameters: [{ name: '@id', value: id }] }).fetchAll()
+    return resources[0] || null
+  } catch (error) {
+    console.warn('Error fetching sample by id from Cosmos DB:', error.message)
+    return null
+  }
+}
+
+/**
  * Store analysis results for a document
  */
 async function upsertAnalysisResults(analysisId, results) {
@@ -288,14 +325,17 @@ async function upsertAnalysisResults(analysisId, results) {
     const { container } = await initializeCosmosClient()
     const response = await container.items.upsert({
       id: analysisId,
+      sampleId: results.sample_id,
       entityType: results.entity_type,
       documentType: results.document_type,
       fileName: results.file_name,
       scores: results.scores,
+      overallScore: results.overall_score,
+      recommendations: results.recommendations,
       findings: results.findings,
       annotations: results.annotations,
       heatmap: results.heatmap,
-      createdAt: new Date().toISOString(),
+      createdAt: results.created_at || new Date().toISOString(),
       type: 'analysis-result',
     })
 
@@ -303,6 +343,40 @@ async function upsertAnalysisResults(analysisId, results) {
   } catch (error) {
     console.error('Error upserting analysis results:', error)
     throw error
+  }
+}
+
+/**
+ * Get analysis result by ID
+ */
+async function getAnalysisResultById(id) {
+  try {
+    const { container } = await initializeCosmosClient()
+    const query = `SELECT * FROM c WHERE c.id = @id AND c.type = 'analysis-result'`
+    const { resources } = await container.items.query({ query, parameters: [{ name: '@id', value: id }] }).fetchAll()
+
+    if (resources.length === 0) {
+      return null
+    }
+
+    const analysis = resources[0]
+    return {
+      id: analysis.id,
+      sample_id: analysis.sampleId,
+      entity_type: analysis.entityType,
+      document_type: analysis.documentType,
+      file_name: analysis.fileName,
+      scores: analysis.scores,
+      overall_score: analysis.overallScore,
+      recommendations: analysis.recommendations || [],
+      findings: analysis.findings || [],
+      annotations: analysis.annotations || [],
+      heatmap: analysis.heatmap || null,
+      created_at: analysis.createdAt,
+    }
+  } catch (error) {
+    console.warn('Error fetching analysis result by id from Cosmos DB:', error.message)
+    return null
   }
 }
 
@@ -592,5 +666,8 @@ module.exports = {
   getAllTemplates,
   upsertSample,
   getSamplesByDocumentType,
+  getAllStoredSamples,
+  getSampleById,
   upsertAnalysisResults,
+  getAnalysisResultById,
 }

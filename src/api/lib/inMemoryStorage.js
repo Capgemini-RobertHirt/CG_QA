@@ -2,6 +2,7 @@
 
 // In-memory storage for samples when Cosmos DB is unavailable
 const samples = new Map()
+const analyses = new Map()
 
 /**
  * Store a sample in memory
@@ -27,6 +28,25 @@ function getSample(id) {
  */
 function getAllSamples() {
   return Array.from(samples.values())
+}
+
+/**
+ * Store analysis results in memory
+ */
+function storeAnalysis(id, analysis) {
+  analyses.set(id, {
+    ...analysis,
+    id: analysis.id || id,
+    storedAt: new Date().toISOString(),
+  })
+  return analyses.get(id)
+}
+
+/**
+ * Get analysis by ID
+ */
+function getAnalysisResult(id) {
+  return analyses.get(id)
 }
 
 /**
@@ -61,6 +81,8 @@ module.exports = {
   storeSample,
   getSample,
   getAllSamples,
+  storeAnalysis,
+  getAnalysisResult,
   getSamplesByType,
   deleteSample,
   clearSamples,

@@ -1,8 +1,9 @@
 'use strict'
 
 const { v4: uuidv4 } = require('uuid')
-const { upsertSample } = require('../lib/cosmosClient')
-const { storeSample } = require('../lib/inMemoryStorage')
+const { upsertSample, upsertAnalysisResults, getTemplateByEntityType } = require('../lib/cosmosClient')
+const { storeSample, storeAnalysis } = require('../lib/inMemoryStorage')
+const { analyzeDocumentAgainstTemplate } = require('../lib/analysisEngine')
 
 /**
  * POST /api/samples
@@ -55,6 +56,7 @@ module.exports = async function samplesUpload(context, req) {
       entity_type: entityType,
       file_name: fileName || 'document',
       file_url: fileUrl,
+      file_content: fileContent,
       uploaded_by: uploadedBy || 'system',
       uploaded_at: new Date().toISOString(),
       analysis_status: 'pending',
@@ -79,11 +81,63 @@ module.exports = async function samplesUpload(context, req) {
       })
     }
 
+    let analysisResults = null
+    try {
+      const template = await getTemplateByEntityType(documentType)
+      if (template) {
+        const analysisId = uuidv4()
+        analysisResults = {
+          id: analysisId,
+          ...analyzeDocumentAgainstTemplate({
+            sampleId,
+            fileName: fileName || 'document',
+            entityType: documentType,
+            documentType,
+            documentContent: fileContent,
+            template,
+          }),
+        }
+
+        await upsertAnalysisResults(analysisId, analysisResults)
+        storeAnalysis(analysisId, analysisResults)
+
+        try {
+          sample = await upsertSample({
+            ...sampleData,
+            analysis_status: 'completed',
+            analysis_id: analysisId,
+            quality_score: analysisResults.overall_score,
+            analysis_results: analysisResults,
+          })
+        } catch (dbError) {
+          sample = storeSample(sampleId, {
+            ...sample,
+            analysisId,
+            analysis_id: analysisId,
+            qualityScore: analysisResults.overall_score,
+            quality_score: analysisResults.overall_score,
+            analysisStatus: 'completed',
+            analysis_status: 'completed',
+            analysisResults,
+            documentType,
+            entityType,
+            fileName: fileName || 'document',
+            fileUrl,
+            uploadedAt: sampleData.uploaded_at,
+          })
+        }
+      }
+    } catch (analysisError) {
+      context.log(`Warning: analysis generation failed: ${analysisError.message}`)
+    }
+
     context.res = {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: sample.id,
+        analysis_id: analysisResults?.id,
+        quality_score: analysisResults?.overall_score || 0,
         message: 'Sample uploaded successfully',
         file_url: sample.fileUrl || fileUrl,
       }),

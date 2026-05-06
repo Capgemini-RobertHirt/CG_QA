@@ -111,9 +111,11 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
       const uploadedProposal = {
         id: response.data.id || `proposal_${Date.now()}`,
         name: selectedFile.name,
-        status: 'uploaded',
-        quality: 0,
+        status: response.data.analysis_id ? 'analyzed' : 'uploaded',
+        quality: response.data.quality_score || 0,
         documentType: templateType,
+        template_type: templateType,
+        analysis_id: response.data.analysis_id,
         uploadedAt: new Date().toISOString(),
       };
       
