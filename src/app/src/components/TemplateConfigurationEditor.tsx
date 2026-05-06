@@ -31,6 +31,86 @@ interface TemplateConfigurationEditorProps {
 // Types that are already in the system (for uniqueness validation)
 const EXISTING_TEMPLATE_TYPES = ['default', 'engineering', 'asset', 'whitepaper', 'point_of_view', 'rfp_rfi_response', 'internal_meeting_presentation'];
 
+const buildFallbackLegoBlocks = (template?: Template | null) => {
+  const requiredSections = template?.structure?.sections?.required || [];
+  const optionalSections = template?.structure?.sections?.optional || [];
+  const suggestedComponents = Array.isArray(template?.config?.suggestedComponents)
+    ? template?.config?.suggestedComponents
+    : [];
+  const allSections = [...requiredSections, ...optionalSections];
+
+  return allSections.reduce((acc: Record<string, any>, sectionName: string, index: number) => {
+    const key = sectionName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || `section_${index + 1}`;
+    const prefersList = suggestedComponents.includes('bullet-point') || suggestedComponents.includes('list');
+    const prefersNumbered = suggestedComponents.includes('numbered-list') || suggestedComponents.includes('steps');
+
+    acc[key] = {
+      name: sectionName,
+      components: [
+        {
+          id: `comp-${key}`,
+          componentId: sectionName.toLowerCase().includes('pricing') ? 'table' : 'card',
+          name: sectionName,
+          category: 'container',
+          properties: {
+            title: sectionName,
+            variant: 'default',
+          },
+          subcomponents: [
+            {
+              id: `subcomp-${key}-title`,
+              subcomponentId: 'title',
+              name: 'Section Title',
+              properties: {
+                fontSize: '24px',
+                fontWeight: 'bold',
+                alignment: 'left',
+                marginBottom: '16px',
+              },
+            },
+            prefersList
+              ? {
+                  id: `subcomp-${key}-list`,
+                  subcomponentId: 'bulletList',
+                  name: 'Bullet List',
+                  properties: {
+                    itemCount: 5,
+                    bulletStyle: 'circle',
+                    fontSize: '12px',
+                    spacing: '8px',
+                  },
+                }
+              : prefersNumbered
+                ? {
+                    id: `subcomp-${key}-numbered`,
+                    subcomponentId: 'numberedList',
+                    name: 'Numbered List',
+                    properties: {
+                      itemCount: 5,
+                      numberFormat: '1.',
+                      fontSize: '12px',
+                    },
+                  }
+                : {
+                    id: `subcomp-${key}-paragraph`,
+                    subcomponentId: 'paragraph',
+                    name: 'Section Content',
+                    properties: {
+                      fontSize: '12px',
+                      lineHeight: '1.5',
+                      color: '#333333',
+                      maxWidth: '100%',
+                    },
+                  },
+          ],
+        },
+      ],
+    };
+
+    return acc;
+  }, {});
+};
+
 // Helper function to extract configuration items from template
 function extractConfigItems(template?: Template | null): Array<{ key: string; value: string }> {
   if (!template) return [{ key: '', value: '' }];
@@ -342,7 +422,7 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
         ) : (
           <div className="component-editor-view">
             <ComponentTreeEditor
-              templateStructure={template?.structure?.legoBlocks || {}}
+              templateStructure={template?.structure?.legoBlocks || buildFallbackLegoBlocks(template)}
               onSave={(structure) => {
                 // Update template structure with component data
                 console.log('Component structure saved:', structure);
@@ -355,7 +435,7 @@ function TemplateConfigurationEditor({ template, cloneSource, onClose, onSave }:
           <button
             type="button"
             onClick={handleSave}
-            disabled={loading || !name.trim()}
+            disabled={loading || !type.trim()}
             className="btn btn-primary"
           >
             {loading ? t('common.loading') : t('common.save')}

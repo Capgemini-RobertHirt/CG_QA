@@ -31,7 +31,33 @@ async function parsePDF(file: File): Promise<ParsedDocumentContent> {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      const textItems = textContent.items
+        .filter((item: any) => item.str && item.str.trim())
+        .map((item: any) => ({
+          str: item.str.trim(),
+          x: item.transform?.[4] || 0,
+          y: item.transform?.[5] || 0,
+        }));
+
+      const linesByY = new Map();
+      for (const item of textItems) {
+        const lineKey = Math.round(item.y / 4) * 4;
+        if (!linesByY.has(lineKey)) {
+          linesByY.set(lineKey, []);
+        }
+        linesByY.get(lineKey).push(item);
+      }
+
+      const pageText = Array.from(linesByY.entries())
+        .sort((a: any, b: any) => b[0] - a[0])
+        .map(([, lineItems]: any) =>
+          lineItems
+            .sort((a: any, b: any) => a.x - b.x)
+            .map((item: any) => item.str)
+            .join(' ')
+        )
+        .join('\n');
+
       fullText += `\n--- Page ${i} ---\n${pageText}\n`;
       pageCount++;
     }

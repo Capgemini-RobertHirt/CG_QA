@@ -23,6 +23,121 @@ interface Template {
   created_by?: string;
 }
 
+const normalizeSectionKey = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+const buildLegoBlocksFromExtraction = (sections: string[], components: string[]) => {
+  const componentHints = new Set(components.map((component) => component.toLowerCase()));
+  const sectionComponentMap: Record<string, string> = {
+    table: 'table',
+    grid: 'grid',
+    chart: 'chart',
+    timeline: 'timeline',
+    quote: 'quote',
+    diagram: 'card',
+    visual: 'card',
+    image: 'card',
+    list: 'card',
+    'bullet-point': 'card',
+    paragraph: 'card',
+    heading: 'card',
+  };
+
+  const pickComponentId = (sectionName: string) => {
+    const sectionLower = sectionName.toLowerCase();
+    if (sectionLower.includes('timeline') || sectionLower.includes('roadmap')) return 'timeline';
+    if (sectionLower.includes('pricing') || sectionLower.includes('cost') || sectionLower.includes('risk')) return 'table';
+    if (sectionLower.includes('metric') || sectionLower.includes('performance') || sectionLower.includes('kpi')) return 'chart';
+    if (sectionLower.includes('quote') || sectionLower.includes('testimonial')) return 'quote';
+    if (sectionLower.includes('grid') || sectionLower.includes('overview') || sectionLower.includes('topics')) return 'grid';
+
+    for (const hint of componentHints) {
+      if (sectionComponentMap[hint]) {
+        return sectionComponentMap[hint];
+      }
+    }
+
+    return 'card';
+  };
+
+  return sections.reduce((acc: Record<string, any>, sectionName, index) => {
+    const key = normalizeSectionKey(sectionName) || `section_${index + 1}`;
+    const componentId = pickComponentId(sectionName);
+    const subcomponents = [
+      {
+        id: `subcomp-${key}-title`,
+        subcomponentId: 'title',
+        name: 'Section Title',
+        properties: {
+          fontSize: '24px',
+          fontWeight: 'bold',
+          alignment: 'left',
+          marginBottom: '16px',
+        },
+      },
+    ];
+
+    if (componentHints.has('bullet-point') || componentHints.has('list')) {
+      subcomponents.push({
+        id: `subcomp-${key}-list`,
+        subcomponentId: 'bulletList',
+        name: 'Bullet List',
+        properties: {
+          itemCount: 5,
+          bulletStyle: 'circle',
+          fontSize: '12px',
+          spacing: '8px',
+        },
+      });
+    } else if (componentHints.has('numbered-list') || componentHints.has('steps')) {
+      subcomponents.push({
+        id: `subcomp-${key}-numbered`,
+        subcomponentId: 'numberedList',
+        name: 'Numbered List',
+        properties: {
+          itemCount: 5,
+          numberFormat: '1.',
+          fontSize: '12px',
+        },
+      });
+    } else {
+      subcomponents.push({
+        id: `subcomp-${key}-paragraph`,
+        subcomponentId: 'paragraph',
+        name: 'Section Content',
+        properties: {
+          fontSize: '12px',
+          lineHeight: '1.5',
+          color: '#333333',
+          maxWidth: '100%',
+        },
+      });
+    }
+
+    acc[key] = {
+      name: sectionName,
+      components: [
+        {
+          id: `comp-${key}`,
+          componentId,
+          name: sectionName,
+          category: 'container',
+          properties: {
+            title: sectionName,
+            variant: 'default',
+          },
+          subcomponents,
+        },
+      ],
+    };
+
+    return acc;
+  }, {});
+};
+
 function TemplateAdminDashboard() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,6 +280,11 @@ function TemplateAdminDashboard() {
   };
 
   const handleDocumentExtracted = (extractedData: ExtractedData) => {
+    const allSections = extractedData.sections.length > 0
+      ? extractedData.sections
+      : ['Introduction', 'Content', 'Conclusion'];
+    const legoBlocks = buildLegoBlocksFromExtraction(allSections, extractedData.components);
+
     // Create a new template from the extracted document data
     const newTemplate: Template = {
       name: extractedData.documentName,
@@ -172,9 +292,10 @@ function TemplateAdminDashboard() {
       entity_type: extractedData.documentType,
       structure: {
         sections: {
-          required: extractedData.sections.slice(0, Math.ceil(extractedData.sections.length / 2)),
-          optional: extractedData.sections.slice(Math.ceil(extractedData.sections.length / 2)),
+          required: allSections.slice(0, Math.ceil(allSections.length / 2)),
+          optional: allSections.slice(Math.ceil(allSections.length / 2)),
         },
+        legoBlocks,
       },
       config: {
         suggestedComponents: extractedData.components,
