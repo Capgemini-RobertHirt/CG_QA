@@ -2,13 +2,14 @@
 
 const { runQualityAssuranceAgents } = require('./qaAgents/orchestrator')
 
-async function analyzeDocumentAgainstTemplate({ sampleId, fileName, entityType, documentType, documentContent, template }) {
+async function analyzeDocumentAgainstTemplate({ sampleId, fileName, entityType, documentType, documentContent, documentModel, template }) {
   const orchestrationResult = await runQualityAssuranceAgents({
     sampleId,
     fileName,
     entityType,
     documentType,
     documentContent,
+    documentModel,
     template,
   })
 
@@ -22,8 +23,9 @@ async function analyzeDocumentAgainstTemplate({ sampleId, fileName, entityType, 
     recommendations: orchestrationResult.recommendations,
     findings: orchestrationResult.findings,
     agent_reports: orchestrationResult.agent_reports,
-    annotations: [],
-    heatmap: null,
+    annotations: documentModel?.annotations || [],
+    heatmap: documentModel?.heatmap || null,
+    document_excerpt: documentContent,
     created_at: new Date().toISOString(),
   }
 }

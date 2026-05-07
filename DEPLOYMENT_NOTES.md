@@ -65,6 +65,8 @@ Or set manually in GitHub web UI: https://github.com/Capgemini-RobertHirt/CG_QA/
 - **GET** `/api/templates/available-types` - List all entity types
 - **GET** `/api/templates/{entityType}` - Get template by entity type
 - **POST** `/api/analyze` - Analyze document
+- **POST** `/api/uploads/pptx/initiate` - Create a direct-to-blob upload session for large PPTX files
+- **POST** `/api/samples/pptx` - Finalize a PPTX upload and enqueue async analysis
 
 ### Admin Functions (Requires API Key)
 - **POST** `/api/templates` - Create/update template
@@ -91,6 +93,25 @@ Update `src/api/local.settings.json` with Cosmos DB credentials from Azure Porta
   "COSMOS_DB_KEY": "<primary-key-from-azure-portal>"
 }
 ```
+
+### PPTX Async Upload Config
+Large native PowerPoint uploads now use direct blob upload plus queue-backed async processing. Add these settings to the Function App or local settings:
+
+```json
+{
+  "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<storage-account>;AccountKey=<storage-key>;EndpointSuffix=core.windows.net",
+  "DOCUMENTS_BLOB_CONTAINER": "documents",
+  "PPTX_ANALYSIS_QUEUE": "pptx-analysis-jobs",
+  "PPTX_MAX_UPLOAD_BYTES": "104857600",
+  "PPTX_UPLOAD_SAS_EXPIRY_MINUTES": "30"
+}
+```
+
+Notes:
+- The browser now uploads PPTX files directly to blob storage using a short-lived SAS URL.
+- The API then enqueues the analysis job and returns `202 Accepted` while processing continues asynchronously.
+- Storage account CORS must allow the frontend origin to `PUT` blobs directly from the browser.
+- The queue-triggered `pptx-process` function downloads the blob, extracts slide text and notes from the native PPTX package, and stores analysis results back in Cosmos DB.
 
 ### Azure OpenAI QA Agent Config
 The recommendation agent can now run in `hybrid` or `llm` mode through Azure OpenAI. Add these settings to the Function App or local settings:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
+import { parseDocument } from '../services/documentParser';
 import './DocumentUpload.css';
 
 interface DocumentUploadProps {
@@ -23,6 +24,40 @@ const DEFAULT_TEMPLATES: TemplateOption[] = [
   { id: 'template-rfp_rfi_response', name: 'RFP/RFI Response', type: 'rfp_rfi_response' },
   { id: 'template-internal_meeting_presentation', name: 'Internal Meeting Presentation', type: 'internal_meeting_presentation' },
 ];
+
+const MAX_TEXT_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_PPTX_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024;
+const PPTX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+const SUPPORTED_UPLOAD_TYPES = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  PPTX_MIME_TYPE,
+]);
+
+function isPptxFile(file: File) {
+  return file.type === PPTX_MIME_TYPE || file.name.toLowerCase().endsWith('.pptx');
+}
+
+function validateUploadFile(file: File) {
+  if (!SUPPORTED_UPLOAD_TYPES.has(file.type)) {
+    if (isPptxFile(file)) {
+      return null;
+    }
+
+    return 'Unsupported file type. Please upload PDF, DOCX, TXT, or PPTX files.';
+  }
+
+  if (isPptxFile(file) && file.size > MAX_PPTX_UPLOAD_SIZE_BYTES) {
+    return 'PPTX uploads are limited to 100MB.';
+  }
+
+  if (!isPptxFile(file) && file.size > MAX_TEXT_UPLOAD_SIZE_BYTES) {
+    return 'File size exceeds the 10MB limit for direct analysis uploads.';
+  }
+
+  return null;
+}
 
 function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -90,13 +125,32 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
     setIsDragging(false);
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      setSelectedFile(files[0]);
+      const nextFile = files[0];
+      const validationError = validateUploadFile(nextFile);
+      if (validationError) {
+        setSelectedFile(null);
+        setMessage({ type: 'error', text: validationError });
+        return;
+      }
+
+      setSelectedFile(nextFile);
+      setMessage(null);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      setSelectedFile(e.target.files[0]);
+      const nextFile = e.target.files[0];
+      const validationError = validateUploadFile(nextFile);
+      if (validationError) {
+        setSelectedFile(null);
+        setMessage({ type: 'error', text: validationError });
+        e.target.value = '';
+        return;
+      }
+
+      setSelectedFile(nextFile);
+      setMessage(null);
     }
   };
 
@@ -105,14 +159,21 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
 
     setLoading(true);
     try {
-      const response = await api.uploadProposal(selectedFile, templateType);
+      const validationError = validateUploadFile(selectedFile);
+      if (validationError) {
+        setMessage({ type: 'error', text: validationError });
+        return;
+      }
+
+      const parsedDocument = isPptxFile(selectedFile) ? null : await parseDocument(selectedFile);
+      const response = await api.uploadProposal(selectedFile, templateType, parsedDocument?.text);
       
       // Cache the uploaded proposal to localStorage
       const uploadedProposal = {
         id: response.data.id || `proposal_${Date.now()}`,
         name: response.data.file_name || selectedFile.name,
         file_name: response.data.file_name || selectedFile.name,
-        status: response.data.analysis_id ? 'analyzed' : 'uploaded',
+        status: response.data.status || (response.data.analysis_id ? 'analyzed' : 'uploaded'),
         quality: response.data.quality_score || 0,
         quality_score: response.data.quality_score || 0,
         documentType: templateType,
@@ -121,9 +182,10 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
         entity_type: templateType,
         analysis_id: response.data.analysis_id,
         analysis: response.data.analysis,
-        file_content: await selectedFile.text(),
+        file_content: parsedDocument?.text || response.data.file_content || '',
         created_at: response.data.created_at || new Date().toISOString(),
         uploadedAt: response.data.created_at || new Date().toISOString(),
+        file_url: response.data.file_url,
       };
       
       const cachedProposals = localStorage.getItem('cached_proposals');
@@ -131,11 +193,22 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
       proposals.unshift(uploadedProposal); // Add to beginning of list
       localStorage.setItem('cached_proposals', JSON.stringify(proposals));
       
-      setMessage({ type: 'success', text: 'Document uploaded successfully' });
+      setMessage({
+        type: 'success',
+        text: isPptxFile(selectedFile)
+          ? 'PPTX uploaded successfully. Analysis is running asynchronously.'
+          : 'Document uploaded successfully',
+      });
       setSelectedFile(null);
       onUploadSuccess?.();
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Upload failed' });
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const uploadMessage = status === 413
+        ? 'Upload payload is too large. Use PDF, DOCX, or TXT under 10MB, or PPTX under 100MB through the async upload path.'
+        : error instanceof Error
+          ? error.message
+          : 'Upload failed';
+      setMessage({ type: 'error', text: uploadMessage });
       console.error('Upload error:', error);
     } finally {
       setLoading(false);
@@ -149,10 +222,11 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
            onDragLeave={handleDragLeave}
            onDrop={handleDrop}>
         <p>{t('proposals.uploadDocument')}</p>
-        <input type="file" onChange={handleFileSelect} hidden id="file-input" />
+        <input type="file" accept=".pdf,.docx,.txt,.pptx" onChange={handleFileSelect} hidden id="file-input" />
         <label htmlFor="file-input" className="file-button">
           {t('common.save')}
         </label>
+        <p className="upload-help-text">Supported: PDF, DOCX, TXT up to 10MB. PPTX uploads use async blob processing up to 100MB.</p>
       </div>
 
       {selectedFile && (

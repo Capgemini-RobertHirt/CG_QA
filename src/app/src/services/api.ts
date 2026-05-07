@@ -5,6 +5,8 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+const PPTX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+
 // Flag to track if backend is available
 let backendAvailable = true;
 let backendCheckTime = 0;
@@ -183,9 +185,43 @@ const transformTemplateForBackend = (template: any) => {
 
 export const api = {
   // Proposals
-  uploadProposal: async (file: File, templateType: string) => {
+  uploadProposal: async (file: File, templateType: string, parsedContent?: string) => {
+    if (file.type === PPTX_MIME_TYPE) {
+      const sessionResponse = await apiClient.post('/api/uploads/pptx/initiate', {
+        fileName: file.name,
+        fileSize: file.size,
+        contentType: file.type,
+      });
+
+      const session = sessionResponse.data;
+      const uploadResponse = await fetch(session.uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'x-ms-blob-type': 'BlockBlob',
+          'Content-Type': file.type || PPTX_MIME_TYPE,
+        },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Blob upload failed with status ${uploadResponse.status}.`);
+      }
+
+      return await apiClient.post('/api/samples/pptx', {
+        sampleId: session.sampleId,
+        blobName: session.blobName,
+        blobUrl: session.blobUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        contentType: file.type || PPTX_MIME_TYPE,
+        documentType: templateType,
+        entityType: 'document',
+        uploadedBy: 'user',
+      });
+    }
+
     try {
-      const fileContent = await file.text();
+      const fileContent = parsedContent ?? await file.text();
       return await apiClient.post('/api/samples', {
         documentType: templateType,
         entityType: 'document',
@@ -197,7 +233,7 @@ export const api = {
       // If backend is unavailable, use mock API
       if (!backendAvailable || (error as any).response?.status >= 500) {
         console.warn('Backend unavailable, using mock API for uploadProposal');
-        const fileContent = await file.text();
+        const fileContent = parsedContent ?? await file.text();
         const result = await mockApiExtended.uploadProposal(templateType, fileContent, file.name);
         return { data: result, status: 201 };
       }

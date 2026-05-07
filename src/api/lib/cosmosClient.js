@@ -243,6 +243,11 @@ async function upsertSample(sample) {
       analysisId: sample.analysis_id,
       qualityScore: sample.quality_score,
       analysisResults: sample.analysis_results,
+      contentType: sample.content_type,
+      fileSize: sample.file_size,
+      blobName: sample.blob_name,
+      processingMode: sample.processing_mode,
+      analysisError: sample.analysis_error,
       type: 'template-sample',
     })
 
@@ -264,6 +269,11 @@ async function upsertSample(sample) {
       analysisId: sample.analysis_id,
       qualityScore: sample.quality_score,
       analysisResults: sample.analysis_results,
+      contentType: sample.content_type,
+      fileSize: sample.file_size,
+      blobName: sample.blob_name,
+      processingMode: sample.processing_mode,
+      analysisError: sample.analysis_error,
       type: 'template-sample',
     }
   }
@@ -333,8 +343,10 @@ async function upsertAnalysisResults(analysisId, results) {
       overallScore: results.overall_score,
       recommendations: results.recommendations,
       findings: results.findings,
+      agentReports: results.agent_reports,
       annotations: results.annotations,
       heatmap: results.heatmap,
+      documentExcerpt: results.document_excerpt,
       createdAt: results.created_at || new Date().toISOString(),
       type: 'analysis-result',
     })
@@ -370,8 +382,10 @@ async function getAnalysisResultById(id) {
       overall_score: analysis.overallScore,
       recommendations: analysis.recommendations || [],
       findings: analysis.findings || [],
+      agent_reports: analysis.agentReports || [],
       annotations: analysis.annotations || [],
       heatmap: analysis.heatmap || null,
+      document_excerpt: analysis.documentExcerpt || '',
       created_at: analysis.createdAt,
     }
   } catch (error) {

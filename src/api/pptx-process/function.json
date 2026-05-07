@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "job",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "%PPTX_ANALYSIS_QUEUE%",
+      "connection": "AzureWebJobsStorage"
+    }
+  ]
+}

@@ -13,8 +13,11 @@
     "@azure/identity": "^4.4.1",
     "@azure/keyvault-secrets": "^4.8.0",
     "@azure/storage-blob": "^12.17.0",
+    "@azure/storage-queue": "^12.29.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "fast-xml-parser": "^5.7.3",
+    "jszip": "^3.10.1",
     "serverless-http": "^3.2.0",
     "uuid": "^9.0.0"
   }
