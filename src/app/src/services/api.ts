@@ -186,11 +186,12 @@ const transformTemplateForBackend = (template: any) => {
 export const api = {
   // Proposals
   uploadProposal: async (file: File, templateType: string, parsedContent?: string) => {
-    if (file.type === PPTX_MIME_TYPE) {
+    const isPptx = file.type === PPTX_MIME_TYPE || file.name.toLowerCase().endsWith('.pptx');
+    if (isPptx) {
       const sessionResponse = await apiClient.post('/api/uploads/pptx/initiate', {
         fileName: file.name,
         fileSize: file.size,
-        contentType: file.type,
+        contentType: file.type || PPTX_MIME_TYPE,
       });
 
       const session = sessionResponse.data;
