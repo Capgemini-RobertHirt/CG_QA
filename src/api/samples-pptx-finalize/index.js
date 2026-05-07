@@ -2,7 +2,7 @@
 
 const { upsertSample } = require('../lib/cosmosClient')
 const { storeSample } = require('../lib/inMemoryStorage')
-const { blobExists, enqueuePptxAnalysisJob } = require('../lib/storageClient')
+const { blobExists } = require('../lib/storageClient')
 
 const PPTX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 
@@ -77,19 +77,6 @@ module.exports = async function finalizePptxUpload(context, req) {
       })
     }
 
-    await enqueuePptxAnalysisJob({
-      sampleId,
-      blobName,
-      fileName,
-      fileSize,
-      contentType: sampleData.content_type,
-      documentType,
-      entityType,
-      uploadedBy: sampleData.uploaded_by,
-      uploadedAt: sampleData.uploaded_at,
-      blobUrl,
-    })
-
     context.res = {
       status: 202,
       headers: { 'Content-Type': 'application/json' },
@@ -103,7 +90,19 @@ module.exports = async function finalizePptxUpload(context, req) {
         quality_score: 0,
         created_at: sample.uploadedAt || sample.uploaded_at || sampleData.uploaded_at,
         file_url: blobUrl,
-        message: 'PPTX upload accepted. Analysis has been queued and will complete asynchronously.',
+        processing_payload: {
+          sampleId,
+          blobName,
+          blobUrl,
+          fileName,
+          fileSize,
+          contentType: sampleData.content_type,
+          documentType,
+          entityType,
+          uploadedBy: sampleData.uploaded_by,
+          uploadedAt: sampleData.uploaded_at,
+        },
+        message: 'PPTX upload accepted. Analysis is ready to start asynchronously.',
       }),
     }
   } catch (error) {

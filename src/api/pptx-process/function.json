@@ -1,11 +1,17 @@
 {
   "bindings": [
     {
-      "name": "job",
-      "type": "queueTrigger",
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
       "direction": "in",
-      "queueName": "%PPTX_ANALYSIS_QUEUE%",
-      "connection": "AzureWebJobsStorage"
+      "name": "req",
+      "route": "pptx/process",
+      "methods": ["post"]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
     }
   ]
 }

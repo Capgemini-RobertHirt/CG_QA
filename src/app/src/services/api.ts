@@ -207,7 +207,7 @@ export const api = {
         throw new Error(`Blob upload failed with status ${uploadResponse.status}.`);
       }
 
-      return await apiClient.post('/api/samples/pptx', {
+      const processingPayload = {
         sampleId: session.sampleId,
         blobName: session.blobName,
         blobUrl: session.blobUrl,
@@ -217,7 +217,16 @@ export const api = {
         documentType: templateType,
         entityType: 'document',
         uploadedBy: 'user',
+      };
+
+      const finalizeResponse = await apiClient.post('/api/samples/pptx', processingPayload);
+      const workerPayload = finalizeResponse.data?.processing_payload || processingPayload;
+
+      void apiClient.post('/api/pptx/process', workerPayload).catch((error) => {
+        console.error('PPTX processing request failed:', error);
       });
+
+      return finalizeResponse;
     }
 
     try {

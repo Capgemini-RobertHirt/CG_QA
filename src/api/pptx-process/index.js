@@ -8,8 +8,8 @@ const { getBlobBuffer } = require('../lib/storageClient')
 const { parsePptxBuffer } = require('../lib/pptxParser')
 const { ensureQaAgentPreflight } = require('../lib/qaAgents/preflight')
 
-module.exports = async function processPptxQueue(context, job) {
-  const payload = typeof job === 'string' ? JSON.parse(job) : job
+module.exports = async function processPptxRequest(context, req) {
+  const payload = req.body || {}
   const {
     sampleId,
     blobName,
@@ -22,6 +22,17 @@ module.exports = async function processPptxQueue(context, job) {
     uploadedBy,
     uploadedAt,
   } = payload
+
+  if (!sampleId || !blobName || !fileName || !documentType || !entityType) {
+    context.res = {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'sampleId, blobName, fileName, documentType, and entityType are required.',
+      }),
+    }
+    return
+  }
 
   context.log(`Processing PPTX analysis job for sample ${sampleId}`)
 
@@ -136,9 +147,28 @@ module.exports = async function processPptxQueue(context, job) {
       })
       context.log(`Stored completed PPTX sample in memory: ${dbError.message}`)
     }
+
+    context.res = {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sampleId,
+        analysisId,
+        status: 'completed',
+        qualityScore: analysisResults.overall_score,
+      }),
+    }
   } catch (error) {
     context.log(`Error processing PPTX analysis job for sample ${sampleId}: ${error.message}`)
     await updateFailure(error.message)
-    throw error
+    context.res = {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'Failed to process PPTX analysis',
+        message: error.message,
+        sampleId,
+      }),
+    }
   }
 }

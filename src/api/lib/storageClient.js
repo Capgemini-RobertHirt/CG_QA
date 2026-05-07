@@ -7,14 +7,11 @@ const {
   StorageSharedKeyCredential,
   generateBlobSASQueryParameters,
 } = require('@azure/storage-blob')
-const { QueueClient } = require('@azure/storage-queue')
 
 const DEFAULT_CONTAINER_NAME = process.env.DOCUMENTS_BLOB_CONTAINER || 'documents'
-const DEFAULT_PPTX_QUEUE_NAME = process.env.PPTX_ANALYSIS_QUEUE || 'pptx-analysis-jobs'
 const DEFAULT_UPLOAD_EXPIRY_MINUTES = Number.parseInt(process.env.PPTX_UPLOAD_SAS_EXPIRY_MINUTES || '30', 10)
 
 let blobServiceClient = null
-let queueClient = null
 
 function getConnectionString() {
   const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING || process.env.AzureWebJobsStorage
@@ -72,15 +69,6 @@ async function ensureContainer(containerName = DEFAULT_CONTAINER_NAME) {
   return containerClient
 }
 
-async function ensureQueue(queueName = DEFAULT_PPTX_QUEUE_NAME) {
-  if (!queueClient || queueClient.name !== queueName) {
-    queueClient = new QueueClient(getConnectionString(), queueName)
-  }
-
-  await queueClient.createIfNotExists()
-  return queueClient
-}
-
 async function createPptxUploadSession({ sampleId, fileName, contentType }) {
   const containerClient = await ensureContainer()
   const normalizedFileName = sanitizePathSegment(path.basename(fileName || `${sampleId}.pptx`))
@@ -109,11 +97,6 @@ async function createPptxUploadSession({ sampleId, fileName, contentType }) {
   }
 }
 
-async function enqueuePptxAnalysisJob(job) {
-  const client = await ensureQueue()
-  await client.sendMessage(JSON.stringify(job))
-}
-
 async function getBlobBuffer(blobName, containerName = DEFAULT_CONTAINER_NAME) {
   const containerClient = await ensureContainer(containerName)
   const blobClient = containerClient.getBlockBlobClient(blobName)
@@ -137,9 +120,7 @@ async function blobExists(blobName, containerName = DEFAULT_CONTAINER_NAME) {
 
 module.exports = {
   DEFAULT_CONTAINER_NAME,
-  DEFAULT_PPTX_QUEUE_NAME,
   createPptxUploadSession,
-  enqueuePptxAnalysisJob,
   getBlobBuffer,
   blobExists,
 }

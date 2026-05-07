@@ -66,7 +66,8 @@ Or set manually in GitHub web UI: https://github.com/Capgemini-RobertHirt/CG_QA/
 - **GET** `/api/templates/{entityType}` - Get template by entity type
 - **POST** `/api/analyze` - Analyze document
 - **POST** `/api/uploads/pptx/initiate` - Create a direct-to-blob upload session for large PPTX files
-- **POST** `/api/samples/pptx` - Finalize a PPTX upload and enqueue async analysis
+- **POST** `/api/samples/pptx` - Finalize a PPTX upload and persist a processing record
+- **POST** `/api/pptx/process` - Process a previously uploaded PPTX over HTTP
 
 ### Admin Functions (Requires API Key)
 - **POST** `/api/templates` - Create/update template
@@ -95,13 +96,12 @@ Update `src/api/local.settings.json` with Cosmos DB credentials from Azure Porta
 ```
 
 ### PPTX Async Upload Config
-Large native PowerPoint uploads now use direct blob upload plus queue-backed async processing. Add these settings to the Function App or local settings:
+Large native PowerPoint uploads now use direct blob upload plus HTTP-triggered background-style processing that is compatible with Azure Static Web Apps managed APIs. Add these settings to the Function App or local settings:
 
 ```json
 {
   "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<storage-account>;AccountKey=<storage-key>;EndpointSuffix=core.windows.net",
   "DOCUMENTS_BLOB_CONTAINER": "documents",
-  "PPTX_ANALYSIS_QUEUE": "pptx-analysis-jobs",
   "PPTX_MAX_UPLOAD_BYTES": "104857600",
   "PPTX_UPLOAD_SAS_EXPIRY_MINUTES": "30"
 }
@@ -109,9 +109,9 @@ Large native PowerPoint uploads now use direct blob upload plus queue-backed asy
 
 Notes:
 - The browser now uploads PPTX files directly to blob storage using a short-lived SAS URL.
-- The API then enqueues the analysis job and returns `202 Accepted` while processing continues asynchronously.
+- The API then stores the processing request and the frontend triggers the PPTX processor over HTTP without blocking the upload UX.
 - Storage account CORS must allow the frontend origin to `PUT` blobs directly from the browser.
-- The queue-triggered `pptx-process` function downloads the blob, extracts slide text and notes from the native PPTX package, and stores analysis results back in Cosmos DB.
+- The HTTP-triggered `pptx-process` function downloads the blob, extracts slide text and notes from the native PPTX package, and stores analysis results back in Cosmos DB.
 
 ### Azure OpenAI QA Agent Config
 The recommendation agent can now run in `hybrid` or `llm` mode through Azure OpenAI. Add these settings to the Function App or local settings:
