@@ -79,6 +79,7 @@ module.exports = async function samplesGet(context, req) {
         document_type: sample.documentType || sample.document_type,
         entity_type: sample.entityType || sample.entity_type,
         file_url: sample.fileUrl || sample.file_url,
+        file_content: sample.fileContent || sample.file_content || '',
       }),
     }
   } catch (error) {

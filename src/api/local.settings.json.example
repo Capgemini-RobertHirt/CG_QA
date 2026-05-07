@@ -14,6 +14,7 @@
     "QA_AGENT_STRATEGY": "hybrid",
     "QA_LLM_AGENT_ID": "recommendation-agent",
     "QA_LLM_AGENT_IDS": "recommendation-agent,standards-agent,structure-agent",
+    "QA_AGENT_PREFLIGHT_ENFORCED": "false",
     "QA_LLM_TIMEOUT_MS": "15000",
     "AZURE_OPENAI_ENDPOINT": "https://<azure-openai-resource>.openai.azure.com",
     "AZURE_OPENAI_DEPLOYMENT": "<chat-deployment-name>",

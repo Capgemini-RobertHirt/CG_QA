@@ -16,6 +16,10 @@ function buildHeuristicStandardsReport({ documentContent, template }) {
       dimension: 'design',
       severity: 'minor',
       message: 'Table of contents is required by the template but was not detected.',
+      rule: 'table-of-contents',
+      issue_type: 'missing-standard',
+      expected: 'Table of Contents',
+      related_sections: ['table_of_contents'],
     })
   }
 
@@ -25,6 +29,10 @@ function buildHeuristicStandardsReport({ documentContent, template }) {
       dimension: 'compliance',
       severity: 'minor',
       message: 'Figures appear to be referenced without numbering, which conflicts with the template standard.',
+      rule: 'figures-numbered',
+      issue_type: 'formatting-standard',
+      expected: 'Numbered figures',
+      related_sections: ['figures'],
     })
   }
 
@@ -34,6 +42,10 @@ function buildHeuristicStandardsReport({ documentContent, template }) {
       dimension: 'compliance',
       severity: 'minor',
       message: 'Tables appear to be referenced without numbering, which conflicts with the template standard.',
+      rule: 'tables-numbered',
+      issue_type: 'formatting-standard',
+      expected: 'Numbered tables',
+      related_sections: ['tables'],
     })
   }
 

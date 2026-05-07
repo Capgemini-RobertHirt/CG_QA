@@ -23,6 +23,35 @@ interface Template {
   created_by?: string;
 }
 
+interface QaPreflightIssue {
+  agentId: string;
+  severity: string;
+  code: string;
+  message: string;
+}
+
+interface QaPreflightProbeResult {
+  agentId: string;
+  ok: boolean;
+  probeMode: string;
+  authMode?: string;
+  message: string;
+  issues?: QaPreflightIssue[];
+}
+
+interface QaPreflightStatus {
+  status: string;
+  ok: boolean;
+  strategy: string;
+  enforced: boolean;
+  enabledAgents: string[];
+  summary: string;
+  issues: QaPreflightIssue[];
+  probeMode?: string;
+  probeResults?: QaPreflightProbeResult[];
+  timestamp: string;
+}
+
 const normalizeSectionKey = (value: string) =>
   value
     .toLowerCase()
@@ -148,10 +177,14 @@ function TemplateAdminDashboard() {
   const [showDocumentUploadAnalyzer, setShowDocumentUploadAnalyzer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [qaPreflight, setQaPreflight] = useState<QaPreflightStatus | null>(null);
+  const [preflightLoading, setPreflightLoading] = useState(false);
+  const [preflightError, setPreflightError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
     loadTemplates();
+    loadQaPreflight();
   }, []);
 
   useEffect(() => {
@@ -253,6 +286,25 @@ function TemplateAdminDashboard() {
       setError(t('errors.loadFailed') || 'Failed to load templates');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadQaPreflight = async (probe?: 'auth' | 'live') => {
+    try {
+      setPreflightLoading(true);
+      const response = await api.getQaAgentPreflight(probe);
+      setQaPreflight(response.data);
+      setPreflightError(null);
+    } catch (loadError: any) {
+      const responseData = loadError?.response?.data;
+      if (responseData) {
+        setQaPreflight(responseData);
+        setPreflightError(null);
+      } else {
+        setPreflightError('Failed to load QA preflight status');
+      }
+    } finally {
+      setPreflightLoading(false);
     }
   };
 
@@ -404,6 +456,54 @@ function TemplateAdminDashboard() {
 
       {error && <div className="alert alert-error">{error}</div>}
       {successMessage && <div className="alert alert-success">{successMessage}</div>}
+      <div className="qa-preflight-panel">
+        <div className="qa-preflight-header">
+          <div>
+            <h3>QA Agent Preflight</h3>
+            <p>{qaPreflight?.summary || 'Checks Azure OpenAI configuration and optional provider probes.'}</p>
+          </div>
+          <div className="qa-preflight-actions">
+            <button className="btn btn-secondary" onClick={() => loadQaPreflight()} disabled={preflightLoading}>
+              Refresh
+            </button>
+            <button className="btn btn-primary" onClick={() => loadQaPreflight('live')} disabled={preflightLoading}>
+              Live Probe
+            </button>
+          </div>
+        </div>
+        {preflightError && <div className="alert alert-error">{preflightError}</div>}
+        {qaPreflight && (
+          <div className="qa-preflight-body">
+            <div className="qa-preflight-summary-row">
+              <span className={`qa-preflight-badge ${qaPreflight.ok ? 'is-ok' : 'is-degraded'}`}>
+                {qaPreflight.status}
+              </span>
+              <span>Strategy: {qaPreflight.strategy}</span>
+              <span>Strict mode: {qaPreflight.enforced ? 'enabled' : 'disabled'}</span>
+              <span>Agents: {qaPreflight.enabledAgents.join(', ') || 'none'}</span>
+            </div>
+            {qaPreflight.issues?.length > 0 && (
+              <ul className="qa-preflight-issues">
+                {qaPreflight.issues.map((issue) => (
+                  <li key={`${issue.agentId}-${issue.code}`}>{issue.agentId}: {issue.message}</li>
+                ))}
+              </ul>
+            )}
+            {qaPreflight.probeResults?.length ? (
+              <div className="qa-preflight-probes">
+                {qaPreflight.probeResults.map((probeResult) => (
+                  <div key={`${probeResult.agentId}-${probeResult.probeMode}`} className="qa-preflight-probe-card">
+                    <strong>{probeResult.agentId}</strong>
+                    <p>{probeResult.message}</p>
+                    <span>{probeResult.probeMode} probe</span>
+                    {probeResult.authMode && <span>Auth: {probeResult.authMode}</span>}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
 
       {templates.length === 0 ? (
         <div className="empty-state">

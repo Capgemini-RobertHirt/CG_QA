@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid')
 const { upsertSample, upsertAnalysisResults, getTemplateByEntityType } = require('../lib/cosmosClient')
 const { storeSample, storeAnalysis } = require('../lib/inMemoryStorage')
 const { analyzeDocumentAgainstTemplate } = require('../lib/analysisEngine')
+const { ensureQaAgentPreflight } = require('../lib/qaAgents/preflight')
 
 /**
  * POST /api/samples
@@ -25,6 +26,8 @@ module.exports = async function samplesUpload(context, req) {
       }
       return
     }
+
+    ensureQaAgentPreflight()
 
     const sampleId = uuidv4()
     const blobName = `samples/${entityType}/${documentType}/${sampleId}/${fileName || 'document'}`
@@ -149,6 +152,19 @@ module.exports = async function samplesUpload(context, req) {
     }
   } catch (error) {
     context.log(`Error uploading sample: ${error.message}`)
+    if (error.code === 'qa-agent-preflight-failed') {
+      context.res = {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'QA agent preflight failed',
+          message: error.message,
+          preflight: error.preflight,
+        }),
+      }
+      return
+    }
+
     // Return success with fallback response to maintain API availability
     const fallbackId = require('uuid').v4()
     context.res = {

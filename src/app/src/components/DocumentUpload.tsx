@@ -121,6 +121,7 @@ function DocumentUpload({ onUploadSuccess }: DocumentUploadProps) {
         entity_type: templateType,
         analysis_id: response.data.analysis_id,
         analysis: response.data.analysis,
+        file_content: await selectedFile.text(),
         created_at: response.data.created_at || new Date().toISOString(),
         uploadedAt: response.data.created_at || new Date().toISOString(),
       };

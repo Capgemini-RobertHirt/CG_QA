@@ -75,6 +75,95 @@
   color: #155724;
 }
 
+.qa-preflight-panel {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef6fc 100%);
+  border: 1px solid #d2e5f3;
+}
+
+.qa-preflight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.qa-preflight-header h3 {
+  margin: 0 0 6px;
+  color: #204261;
+}
+
+.qa-preflight-header p {
+  margin: 0;
+  color: #587086;
+}
+
+.qa-preflight-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.qa-preflight-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #28465f;
+}
+
+.qa-preflight-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.qa-preflight-badge.is-ok {
+  background: #dff4ea;
+  color: #146c43;
+}
+
+.qa-preflight-badge.is-degraded {
+  background: #fff2e8;
+  color: #9a4d12;
+}
+
+.qa-preflight-issues {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  color: #7a3a11;
+}
+
+.qa-preflight-probes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.qa-preflight-probe-card {
+  padding: 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d9e7f2;
+}
+
+.qa-preflight-probe-card p {
+  margin: 8px 0;
+  color: #456178;
+}
+
+.qa-preflight-probe-card span {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 12px;
+  color: #6c8194;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -228,6 +317,10 @@
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .qa-preflight-header {
+    flex-direction: column;
   }
 
   .dashboard-header h2 {

@@ -61,6 +61,7 @@ Or set manually in GitHub web UI: https://github.com/Capgemini-RobertHirt/CG_QA/
 
 ### Public (Anonymous Access)
 - **GET** `/api/health` - Health check
+- **GET** `/api/health/qa-preflight` - Validate QA agent Azure OpenAI configuration and strict-gate readiness
 - **GET** `/api/templates/available-types` - List all entity types
 - **GET** `/api/templates/{entityType}` - Get template by entity type
 - **POST** `/api/analyze` - Analyze document
@@ -99,6 +100,7 @@ The recommendation agent can now run in `hybrid` or `llm` mode through Azure Ope
   "QA_AGENT_STRATEGY": "hybrid",
   "QA_LLM_AGENT_ID": "recommendation-agent",
   "QA_LLM_AGENT_IDS": "recommendation-agent,standards-agent,structure-agent",
+  "QA_AGENT_PREFLIGHT_ENFORCED": "false",
   "QA_LLM_TIMEOUT_MS": "15000",
   "AZURE_OPENAI_ENDPOINT": "https://<azure-openai-resource>.openai.azure.com",
   "AZURE_OPENAI_DEPLOYMENT": "<chat-deployment-name>",
@@ -120,6 +122,7 @@ The recommendation agent can now run in `hybrid` or `llm` mode through Azure Ope
 Notes:
 - `QA_AGENT_STRATEGY=heuristic` disables all LLM calls.
 - `QA_LLM_AGENT_IDS` is the preferred setting for enabling more than one LLM-backed agent.
+- `QA_AGENT_PREFLIGHT_ENFORCED=true` makes `/api/analyze` and `/api/samples` fail closed when required Azure OpenAI config is missing.
 - `QA_AGENT_STRATEGY=hybrid` keeps the existing deterministic agents and upgrades only the listed agents to Azure OpenAI when configured.
 - `QA_AGENT_STRATEGY=llm` still uses the same boundary but prefers Azure OpenAI reasoning for the listed agents.
 - `AZURE_OPENAI_AUTH_MODE` and `AZURE_OPENAI_AUTH_MODE_<AGENT_ID>` accept `auto`, `api-key`, or `managed-identity`.
@@ -162,6 +165,9 @@ npm run smoke:qa-agents
 ```
 
 The smoke test prints each agent's effective strategy, provider, endpoint host, deployment, auth mode, and any fallback reason. A successful Azure OpenAI run should show `provider: "azure-openai"` and `strategy: "hybrid"` or `"llm"` for the configured agents without a fallback reason.
+
+### Preflight Endpoint
+Use `GET /api/health/qa-preflight` to validate the current QA agent configuration before enabling strict enforcement. The endpoint returns `200` when the configured LLM agents have the required Azure OpenAI settings, and `503` when blocking issues are present.
 
 **To retrieve the key:**
 ```bash

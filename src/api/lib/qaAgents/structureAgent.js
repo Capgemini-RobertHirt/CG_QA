@@ -23,6 +23,10 @@ function buildHeuristicStructureReport({ documentContent, template }) {
       dimension: 'structure',
       severity: 'major',
       message: `Missing required section: ${toDisplayName(section)}`,
+      section,
+      related_sections: [section],
+      issue_type: 'missing-required-section',
+      expected: toDisplayName(section),
     })
   })
 
@@ -31,6 +35,10 @@ function buildHeuristicStructureReport({ documentContent, template }) {
       dimension: 'completeness',
       severity: 'minor',
       message: `Optional section not detected: ${toDisplayName(section)}`,
+      section,
+      related_sections: [section],
+      issue_type: 'missing-optional-section',
+      expected: toDisplayName(section),
     })
   })
 

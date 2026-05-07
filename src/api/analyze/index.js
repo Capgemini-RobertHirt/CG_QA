@@ -3,6 +3,7 @@
 const { v4: uuidv4 } = require('uuid')
 const { getTemplateByEntityType, upsertAnalysisResults } = require('../lib/cosmosClient')
 const { analyzeDocumentAgainstTemplate } = require('../lib/analysisEngine')
+const { ensureQaAgentPreflight } = require('../lib/qaAgents/preflight')
 
 /**
  * POST /api/analyze
@@ -23,6 +24,8 @@ module.exports = async function analyze(context, req) {
       }
       return
     }
+
+    ensureQaAgentPreflight()
 
     // Get the quality template
     const template = await getTemplateByEntityType(entity_type)
@@ -61,6 +64,19 @@ module.exports = async function analyze(context, req) {
     }
   } catch (error) {
     context.log(`Error analyzing document: ${error.message}`)
+    if (error.code === 'qa-agent-preflight-failed') {
+      context.res = {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'QA agent preflight failed',
+          message: error.message,
+          preflight: error.preflight,
+        }),
+      }
+      return
+    }
+
     context.res = {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

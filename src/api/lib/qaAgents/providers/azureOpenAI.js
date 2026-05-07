@@ -113,6 +113,62 @@ async function requestJsonChatCompletion({ endpoint, deployment, apiVersion, api
   }
 }
 
+async function probeAzureOpenAi({ endpoint, deployment, apiVersion, apiKey, authMode, timeoutMs, mode }) {
+  const controller = new AbortController()
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const authorization = await getAuthorizationHeaders({ apiKey, authMode })
+
+    if (mode === 'auth') {
+      return {
+        ok: true,
+        authMode: authorization.authMode,
+        probeMode: 'auth',
+        message: 'Authentication headers acquired successfully.',
+      }
+    }
+
+    const response = await fetch(buildEndpointUrl({ endpoint, deployment, apiVersion }), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authorization.headers,
+      },
+      body: JSON.stringify({
+        temperature: 0,
+        max_tokens: 16,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: 'Return strict JSON with a single key ok set to true.' },
+          { role: 'user', content: 'Respond with {"ok": true}.' },
+        ],
+      }),
+      signal: controller.signal,
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Azure OpenAI request failed with ${response.status}: ${errorText}`)
+    }
+
+    return {
+      ok: true,
+      authMode: authorization.authMode,
+      probeMode: 'live',
+      message: 'Live Azure OpenAI probe succeeded.',
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(`Azure OpenAI probe timed out after ${timeoutMs}ms`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutHandle)
+  }
+}
+
 module.exports = {
   requestJsonChatCompletion,
+  probeAzureOpenAi,
 }

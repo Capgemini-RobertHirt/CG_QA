@@ -25,6 +25,12 @@ const setCachedProposals = (proposals: any[]) => {
 
 const getCachedProposalById = (id: string) => getCachedProposals().find((proposal: any) => proposal.id === id);
 
+const hasCachedAnalysisData = (proposal: any) => Boolean(
+  proposal?.analysis ||
+  proposal?.analysis_id ||
+  proposal?.analysisId
+);
+
 const toCachedProposalDetail = (proposal: any) => ({
   id: proposal.id,
   file_name: proposal.file_name || proposal.fileName || proposal.name || 'document',
@@ -35,6 +41,7 @@ const toCachedProposalDetail = (proposal: any) => ({
   analysis_id: proposal.analysis_id,
   document_type: proposal.documentType || proposal.document_type || proposal.template_type,
   entity_type: proposal.entity_type || proposal.template_type || proposal.documentType,
+  file_content: proposal.file_content || proposal.fileContent || '',
 });
 
 const toFallbackAnalysis = (proposal: any) => ({
@@ -55,6 +62,10 @@ const toFallbackAnalysis = (proposal: any) => ({
     'This view is using cached proposal data because the backend copy is not available.',
   ],
   findings: proposal.analysis?.findings || [],
+  agent_reports: proposal.analysis?.agent_reports || [],
+  annotations: proposal.analysis?.annotations || [],
+  heatmap: proposal.analysis?.heatmap || null,
+  document_excerpt: proposal.file_content || proposal.fileContent || '',
   created_at: proposal.analysis?.created_at || proposal.created_at || proposal.uploadedAt || new Date().toISOString(),
 });
 
@@ -211,11 +222,15 @@ export const api = {
   },
   
   getProposal: async (id: string) => {
+    const cachedProposal = getCachedProposalById(id);
+    if (cachedProposal && hasCachedAnalysisData(cachedProposal)) {
+      return { data: toCachedProposalDetail(cachedProposal), status: 200 };
+    }
+
     try {
       return await apiClient.get(`/api/samples/${id}`);
     } catch (error) {
       if ((error as any).response?.status === 404) {
-        const cachedProposal = getCachedProposalById(id);
         if (cachedProposal) {
           return { data: toCachedProposalDetail(cachedProposal), status: 200 };
         }
@@ -243,11 +258,15 @@ export const api = {
   analyzeProposal: (id: string) => apiClient.post(`/api/analyze/${id}`, {}),
 
   getAnalysis: async (id: string) => {
+    const cachedProposal = getCachedProposals().find((proposal: any) => proposal.analysis_id === id || proposal.id === id);
+    if (cachedProposal?.analysis) {
+      return { data: toFallbackAnalysis(cachedProposal), status: 200 };
+    }
+
     try {
       return await apiClient.get(`/api/analyze/${id}`);
     } catch (error) {
       if ((error as any).response?.status === 404) {
-        const cachedProposal = getCachedProposals().find((proposal: any) => proposal.analysis_id === id || proposal.id === id);
         if (cachedProposal) {
           return { data: toFallbackAnalysis(cachedProposal), status: 200 };
         }
@@ -316,6 +335,11 @@ export const api = {
       console.info('Backend unavailable, using mock API for health');
       return { data: await mockApi.health() };
     }
+  },
+
+  getQaAgentPreflight: async (probe?: 'auth' | 'live') => {
+    const query = probe ? `?probe=${probe}` : '';
+    return await apiClient.get(`/api/health/qa-preflight${query}`);
   },
 };
 

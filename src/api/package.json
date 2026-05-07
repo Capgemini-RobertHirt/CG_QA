@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "func start",
-    "test": "node --test tests/",
+    "test": "node --test",
     "smoke:qa-agents": "node smoke/qaAgentsSmokeTest.js"
   },
   "dependencies": {

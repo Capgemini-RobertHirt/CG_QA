@@ -32,6 +32,11 @@ function runComponentAgent({ documentContent, template }) {
       dimension: 'content',
       severity: 'minor',
       message: `Document does not show strong evidence for component '${component.componentName}' in section '${toDisplayName(component.sectionName)}'.`,
+      section: component.sectionName,
+      related_sections: [component.sectionName],
+      issue_type: 'missing-component-evidence',
+      expected: component.componentName,
+      component: component.componentId,
     })
   })
 
@@ -53,6 +58,11 @@ function runComponentAgent({ documentContent, template }) {
       detectedSignals,
       expectedComponents,
       matchedComponents,
+      missingComponents: findings.map((finding) => ({
+        section: finding.section,
+        expected: finding.expected,
+        component: finding.component,
+      })),
     },
   }
 }
