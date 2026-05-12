@@ -133,6 +133,7 @@ async function getTemplateByEntityType(entityType) {
       // Map entity type to filename
       const filenameMap = {
         'default': 'default.json',
+        'proposal': 'default.json', // proposal uses default template
         'engineering': 'engineering.json',
         'asset': 'asset.json',
         'whitepaper': 'whitepaper.json',
