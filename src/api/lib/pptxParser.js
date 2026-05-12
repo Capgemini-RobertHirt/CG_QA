@@ -3,11 +3,6 @@
 const path = require('path')
 const JSZip = require('jszip')
 const { XMLParser } = require('fast-xml-parser')
-'use strict'
-
-const path = require('path')
-const JSZip = require('jszip')
-const { XMLParser } = require('fast-xml-parser')
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
